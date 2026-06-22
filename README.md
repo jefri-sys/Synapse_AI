@@ -1,4 +1,4 @@
-# Synapse 🧠
+# Synapse 
 
 Synapse is a comprehensive, AI-powered academic management and career readiness platform built to serve as the ultimate hub for students. Developed using the **MERN stack** (MongoDB, Express, React, Node.js), this application seamlessly blends day-to-day academic tracking with powerful, long-term career preparation tools.
 
