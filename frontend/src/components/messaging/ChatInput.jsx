@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import VoiceRecorder from './VoiceRecorder';
 import api from '../../services/api';
+import { Button } from '../ui/button.jsx';
 
 const ChatInput = ({ conversationId, socket, replyTo, setReplyTo, onSendText, onUploadSuccess, uploadUrl, allowMedia = true, allowVoice = true, allowText = true }) => {
   const [inputText, setInputText] = useState('');
@@ -133,14 +134,14 @@ const ChatInput = ({ conversationId, socket, replyTo, setReplyTo, onSendText, on
   };
 
   return (
-    <div className="flex flex-col bg-white border-t relative">
+    <div className="flex flex-col bg-surface-base border-t border-brand-primary/10 relative shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)] z-30">
       {replyTo && (
-        <div className="flex items-center justify-between p-2 bg-gray-100 border-b border-gray-200">
-          <div className="flex flex-col pl-2 border-l-4 border-blue-500">
-            <span className="text-xs font-semibold text-blue-600">{replyTo.senderName}</span>
-            <span className="text-sm text-gray-600 truncate max-w-xs">{replyTo.contentPreview}</span>
+        <div className="flex items-center justify-between p-2 bg-surface-sunken border-b border-surface-border">
+          <div className="flex flex-col pl-2 border-l-4 border-brand-primary">
+            <span className="text-xs font-semibold text-brand-primary">{replyTo.senderName}</span>
+            <span className="text-sm text-text-secondary truncate max-w-xs">{replyTo.contentPreview}</span>
           </div>
-          <button type="button" onClick={() => setReplyTo(null)} className="p-1 text-gray-500 hover:text-gray-700">
+          <button type="button" onClick={() => setReplyTo(null)} className="p-1 text-text-tertiary hover:text-text-primary">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -148,10 +149,10 @@ const ChatInput = ({ conversationId, socket, replyTo, setReplyTo, onSendText, on
         </div>
       )}
       {selectedFile ? (
-        <div className="p-4 bg-gray-50 flex flex-col items-center relative">
+        <div className="p-4 bg-surface-base flex flex-col items-center relative">
           <button 
             onClick={clearFileSelection} 
-            className="absolute top-2 right-2 p-1.5 bg-gray-200 hover:bg-gray-300 rounded-full text-gray-600 transition-colors"
+            className="absolute top-2 right-2 p-1.5 bg-surface-raised hover:bg-surface-border rounded-full text-text-secondary transition-colors"
             disabled={isUploading}
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -165,11 +166,11 @@ const ChatInput = ({ conversationId, socket, replyTo, setReplyTo, onSendText, on
               <video src={filePreview.url} controls className="max-h-48 rounded-lg shadow-sm object-contain" />
             )}
             {filePreview?.type === 'document' && (
-              <div className="flex items-center space-x-3 bg-white px-6 py-4 rounded-xl shadow-sm border border-gray-100">
-                <div className="p-3 bg-blue-50 rounded-full text-blue-500">
+              <div className="flex items-center space-x-3 bg-surface-base px-6 py-4 rounded-xl shadow-sm border border-surface-border">
+                <div className="p-3 bg-brand-primary-subtle rounded-full text-brand-primary">
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                 </div>
-                <span className="font-semibold text-gray-700 truncate max-w-[200px]">{filePreview.name}</span>
+                <span className="font-semibold text-text-primary truncate max-w-[200px]">{filePreview.name}</span>
               </div>
             )}
           </div>
@@ -177,7 +178,7 @@ const ChatInput = ({ conversationId, socket, replyTo, setReplyTo, onSendText, on
           <button 
             onClick={uploadSelectedFile}
             disabled={isUploading}
-            className="px-6 py-2.5 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition-colors flex items-center shadow-md disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto justify-center"
+            className="px-6 py-2.5 bg-brand-primary text-white rounded-full font-semibold hover:bg-brand-primary transition-colors flex items-center shadow-md disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto justify-center"
           >
             {isUploading ? 'Sending...' : 'Send File'}
             {!isUploading && <svg className="w-5 h-5 ml-2 transform rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>}
@@ -186,19 +187,19 @@ const ChatInput = ({ conversationId, socket, replyTo, setReplyTo, onSendText, on
       ) : (
         <>
           {inputText.startsWith('/') && !inputText.startsWith('/plan-exam') && !inputText.startsWith('/ask ') && (
-            <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50">
-              <button type="button" onClick={() => setInputText('/ask ')} className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm border-b border-gray-100 transition-colors">
-                <span className="font-bold text-blue-600 mr-2">/ask</span> <span className="text-gray-500">[question]</span>
+            <div className="absolute bottom-full left-0 mb-2 w-64 bg-surface-base border border-surface-border rounded-xl shadow-lg overflow-hidden z-50">
+              <button type="button" onClick={() => setInputText('/ask ')} className="w-full text-left px-4 py-3 hover:bg-surface-base text-sm border-b border-surface-border transition-colors">
+                <span className="font-bold text-brand-primary mr-2">/ask</span> <span className="text-text-tertiary">[question]</span>
               </button>
-              <button type="button" onClick={() => setInputText('/plan-exam ')} className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm transition-colors">
-                <span className="font-bold text-indigo-600 mr-2">/plan-exam</span> <span className="text-gray-500">Plan your exams</span>
+              <button type="button" onClick={() => setInputText('/plan-exam ')} className="w-full text-left px-4 py-3 hover:bg-surface-base text-sm transition-colors">
+                <span className="font-bold text-brand-primary mr-2">/plan-exam</span> <span className="text-text-tertiary">Plan your exams</span>
               </button>
             </div>
           )}
 
           {inputText.startsWith('/plan-exam') && (
-            <form onSubmit={handleExamPlanSubmit} className="p-4 bg-indigo-50/50 border-b border-indigo-100 flex flex-col space-y-3 z-10 relative">
-              <div className="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center">
+            <form onSubmit={handleExamPlanSubmit} className="p-4 bg-brand-primary-subtle/50 border-b border-brand-primary/20 flex flex-col space-y-3 z-10 relative">
+              <div className="text-xs font-bold text-brand-primary uppercase tracking-wider flex items-center">
                 <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 Generate Exam Plan
               </div>
@@ -207,29 +208,29 @@ const ChatInput = ({ conversationId, socket, replyTo, setReplyTo, onSendText, on
                 required
                 value={examDate}
                 onChange={e => setExamDate(e.target.value)}
-                className="w-full p-2.5 border border-indigo-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
+                className="w-full p-2.5 border border-brand-primary/20 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-surface-base"
               />
               <input 
                 type="text" 
                 placeholder="Any specific topics or concerns? (optional)"
                 value={examContext}
                 onChange={e => setExamContext(e.target.value)}
-                className="w-full p-2.5 border border-indigo-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
+                className="w-full p-2.5 border border-brand-primary/20 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-surface-base"
               />
               <div className="flex justify-end space-x-2 pt-1">
-                <button type="button" onClick={() => setInputText('')} className="px-4 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors">Cancel</button>
-                <button type="submit" disabled={isGeneratingAI} className="px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 shadow-sm transition-colors flex items-center">
+                <button type="button" onClick={() => setInputText('')} className="px-4 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary-subtle rounded-lg transition-colors">Cancel</button>
+                <button type="submit" disabled={isGeneratingAI} className="px-4 py-2 text-sm font-medium bg-brand-primary text-white rounded-lg hover:bg-brand-primary disabled:opacity-50 shadow-sm transition-colors flex items-center">
                   {isGeneratingAI ? 'Generating...' : 'Generate Plan'}
                 </button>
               </div>
             </form>
           )}
 
-        <form onSubmit={handleSend} className="p-3 flex items-center space-x-2 z-10 relative">
-          <label className={`p-2 shrink-0 rounded-full transition-colors ${allowMedia ? 'text-gray-500 hover:text-gray-700 cursor-pointer hover:bg-gray-200' : 'text-gray-300 cursor-not-allowed'}`} title={allowMedia ? "Attach File" : "Media restricted"}>
+        <form onSubmit={handleSend} className="p-3 sm:px-4 flex items-center space-x-2 z-10 relative">
+          <label className={`p-2.5 shrink-0 rounded-full transition-colors ${allowMedia ? 'text-text-tertiary hover:text-brand-primary cursor-pointer hover:bg-brand-primary/5' : 'text-surface-border cursor-not-allowed'}`} title={allowMedia ? "Attach File" : "Media restricted"}>
             <input type="file" className="hidden" onChange={handleFileSelect} disabled={!allowMedia} />
             <svg className="w-5 h-5 transform -rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
             </svg>
           </label>
           <input 
@@ -238,19 +239,21 @@ const ChatInput = ({ conversationId, socket, replyTo, setReplyTo, onSendText, on
             onChange={handleInputChange}
             onFocus={handleFocus}
             disabled={!allowText}
-            className={`flex-grow p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100 ${!allowText ? 'opacity-50 cursor-not-allowed' : ''}`}
-            placeholder={allowText ? "Type a message..." : "Text messages are restricted"}
+            className={`flex-grow py-2.5 px-4 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-primary/40 bg-brand-primary/[0.04] border-none text-[15px] font-medium text-text-primary placeholder:text-text-tertiary transition-shadow ${!allowText ? 'opacity-50 cursor-not-allowed' : ''}`}
+            placeholder={allowText ? "Message..." : "Text messages are restricted"}
           />
           {(inputText.trim() || isGeneratingAI) ? (
-            <button 
+            <Button 
               type="submit" 
               disabled={isGeneratingAI}
-              className={`p-2 rounded-full transition-colors shrink-0 ${isGeneratingAI ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+              variant="primary"
+              shape="circular"
+              className="w-11 h-11 p-0 flex items-center justify-center shrink-0 shadow-md ml-1"
             >
               <svg className={`w-5 h-5 transform rotate-90 ${isGeneratingAI ? 'animate-pulse' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
-            </button>
+            </Button>
           ) : (
             <div className={!allowVoice ? "opacity-50 cursor-not-allowed pointer-events-none" : ""} title={!allowVoice ? "Voice restricted" : "Record voice"}>
               <VoiceRecorder 

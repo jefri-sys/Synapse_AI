@@ -18,7 +18,7 @@ export default function ResetVaultPassword() {
     return (
       <AuthLayout title="Invalid Link" subtitle="No reset token provided.">
         <div className="text-center">
-          <Link to="/login" className="text-indigo-600 font-bold hover:underline">Return to Login</Link>
+          <Link to="/login" className="text-brand-primary font-bold hover:text-brand-primary-hover">Return to Login</Link>
         </div>
       </AuthLayout>
     );
@@ -51,11 +51,11 @@ export default function ResetVaultPassword() {
     return (
       <AuthLayout title="Password Reset" subtitle="Your Vault password has been updated.">
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-50 text-green-600 mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-status-success-subtle text-status-success mb-6">
             <CheckCircle className="w-8 h-8" />
           </div>
-          <p className="text-gray-600 mb-8">You can now access your Career Vault using your new password.</p>
-          <Link to="/career" className="inline-flex items-center justify-center w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition-colors">
+          <p className="text-text-secondary mb-8">You can now access your Career Vault using your new password.</p>
+          <Link to="/career" className="inline-flex items-center justify-center w-full bg-brand-primary text-white font-bold py-3 rounded-xl hover:bg-brand-primary-hover transition-colors">
             Go to Career Vault <ArrowRight size={18} className="ml-2" />
           </Link>
         </div>

@@ -41,6 +41,14 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (user?.theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  }, [user?.theme]);
+
   const login = useCallback((userData) => {
     setUser(userData);
   }, []);

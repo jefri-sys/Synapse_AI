@@ -78,25 +78,25 @@ const Timetable = ({ semesterId }) => {
     return acc;
   }, {});
 
-  if (loading) return <div className="p-12 text-center text-slate-500">Loading timetable...</div>;
+  if (loading) return <div className="p-12 text-center text-text-secondary">Loading timetable...</div>;
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+      <div className="flex justify-between items-center bg-surface-base p-4 rounded-xl shadow-sm border border-surface-border">
         <div>
-          <h2 className="text-lg font-bold text-slate-800">Weekly Class Timetable</h2>
-          <p className="text-sm text-slate-500">Classes automatically repeat in your calendar.</p>
+          <h2 className="text-lg font-bold text-text-primary">Weekly Class Timetable</h2>
+          <p className="text-sm text-text-secondary">Classes automatically repeat in your calendar.</p>
         </div>
         <div className="flex gap-2">
           <button 
             onClick={() => setShowImportModal(true)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium hover:bg-indigo-100 transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 bg-brand-primary-subtle text-brand-primary rounded-lg text-sm font-medium hover:bg-brand-primary-subtle transition-colors"
           >
             <UploadCloud className="w-4 h-4" /> Import from PDF
           </button>
           <button 
             onClick={() => setShowAddForm(!showAddForm)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 bg-brand-primary text-white rounded-lg text-sm font-medium hover:bg-brand-primary-hover transition-colors"
           >
             <Plus className="w-4 h-4" /> Add Class
           </button>
@@ -104,15 +104,15 @@ const Timetable = ({ semesterId }) => {
       </div>
 
       {showAddForm && (
-        <form onSubmit={handleAddSlot} className="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm flex flex-wrap gap-4 items-end">
+        <form onSubmit={handleAddSlot} className="bg-surface-base p-4 rounded-xl border border-surface-border shadow-sm flex flex-wrap gap-4 items-end">
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-slate-600">Day</span>
+            <span className="text-text-secondary">Day</span>
             <select className="border p-2 rounded-md" value={newSlot.dayOfWeek} onChange={e => setNewSlot({...newSlot, dayOfWeek: e.target.value})}>
               {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
           </label>
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-slate-600">Time</span>
+            <span className="text-text-secondary">Time</span>
             <div className="flex items-center gap-1">
               <input type="time" required className="border p-2 rounded-md" value={newSlot.startTime} onChange={e => setNewSlot({...newSlot, startTime: e.target.value})} />
               <span>to</span>
@@ -120,21 +120,21 @@ const Timetable = ({ semesterId }) => {
             </div>
           </label>
           <label className="flex flex-col gap-1 text-sm flex-1 min-w-[200px]">
-            <span className="text-slate-600">Subject</span>
+            <span className="text-text-secondary">Subject</span>
             <select required className="border p-2 rounded-md" value={newSlot.subjectId} onChange={e => setNewSlot({...newSlot, subjectId: e.target.value})}>
               <option value="">Select Subject...</option>
               {subjects.map(s => <option key={s._id} value={s._id}>{s.name} ({s.code || ''})</option>)}
             </select>
           </label>
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-slate-600">Room/Venue</span>
+            <span className="text-text-secondary">Room/Venue</span>
             <input className="border p-2 rounded-md w-24" value={newSlot.room} onChange={e => setNewSlot({...newSlot, room: e.target.value})} />
           </label>
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-slate-600">Teacher</span>
+            <span className="text-text-secondary">Teacher</span>
             <input className="border p-2 rounded-md w-32" value={newSlot.teacherName} onChange={e => setNewSlot({...newSlot, teacherName: e.target.value})} />
           </label>
-          <button type="submit" className="rounded-md bg-indigo-600 px-4 py-2 text-white text-sm font-medium">Save</button>
+          <button type="submit" className="rounded-md bg-brand-primary px-4 py-2 text-white text-sm font-medium">Save</button>
         </form>
       )}
 
@@ -145,25 +145,25 @@ const Timetable = ({ semesterId }) => {
           if (day === 'Sunday' && daySlots.length === 0) return null; // Hide Sunday if empty
           
           return (
-            <div key={day} className="bg-slate-50 rounded-xl border border-slate-200 overflow-hidden flex flex-col">
-              <div className="bg-slate-200/50 p-3 border-b border-slate-200 text-center font-bold text-slate-700">
+            <div key={day} className="bg-surface-raised rounded-xl border border-surface-border overflow-hidden flex flex-col">
+              <div className="bg-surface-raised p-3 border-b border-surface-border text-center font-bold text-text-secondary">
                 {day}
               </div>
               <div className="p-3 flex-1 flex flex-col gap-3">
                 {daySlots.length === 0 ? (
-                  <div className="text-center text-sm text-slate-400 py-6 my-auto">No classes</div>
+                  <div className="text-center text-sm text-text-tertiary py-6 my-auto">No classes</div>
                 ) : (
                   daySlots.map(slot => (
-                    <div key={slot._id} className="bg-white border border-indigo-100 rounded-lg p-3 shadow-sm relative group">
+                    <div key={slot._id} className="bg-surface-base border border-surface-border rounded-lg p-3 shadow-sm relative group">
                       <button 
                         onClick={() => handleDelete(slot._id)}
-                        className="absolute top-2 right-2 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute top-2 right-2 text-text-tertiary hover:text-status-danger opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
-                      <div className="text-xs font-bold text-indigo-600 mb-1">{slot.startTime} - {slot.endTime}</div>
-                      <div className="font-semibold text-slate-800 text-sm leading-tight mb-1 pr-6">{slot.subjectId?.name || 'Unknown'}</div>
-                      <div className="text-xs text-slate-500 flex flex-col gap-0.5 mt-2">
+                      <div className="text-xs font-bold text-brand-primary mb-1">{slot.startTime} - {slot.endTime}</div>
+                      <div className="font-semibold text-text-primary text-sm leading-tight mb-1 pr-6">{slot.subjectId?.name || 'Unknown'}</div>
+                      <div className="text-xs text-text-secondary flex flex-col gap-0.5 mt-2">
                         {slot.room && <span>📍 {slot.room}</span>}
                         {slot.teacherName && <span>👨‍🏫 {slot.teacherName}</span>}
                       </div>

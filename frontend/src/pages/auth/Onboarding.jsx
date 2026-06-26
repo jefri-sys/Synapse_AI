@@ -1,602 +1,972 @@
-import { useMemo, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Plus, Trash2, FileText, Sparkles } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth.js';
-import api from '../../services/api.js';
+import {
+  Sun, Moon, GraduationCap, Calendar, Briefcase,
+  AlignLeft, MessageCircle, Receipt, FileText,
+  Brain, BookOpen, BrainCircuit, ArrowRight, AlertTriangle,
+  Users, FileCheck, CheckCircle2, Compass, Sparkles, LogIn,
+  Clock, TrendingUp, TrendingDown, PlayCircle, Book
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import api from '../../services/api';
+import { useAuth } from '../../hooks/useAuth';
 
-const budgetCategories = [
-  'Food',
-  'Transport',
-  'Books',
-  'Entertainment',
-  'Hostel',
-  'Miscellaneous',
+function TypingIndicator({ duration, children }) {
+  const [resolved, setResolved] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setResolved(true), duration * 1000);
+    return () => clearTimeout(t);
+  }, [duration]);
+
+  if (resolved) return children;
+
+  return (
+    <div className="flex gap-1 items-center p-3 rounded-2xl rounded-tr-sm bg-[var(--primary-bg)] w-[60px] h-[40px] justify-center">
+      <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 0.8, delay: 0 }} className="w-1.5 h-1.5 rounded-full bg-[var(--primary-color)]" />
+      <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 0.8, delay: 0.2 }} className="w-1.5 h-1.5 rounded-full bg-[var(--primary-color)]" />
+      <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 0.8, delay: 0.4 }} className="w-1.5 h-1.5 rounded-full bg-[var(--primary-color)]" />
+    </div>
+  )
+}
+
+const BackgroundNeurons = ({ currentScene, totalScenes }) => {
+  const finalPositions = [
+    { x: 50, y: 15 },
+    { x: 35, y: 25 }, { x: 65, y: 25 },
+    { x: 20, y: 45 }, { x: 50, y: 40 }, { x: 80, y: 45 },
+    { x: 30, y: 65 }, { x: 50, y: 60 }, { x: 70, y: 65 },
+    { x: 45, y: 80 }, { x: 55, y: 80 },
+    { x: 25, y: 85 }, { x: 75, y: 85 },
+    { x: 10, y: 60 }, { x: 90, y: 60 }
+  ];
+
+  const progress = currentScene / (totalScenes - 1);
+
+  const getPosition = (i) => {
+    const finalPos = finalPositions[i];
+    const startX = 10 + ((i * 47) % 80);
+    const startY = 10 + ((i * 61) % 80);
+
+    // Wander effect decreases as progress increases
+    const wanderX = Math.sin(i * 1.5 + currentScene) * 15 * (1 - progress);
+    const wanderY = Math.cos(i * 2.1 - currentScene) * 15 * (1 - progress);
+
+    const x = startX + (finalPos.x - startX) * progress + wanderX;
+    const y = startY + (finalPos.y - startY) * progress + wanderY;
+
+    return { x, y };
+  };
+
+  const nodes = finalPositions.map((_, i) => getPosition(i));
+  const isFinal = currentScene === totalScenes - 1;
+
+  return (
+    <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none overflow-hidden opacity-40">
+      <svg width="100%" height="100%">
+        <defs>
+          <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="var(--primary-color)" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="var(--primary-color)" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+
+        {/* Lines */}
+        {nodes.map((node, i) => {
+          return nodes.slice(i + 1).map((node2, j) => {
+            const actualJ = i + 1 + j;
+            const dist = Math.hypot(node.x - node2.x, node.y - node2.y);
+            const connectionThreshold = 35; // % distance
+
+            if (dist > connectionThreshold) return null;
+
+            const lineOpacity = Math.max(0.05, 1 - (dist / connectionThreshold)) * (isFinal ? 0.6 : 0.3);
+
+            return (
+              <motion.line
+                key={`line-${i}-${actualJ}`}
+                animate={{
+                  x1: `${node.x}%`, y1: `${node.y}%`,
+                  x2: `${node2.x}%`, y2: `${node2.y}%`,
+                  opacity: lineOpacity
+                }}
+                stroke="var(--primary-color)"
+                strokeWidth={isFinal && dist < 20 ? "2" : "1"}
+                transition={{ duration: 1.5, ease: "easeInOut" }}
+              />
+            )
+          })
+        })}
+
+        {/* Nodes */}
+        {nodes.map((node, i) => (
+          <g key={`node-${i}`}>
+            {isFinal && (
+              <motion.circle
+                animate={{ cx: `${node.x}%`, cy: `${node.y}%` }}
+                r="15"
+                fill="url(#glow)"
+                transition={{ duration: 1.5, ease: "easeInOut" }}
+              />
+            )}
+            <motion.circle
+              animate={{ cx: `${node.x}%`, cy: `${node.y}%` }}
+              r={isFinal ? "4" : "3"}
+              fill="var(--primary-color)"
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+            />
+          </g>
+        ))}
+      </svg>
+    </div>
+  );
+};
+
+const COURSES = [
+  { id: 'BCA',    label: 'BCA',    full: 'Bachelor of Computer Applications', duration: '3 years · 6 semesters' },
+  { id: 'MCA',    label: 'MCA',    full: 'Master of Computer Applications',   duration: '2 years · 4 semesters' },
+  { id: 'B.Tech', label: 'B.Tech', full: 'Bachelor of Technology',            duration: '4 years · 8 semesters' },
+  { id: 'B.Com',  label: 'B.Com',  full: 'Bachelor of Commerce',              duration: '3 years · 6 semesters' },
+  { id: 'MBA',    label: 'MBA',    full: 'Master of Business Administration', duration: '2 years · 4 semesters' },
+  { id: 'M.Tech', label: 'M.Tech', full: 'Master of Technology',              duration: '2 years · 4 semesters' },
+  { id: 'Other',  label: 'Other',  full: 'Other course',                      duration: 'Custom'               },
 ];
 
-const habitSuggestions = [
-  'Sleep 7 hours',
-  'Study 4 hours',
-  'Drink 8 glasses of water',
-];
-
-const inputClass =
-  'w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100';
+const COURSE_SEMESTERS = {
+  'BCA': 6, 'MCA': 4, 'B.Tech': 8,
+  'B.Com': 6, 'MBA': 4, 'M.Tech': 4, 'Other': 8,
+};
 
 function Onboarding() {
-  const { user, updateUser } = useAuth();
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
-  const [monthlyBudget, setMonthlyBudget] = useState(
-    user?.monthlyBudget || 5000
-  );
-  const [categorySplit, setCategorySplit] = useState(() =>
-    budgetCategories.reduce(
-      (categories, category) => ({
-        ...categories,
-        [category]: '',
-      }),
-      {}
-    )
-  );
-  const [subjects, setSubjects] = useState([
-    {
-      code: '',
-      name: '',
-      professor: '',
-    },
-  ]);
-  const [selectedHabits, setSelectedHabits] = useState(habitSuggestions);
-  const [error, setError] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [importing, setImporting] = useState(false);
-  const [extractedSlots, setExtractedSlots] = useState([]);
+  const { updateUser } = useAuth();
 
-  const budgetSplitTotal = useMemo(
-    () =>
-      Object.values(categorySplit).reduce(
-        (total, value) => total + Number(value || 0),
-        0
-      ),
-    [categorySplit]
-  );
+  // Academic Identity scene
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedSemester, setSelectedSemester] = useState(null);
+  const [collegeName, setCollegeName] = useState('');
+  const [academicSubmitting, setAcademicSubmitting] = useState(false);
+  const [academicError, setAcademicError] = useState(null);
 
-  const validSubjects = useMemo(
-    () =>
-      subjects.filter(
-        (subject) =>
-          subject.code.trim() && subject.name.trim() && subject.professor.trim()
-      ),
-    [subjects]
-  );
+  const [currentScene, setCurrentScene] = useState(0);
+  const totalScenes = 11;
+  const sceneDurations = [6200, 6000, null, null, 6400, 6600, 6800, 6800, 6400, 7200, 0];
 
-  const canProceed = step !== 2 || validSubjects.length >= 1;
+  // STRICT THEME LOGIC: No prefers-color-scheme, no inherited dark class.
+  const [theme, setTheme] = useState(() => {
+    const stored = localStorage.getItem('synapse-onboarding-theme');
+    return stored === 'dark' ? 'dark' : 'light';
+  });
 
-  const handleCategoryChange = (category, value) => {
-    setCategorySplit((current) => ({
-      ...current,
-      [category]: value,
-    }));
+  const toggleTheme = () => {
+    setTheme(current => {
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('synapse-onboarding-theme', newTheme);
+      return newTheme;
+    });
   };
 
-  const handleSubjectChange = (index, field, value) => {
-    setSubjects((current) =>
-      current.map((subject, subjectIndex) =>
-        subjectIndex === index
-          ? {
-              ...subject,
-              [field]: value,
-            }
-          : subject
-      )
-    );
-  };
-
-  const addSubject = () => {
-    setSubjects((current) => [
-      ...current,
-      {
-        code: '',
-        name: '',
-        professor: '',
-      },
-    ]);
-  };
-
-  const removeSubject = (index) => {
-    setSubjects((current) =>
-      current.length === 1
-        ? current
-        : current.filter((_, subjectIndex) => subjectIndex !== index)
-    );
-  };
-
-  const toggleHabit = (habit) => {
-    setSelectedHabits((current) =>
-      current.includes(habit)
-        ? current.filter((selectedHabit) => selectedHabit !== habit)
-        : [...current, habit]
-    );
-  };
-
-  const nextStep = () => {
-    setError('');
-
-    if (!canProceed) {
-      setError('Add at least one subject to continue.');
-      return;
-    }
-
-    setStep((current) => Math.min(current + 1, 3));
-  };
-
-  const handleTimetableImport = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      setImporting(true);
-      setError('');
-      const res = await api.post('/timetable/import', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-
-      if (res.data.success) {
-        const uniqueSubjectsMap = {};
-        res.data.slots.forEach(slot => {
-          if (slot.subjectName) {
-            uniqueSubjectsMap[slot.subjectName] = {
-              name: slot.subjectName,
-              code: slot.courseCode || '',
-              professor: slot.teacherName || ''
-            };
-          }
-        });
-
-        const extractedSubjects = Object.values(uniqueSubjectsMap);
-        if (extractedSubjects.length > 0) {
-          if (subjects.length === 1 && !subjects[0].name && !subjects[0].code) {
-             setSubjects(extractedSubjects);
-          } else {
-             setSubjects([...subjects, ...extractedSubjects]);
-          }
-          setExtractedSlots(res.data.slots);
-        } else {
-          setError('No subjects could be extracted from the timetable.');
+  useEffect(() => {
+    let timer;
+    if (sceneDurations[currentScene] === null) return; // user-input scene — never auto-advance
+    if (sceneDurations[currentScene] > 0) {
+      timer = setTimeout(() => {
+        if (currentScene < totalScenes - 1) {
+          setCurrentScene(c => c + 1);
         }
+      }, sceneDurations[currentScene]);
+    }
+    return () => clearTimeout(timer);
+  }, [currentScene]);
+
+  const nextScene = () => {
+    if (currentScene === 2) {
+      if (selectedCourse) {
+        setCurrentScene(3);
+        return;
       }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to process Timetable PDF.');
-    } finally {
-      setImporting(false);
-      e.target.value = null;
+    }
+    if (currentScene === 3) {
+      if (selectedCourse && selectedSemester && collegeName.trim()) {
+        handleAcademicContinue();
+        return;
+      }
+    }
+    if (currentScene < totalScenes - 1) {
+      setCurrentScene(c => c + 1);
+    } else {
+      completeOnboarding();
     }
   };
+
+  const prevScene = () => {
+    setCurrentScene(c => Math.max(c - 1, 0));
+  };
+
+  const handleAcademicContinue = async () => {
+    if (!selectedCourse || !selectedSemester || !collegeName.trim()) return;
+    setAcademicSubmitting(true);
+    setAcademicError(null);
+    try {
+      await api.patch('/users/profile', {
+        college: collegeName.trim(),
+        course: selectedCourse,
+        semester: selectedSemester,
+      });
+      setCurrentScene(s => s + 1);
+    } catch (err) {
+      setAcademicError(err?.response?.data?.message || 'Something went wrong. Try again.');
+    } finally {
+      setAcademicSubmitting(false);
+    }
+  };
+
+  const [isCompleting, setIsCompleting] = useState(false);
 
   const completeOnboarding = async () => {
-    setError('');
-
-    if (validSubjects.length < 1) {
-      setStep(2);
-      setError('Add at least one subject to continue.');
-      return;
-    }
-
+    if (isCompleting) return;
+    setIsCompleting(true);
     try {
-      setSaving(true);
-      
-      const createdSubjectsMap = {};
-      for (const subject of validSubjects) {
-        const res = await api.post('/subjects', subject);
-        createdSubjectsMap[subject.name] = res.data.subject._id;
+      const res = await api.patch('/users/profile', { onboardingDone: true });
+      if (updateUser && res.data && res.data.user) {
+        updateUser(res.data.user);
       }
-
-      if (extractedSlots.length > 0) {
-        try {
-          const semRes = await api.get('/semesters');
-          const activeSem = semRes.data.semesters.find(s => s.isActive);
-          if (activeSem) {
-            const finalSlots = extractedSlots.map(s => ({
-              dayOfWeek: s.dayOfWeek,
-              startTime: s.startTime,
-              endTime: s.endTime,
-              room: s.room,
-              teacherName: s.teacherName,
-              subjectId: createdSubjectsMap[s.subjectName]
-            })).filter(s => s.subjectId);
-
-            if (finalSlots.length > 0) {
-              await api.post(`/semesters/${activeSem._id}/timetable/bulk`, { slots: finalSlots });
-            }
-          }
-        } catch (timetableErr) {
-          console.error("Failed to save timetable slots during onboarding", timetableErr);
-        }
-      }
-
-      try {
-        await api.patch('/users/budget', {
-          totalBudget: Number(monthlyBudget),
-          categories: {
-            food: Number(categorySplit['Food'] || 0),
-            transport: Number(categorySplit['Transport'] || 0),
-            books: Number(categorySplit['Books'] || 0),
-            entertainment: Number(categorySplit['Entertainment'] || 0),
-            hostel: Number(categorySplit['Hostel'] || 0),
-            miscellaneous: Number(categorySplit['Miscellaneous'] || 0)
-          }
-        });
-      } catch (budgetErr) {
-        console.error("Failed to save initial budget", budgetErr);
-      }
-
-      if (selectedHabits.length > 0) {
-        try {
-          for (const habitName of selectedHabits) {
-            await api.post('/habits', { name: habitName, targetFrequency: 'daily' });
-          }
-        } catch (habitErr) {
-          console.error("Failed to save initial habits", habitErr);
-        }
-      }
-
-      const { data } = await api.patch('/users/profile', {
-        monthlyBudget: Number(monthlyBudget),
-        onboardingDone: true,
-      });
-
-      updateUser(data.user);
       navigate('/dashboard', { replace: true });
     } catch (error) {
-      setError(error.response?.data?.message || 'Could not save onboarding.');
-    } finally {
-      setSaving(false);
+      console.error('Failed to complete onboarding:', error);
+      setIsCompleting(false);
+      navigate('/dashboard', { replace: true });
     }
   };
 
-  // Animation variants
-  const pageVariants = {
-    initial: { opacity: 0, x: 20 },
-    animate: { opacity: 1, x: 0, transition: { duration: 0.4, ease: "easeOut" } },
-    exit: { opacity: 0, x: -20, transition: { duration: 0.3, ease: "easeIn" } }
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 15 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  const sceneVariants = {
+    initial: { opacity: 0, scale: 0.95 },
+    animate: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: [0.175, 0.885, 0.32, 1.275] } },
+    exit: { opacity: 0, scale: 1.02, transition: { duration: 0.4, ease: "easeInOut" } }
   };
 
   return (
-    <main className="min-h-screen relative flex items-center justify-center overflow-hidden bg-slate-50 px-4 py-8 text-slate-950">
-      {/* Background decorations */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-indigo-300/20 blur-[100px]" />
-        <div className="absolute top-[60%] -right-[10%] w-[60%] h-[60%] rounded-full bg-purple-300/20 blur-[120px]" />
+    <div id="onboarding-root" data-theme={theme} className="fixed inset-0 z-[9999] bg-[var(--bg-color)] text-[var(--text-primary)] font-sans transition-colors duration-500 overflow-hidden">
+      <style>{`
+        [data-theme="light"] {
+          --bg-color: #ffffff;
+          --text-primary: #141313;
+          --text-secondary: #5f5e60;
+          --surface-color: rgba(255, 255, 255, 0.8);
+          --border-color: rgba(0, 0, 0, 0.1);
+          --input-bg: rgba(0, 0, 0, 0.05);
+          --primary-color: #0566d9;
+          --primary-content: #ffffff;
+          --primary-bg: rgba(5, 102, 217, 0.1);
+          --bottom-gradient: linear-gradient(to top, rgba(255, 255, 255, 1) 20%, rgba(255, 255, 255, 0));
+          --c-academic: #0566d9;
+          --c-planner: #895af4;
+          --c-vault: #5516be;
+          --c-finance: #004395;
+          --c-insights: #313032;
+        }
+
+        [data-theme="dark"] {
+          --bg-color: #0e0e0e;
+          --text-primary: #e5e2e1;
+          --text-secondary: #c8c5ca;
+          --surface-color: rgba(32, 31, 31, 0.8);
+          --border-color: rgba(255, 255, 255, 0.1);
+          --input-bg: rgba(255, 255, 255, 0.05);
+          --primary-color: #adc6ff;
+          --primary-content: #002e6a;
+          --primary-bg: rgba(173, 198, 255, 0.1);
+          --bottom-gradient: linear-gradient(to top, rgba(14, 14, 14, 1) 20%, rgba(14, 14, 14, 0));
+          --c-academic: #adc6ff;
+          --c-planner: #d0bcff;
+          --c-vault: #e9ddff;
+          --c-finance: #d8e2ff;
+          --c-insights: #c8c5ca;
+        }
+
+        .syn-card {
+            background: var(--surface-color);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 0.5px solid var(--border-color);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: var(--border-color);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: var(--text-secondary);
+        }
+      `}</style>
+
+      {/* Top Nav */}
+      <nav className="fixed top-0 w-full flex justify-between items-center px-6 md:px-16 py-6 z-50 transition-colors duration-500 pointer-events-none">
+        <div className="text-2xl font-bold tracking-tighter text-[var(--text-primary)] pointer-events-auto drop-shadow-md">Synapse</div>
+        <div className="flex items-center gap-4 pointer-events-auto drop-shadow-md">
+          <button onClick={toggleTheme} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition p-2">
+            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
+          <button
+            onClick={() => setCurrentScene(totalScenes - 1)}
+            className={`text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition ml-2 ${currentScene === totalScenes - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+          >
+            Skip
+          </button>
+        </div>
+      </nav>
+
+      {/* Live Neurons Background */}
+      <BackgroundNeurons currentScene={currentScene} totalScenes={totalScenes} />
+
+      {/* Main Content Area */}
+      <main className="relative w-full h-full z-10">
+        <AnimatePresence mode="wait">
+
+          {/* Scene 1: Scattered */}
+          {currentScene === 0 && (
+            <motion.div key="scene1" variants={sceneVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden">
+              <div className="absolute inset-0 w-full h-full pointer-events-none">
+                {/* Floating abstract elements representing "scattered" life */}
+                <motion.div animate={{ y: [0, -15, 0], x: [0, 10, 0], rotate: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} className="absolute top-[15%] left-[5%] md:left-[15%] syn-card p-4 rounded-2xl opacity-60">
+                  <FileText className="w-8 h-8 text-[var(--primary-color)]" />
+                </motion.div>
+                <motion.div animate={{ y: [0, 20, 0], x: [0, -15, 0], rotate: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 0.5 }} className="absolute top-[70%] left-[10%] md:left-[20%] syn-card p-4 rounded-2xl opacity-50">
+                  <Calendar className="w-10 h-10 text-[var(--c-planner)]" />
+                </motion.div>
+                <motion.div animate={{ y: [0, -25, 0], x: [0, -10, 0], rotate: [0, 15, 0] }} transition={{ repeat: Infinity, duration: 6, ease: "easeInOut", delay: 1 }} className="absolute top-[20%] right-[5%] md:right-[20%] syn-card p-5 rounded-2xl opacity-50">
+                  <MessageCircle className="w-8 h-8 text-[var(--c-finance)]" />
+                </motion.div>
+                <motion.div animate={{ y: [0, 25, 0], x: [0, 20, 0], rotate: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 4.5, ease: "easeInOut", delay: 1.5 }} className="absolute top-[65%] right-[10%] md:right-[15%] syn-card p-4 rounded-2xl opacity-70">
+                  <Briefcase className="w-6 h-6 text-[var(--c-vault)]" />
+                </motion.div>
+                <motion.div animate={{ y: [0, -10, 0], scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut", delay: 2 }} className="absolute top-[40%] left-[2%] md:left-[8%] syn-card p-3 rounded-xl opacity-40">
+                  <AlertTriangle className="w-5 h-5 text-red-500" />
+                </motion.div>
+                <motion.div animate={{ y: [0, 15, 0], scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 5.5, ease: "easeInOut", delay: 0.8 }} className="absolute top-[45%] right-[2%] md:right-[8%] syn-card p-3 rounded-xl opacity-40">
+                  <GraduationCap className="w-7 h-7 text-[var(--c-insights)]" />
+                </motion.div>
+              </div>
+
+              <div className="z-10 text-center max-w-2xl px-6 flex flex-col items-center mt-[-10vh]">
+                <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.8, ease: "easeOut" }} className="mb-8 inline-flex items-center justify-center p-5 rounded-3xl bg-[var(--input-bg)] border border-[var(--border-color)]">
+                  <Compass className="w-10 h-10 text-[var(--primary-color)]" />
+                </motion.div>
+                <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3, duration: 0.8 }} className="text-5xl md:text-7xl font-semibold tracking-tighter text-[var(--text-primary)] mb-6">
+                  Student life is <span className="text-[var(--text-secondary)] italic">scattered.</span>
+                </motion.h1>
+                <motion.p initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.6, duration: 0.8 }} className="text-xl md:text-2xl text-[var(--text-secondary)] leading-relaxed">
+                  Notes in one app. Deadlines in another.<br className="hidden md:block" /> Chats everywhere.
+                </motion.p>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Scene 1: Real problem */}
+          {currentScene === 1 && (
+            <motion.div key="scene2" variants={sceneVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 flex flex-col items-center pt-28 pb-32 px-6 overflow-y-auto custom-scrollbar">
+              <div className="text-center max-w-3xl mb-10 shrink-0">
+                <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tighter text-[var(--text-primary)] mb-6">The science of struggle</h2>
+                <p className="text-lg text-[var(--text-secondary)] leading-relaxed">It's not a lack of effort. It's a structural failure in how we learn.</p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full max-w-6xl shrink-0">
+                {/* Card 1: Procrastination */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="syn-card p-6 md:p-8 rounded-3xl flex flex-col items-center text-center border-t-4 border-orange-500/80">
+                  <div className="inline-flex items-center justify-center p-3 rounded-full bg-orange-500/10 mb-5">
+                    <Clock className="w-6 h-6 text-orange-500" />
+                  </div>
+                  <div className="text-4xl md:text-5xl font-bold text-[var(--text-primary)] tracking-tighter mb-2">80-95%</div>
+                  <h3 className="font-display text-base font-medium text-orange-500 mb-4">Procrastination Rate</h3>
+                  <p className="text-sm text-[var(--text-secondary)] leading-relaxed text-center">Landmark meta-analytic research by Dr. Piers Steel at the University of Calgary reveals that 80% to 95% of college students procrastinate on their coursework.</p>
+                </motion.div>
+
+                {/* Card 2: 40% Drop */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="syn-card p-6 md:p-8 rounded-3xl flex flex-col items-center text-center border-t-4 border-red-500/80">
+                  <div className="inline-flex items-center justify-center p-3 rounded-full bg-red-500/10 mb-5">
+                    <TrendingDown className="w-6 h-6 text-red-500" />
+                  </div>
+                  <div className="text-4xl md:text-5xl font-bold text-[var(--text-primary)] tracking-tighter mb-2">-40%</div>
+                  <h3 className="font-display text-base font-medium text-red-500 mb-4">Productivity Drop</h3>
+                  <p className="text-sm text-[var(--text-secondary)] leading-relaxed text-center">Academic studies evaluating digital study habits show that students who constantly swap between social media and coursework experience up to a 40% drop in overall productivity.</p>
+                </motion.div>
+
+                {/* Card 3: Forgetting Curve */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="syn-card p-6 md:p-8 rounded-3xl flex flex-col items-center text-center border-t-4 border-blue-500/80">
+                  <div className="inline-flex items-center justify-center p-3 rounded-full bg-blue-500/10 mb-5">
+                    <Brain className="w-6 h-6 text-blue-500" />
+                  </div>
+                  <div className="text-4xl md:text-5xl font-bold text-[var(--text-primary)] tracking-tighter mb-2">70%</div>
+                  <h3 className="font-display text-base font-medium text-blue-500 mb-4">Information Loss</h3>
+                  <p className="text-sm text-[var(--text-secondary)] leading-relaxed text-center">Classic psychological research demonstrates that humans forget roughly 50% of new information within 20 minutes of learning it, and 70% of it within 24 hours if it is not actively reviewed.</p>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Scene 2: Academic Profile */}
+          {currentScene === 2 && (
+            <motion.div
+              key="academic-identity"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1, transition: { duration: 0.7, ease: [0.175, 0.885, 0.32, 1.275] } }}
+              exit={{ opacity: 0, scale: 1.02, transition: { duration: 0.4, ease: "easeInOut" } }}
+              className="absolute inset-0 flex flex-col items-center pt-28 pb-48 px-6 overflow-y-auto custom-scrollbar"
+            >
+              <div className="w-full max-w-4xl mx-auto flex flex-col gap-8">
+                <div className="text-center md:text-left">
+                  <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tighter text-[var(--text-primary)] mb-2">Step 1: Academic Profile</h2>
+                  <p className="text-lg text-[var(--text-secondary)] leading-relaxed">Select your current course to personalize your learning journey.</p>
+                </div>
+
+                <section>
+                  <h3 className="font-display text-sm font-semibold uppercase tracking-wider mb-6 text-[var(--text-secondary)]">Select your course</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {COURSES.map(course => (
+                      <button
+                        key={course.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedCourse(course.id);
+                          setSelectedSemester(null);
+                          setCollegeName('');
+                        }}
+                        className={`syn-card p-4 rounded-xl cursor-pointer flex flex-col items-start gap-1 text-left relative transition-all ${selectedCourse === course.id ? 'border-[var(--primary-color)] border-2 bg-[var(--primary-bg)]' : ''}`}
+                      >
+                        {selectedCourse === course.id && (
+                          <div className="absolute top-3 right-3 text-[var(--primary-color)]">
+                            <CheckCircle2 className="w-5 h-5" />
+                          </div>
+                        )}
+                        <span className="text-lg font-semibold text-[var(--text-primary)]">{course.label}</span>
+                        <span className="text-xs font-medium text-[var(--text-secondary)]">{course.full}</span>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+                
+                <div className="flex justify-center mt-6">
+                  <button type="button" onClick={() => setCurrentScene(4)} className="text-sm font-medium text-[var(--text-secondary)] underline hover:text-[var(--text-primary)] transition-all">
+                    Skip this step
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Scene 3: University Details */}
+          {currentScene === 3 && (
+            <motion.div
+              key="university-details"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1, transition: { duration: 0.7, ease: [0.175, 0.885, 0.32, 1.275] } }}
+              exit={{ opacity: 0, scale: 1.02, transition: { duration: 0.4, ease: "easeInOut" } }}
+              className="absolute inset-0 flex flex-col items-center justify-center px-6"
+            >
+              <div className="w-full max-w-2xl mx-auto flex flex-col gap-10">
+                <div className="text-center">
+                  <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tighter text-[var(--text-primary)] mb-4">Step 2: University Details</h2>
+                  <p className="text-lg text-[var(--text-secondary)] leading-relaxed">Tell us where you are studying to customize your experience.</p>
+                </div>
+
+                <div className="syn-card p-8 md:p-10 rounded-3xl w-full flex flex-col gap-8 shadow-[0_0_40px_rgba(99,102,241,0.05)] border border-[var(--border-color)] relative overflow-hidden">
+                  <div className="relative z-10 w-full">
+                    <div className="relative w-full">
+                      <input
+                        id="college-name-2"
+                        type="text"
+                        value={collegeName}
+                        onChange={e => setCollegeName(e.target.value)}
+                        placeholder=" "
+                        className="block px-5 pb-3 pt-7 w-full text-[var(--text-primary)] bg-[var(--input-bg)] rounded-xl border border-[var(--border-color)] focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] appearance-none focus:outline-none peer transition-all shadow-inner text-base"
+                      />
+                      <label htmlFor="college-name-2" className="absolute text-sm font-medium text-[var(--text-secondary)] duration-300 transform -translate-y-4 scale-75 top-5 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-[var(--primary-color)]">
+                        College / University Name
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="relative z-10 w-full">
+                    <h3 className="font-display text-sm font-semibold uppercase tracking-wider mb-4 text-[var(--text-secondary)]">Current Semester</h3>
+                    <div className="flex flex-wrap gap-3">
+                      {Array.from({ length: selectedCourse ? COURSE_SEMESTERS[selectedCourse] : 8 }, (_, i) => i + 1).map(n => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => setSelectedSemester(n)}
+                          className={`flex-1 min-w-[80px] py-3 rounded-full border transition-all font-medium text-sm text-center ${selectedSemester === n ? 'bg-[var(--primary-color)] text-white border-[var(--primary-color)] shadow-lg shadow-[var(--primary-color)]/20' : 'border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--input-bg)]'}`}
+                        >
+                          Sem {n}
+                        </button>
+                      ))}
+                    </div>
+                    {academicError && <p className="text-red-500 text-sm mt-4 text-center">{academicError}</p>}
+                  </div>
+                </div>
+                
+                <div className="flex justify-center mt-2">
+                  <button type="button" onClick={() => setCurrentScene(4)} className="text-sm font-medium text-[var(--text-secondary)] underline hover:text-[var(--text-primary)] transition-all">
+                    Skip this step
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Scene 4: Connection */}
+          {currentScene === 4 && (
+            <motion.div key="scene3" variants={sceneVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 flex flex-col items-center justify-center px-6">
+              <div className="text-center max-w-2xl mb-12">
+                <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tighter text-[var(--text-primary)] mb-6">The right tools change everything</h2>
+                <p className="text-lg text-[var(--text-secondary)] leading-relaxed">Stop fighting your scattered notes. Start using systems that work.</p>
+              </div>
+
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }} className="syn-card p-8 md:p-10 rounded-3xl max-w-3xl w-full flex flex-col md:flex-row items-center gap-10 border-2 border-green-500/20 shadow-[0_0_40px_rgba(34,197,94,0.05)]">
+                <div className="flex-1 text-center md:text-left flex flex-col items-center md:items-start border-b md:border-b-0 md:border-r border-[var(--border-color)] pb-8 md:pb-0 md:pr-10">
+                  <div className="inline-flex items-center justify-center p-4 rounded-full bg-green-500/10 mb-6">
+                    <TrendingUp className="w-10 h-10 text-green-500" />
+                  </div>
+                  <div className="text-7xl font-bold text-[var(--text-primary)] tracking-tighter mb-2">76%</div>
+                  <div className="text-xl font-medium text-green-500">Grade Improvement</div>
+                </div>
+                <div className="flex-1">
+                  <p className="text-base text-[var(--text-primary)] leading-relaxed font-medium mb-6">
+                    76% of students using specialized digital note-taking features improved their overall grades in just a single semester.
+                  </p>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 opacity-50">
+                      <FileText className="w-5 h-5 text-red-500" />
+                      <span className="line-through text-sm text-[var(--text-secondary)]">Scattered PDF highlights</span>
+                    </div>
+                    <div className="flex items-center gap-3 opacity-50">
+                      <AlignLeft className="w-5 h-5 text-red-500" />
+                      <span className="line-through text-sm text-[var(--text-secondary)]">Lost physical notebooks</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-[var(--primary-color)]" />
+                      <span className="font-medium text-sm text-[var(--text-primary)]">Unified, interactive intelligence</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+
+          {/* Scene 5: Academic Brain */}
+          {currentScene === 5 && (
+            <motion.div key="scene4" variants={sceneVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="syn-card p-8 rounded-3xl w-full max-w-md mx-4">
+                <div className="flex justify-between items-start mb-6">
+                  <h2 className="font-display text-3xl font-medium tracking-tighter text-[var(--text-primary)]">Academic Brain</h2>
+                  <BrainCircuit className="text-[var(--primary-color)] w-10 h-10" />
+                </div>
+                <div className="space-y-4">
+                  <div className="p-4 rounded-xl bg-[var(--input-bg)]">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm text-[var(--text-secondary)]">Course</span>
+                      <span className="text-xl font-medium text-[var(--text-primary)]">Data Structures</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="flex-1 p-4 rounded-xl bg-[var(--input-bg)]">
+                      <span className="block text-sm text-[var(--text-secondary)] mb-1">CGPA counts</span>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-xl font-medium text-gray-400 line-through">7.2</span>
+                        <ArrowRight className="w-4 h-4 text-[var(--primary-color)]" />
+                        <span className="text-xl font-medium text-[var(--primary-color)]">7.6</span>
+                      </div>
+                    </div>
+                    <div className="flex-1 p-4 rounded-xl bg-[var(--input-bg)]">
+                      <span className="block text-sm text-[var(--text-secondary)] mb-1">Internal mark</span>
+                      <span className="text-xl font-medium text-[var(--text-primary)]">38/40</span>
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-xl border border-red-200/50 flex items-center justify-between" style={{ background: 'rgba(239,68,68,0.05)' }}>
+                    <span className="text-sm font-medium text-red-500">Attendance 71%</span>
+                    <AlertTriangle className="w-5 h-5 text-red-500" />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Scene 6: AI Notebook */}
+          {currentScene === 6 && (
+            <motion.div key="scene5" variants={sceneVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 flex flex-col items-center justify-center px-4">
+              <div className="text-center max-w-xl mb-12">
+                <h2 className="font-display text-4xl font-semibold tracking-tighter text-[var(--text-primary)] mb-4">Your notes, but you can ask them questions</h2>
+                <p className="text-lg text-[var(--text-secondary)] leading-relaxed">Upload a lecture PDF. Synapse explains it back the way your professor taught it — not a generic internet answer.</p>
+              </div>
+              <div className="syn-card w-full max-w-[360px] p-6 rounded-3xl flex flex-col gap-4">
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--input-bg)]">
+                  <FileText className="w-6 h-6 text-[var(--primary-color)]" />
+                  <span className="text-sm font-medium text-[var(--text-primary)]">DBMS_Lecture_8.pdf</span>
+                </motion.div>
+
+                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.8 }} className="self-start max-w-[85%] p-3 rounded-2xl rounded-tl-sm bg-[var(--input-bg)] text-[var(--text-primary)] text-sm">
+                  What's the difference between 2NF and 3NF?
+                </motion.div>
+
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.0 }} className="self-end max-w-[85%] relative">
+                  <TypingIndicator duration={0.4}>
+                    <div className="p-3 rounded-2xl rounded-tr-sm bg-[var(--primary-color)] text-[var(--primary-content)] text-sm">
+                      Based on your notes: 2NF removes partial dependencies, 3NF removes transitive ones — same example your professor used with the Student table.
+                    </div>
+                  </TypingIndicator>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Scene 7: Study Groups */}
+          {currentScene === 7 && (
+            <motion.div key="scene6" variants={sceneVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 flex flex-col items-center justify-center px-4">
+              <div className="text-center max-w-xl mb-12">
+                <h2 className="font-display text-4xl font-semibold tracking-tighter text-[var(--text-primary)] mb-4">Real-time chat, built for studying</h2>
+                <p className="text-lg text-[var(--text-secondary)] leading-relaxed">Share a notebook summary straight into your group chat. No switching to WhatsApp to explain what you just learned.</p>
+              </div>
+              <div className="syn-card w-full max-w-[360px] p-0 rounded-3xl flex flex-col overflow-hidden">
+                <div className="flex items-center justify-between p-4 border-b border-[var(--border-color)] bg-[var(--bg-color)]/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[var(--primary-bg)] flex items-center justify-center">
+                      <Users className="w-5 h-5 text-[var(--primary-color)]" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-[var(--text-primary)]">DBMS Study Group</h4>
+                      <span className="text-xs text-green-500 font-medium">4 online</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 flex flex-col gap-4 bg-[var(--surface-color)]">
+                  <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="self-start max-w-[85%] p-3 rounded-2xl rounded-tl-sm bg-[var(--input-bg)] text-[var(--text-primary)] text-sm">
+                    anyone get Q3 on the assignment?
+                  </motion.div>
+
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.0 }} className="self-end max-w-[95%] relative">
+                    <TypingIndicator duration={0.6}>
+                      <div className="p-4 rounded-2xl rounded-tr-sm bg-[var(--primary-bg)] border border-[var(--primary-color)]/20 text-sm flex flex-col gap-3">
+                        <span className="text-[var(--text-primary)]">shared notebook summary</span>
+                        <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--bg-color)] border border-[var(--border-color)]">
+                          <FileText className="w-5 h-5 text-[var(--primary-color)]" />
+                          <div className="flex flex-col">
+                            <span className="text-xs font-semibold text-[var(--text-primary)]">DBMS_Lecture_8.pdf</span>
+                            <span className="text-[10px] text-[var(--text-secondary)]">Normalization</span>
+                          </div>
+                        </div>
+                      </div>
+                    </TypingIndicator>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Scene 8: Career Brain */}
+          {currentScene === 8 && (
+            <motion.div key="scene7" variants={sceneVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 flex flex-col items-center justify-center px-4">
+              <div className="text-center max-w-xl mb-8">
+                <h2 className="font-display text-4xl font-semibold tracking-tighter text-[var(--text-primary)] mb-4">A resume that gets past ATS</h2>
+                <p className="text-lg text-[var(--text-secondary)] leading-relaxed">Synapse analyzes your academic work and projects to auto-generate a tailored, high-converting resume.</p>
+              </div>
+
+              <div className="relative w-full max-w-[360px] h-[280px] flex items-center justify-center">
+
+                {/* Creating State (0 to 3s) */}
+                <motion.div
+                  initial={{ opacity: 1 }}
+                  animate={{ opacity: 0, scale: 0.95 }}
+                  transition={{ delay: 3.0, duration: 0.5 }}
+                  className="absolute inset-0 flex flex-col items-center justify-center w-full z-20 pointer-events-none"
+                >
+                  <div className="syn-card p-8 rounded-3xl w-full h-full flex flex-col items-center justify-center border border-[var(--primary-color)]/20 shadow-lg bg-[var(--bg-color)]">
+                    <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.5 }} className="mb-4">
+                      <Brain className="w-10 h-10 text-[var(--primary-color)]" />
+                    </motion.div>
+                    <h3 className="font-display text-xl font-medium text-[var(--text-primary)] mb-6">Crafting your resume...</h3>
+
+                    <div className="w-full space-y-4">
+                      <div className="flex items-center gap-3">
+                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5 }}><CheckCircle2 className="w-5 h-5 text-green-500" /></motion.div>
+                        <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }} className="text-sm text-[var(--text-secondary)]">Analyzing GitHub projects</motion.div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.2 }}><CheckCircle2 className="w-5 h-5 text-green-500" /></motion.div>
+                        <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.2 }} className="text-sm text-[var(--text-secondary)]">Extracting skills</motion.div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 2.0 }}><CheckCircle2 className="w-5 h-5 text-[var(--primary-color)]" /></motion.div>
+                        <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 2.0 }} className="text-sm text-[var(--text-primary)] font-medium">Optimizing for ATS</motion.div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Final Result (After 3.2s) */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 3.2, duration: 0.6, type: "spring" }}
+                  className="absolute inset-0 flex items-center justify-center w-full z-10"
+                >
+                  <div className="absolute w-[90%] h-full syn-card rounded-3xl -translate-y-4 scale-95 opacity-40"></div>
+                  <div className="absolute w-[95%] h-full syn-card rounded-3xl -translate-y-2 scale-100 opacity-70"></div>
+                  <div className="absolute w-full h-full p-8 syn-card rounded-3xl z-10 flex flex-col items-center justify-center text-center border border-[var(--primary-color)]/20 shadow-[0_8px_30px_rgba(5,102,217,0.15)] bg-[var(--surface-color)]">
+                    <FileCheck className="text-[var(--primary-color)] w-12 h-12 mb-4" />
+                    <h2 className="font-display text-2xl font-medium mb-4 text-[var(--text-primary)]">Resume.pdf</h2>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 bg-[var(--primary-bg)] text-[var(--primary-color)]">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span className="text-sm font-semibold">ATS 88</span>
+                    </div>
+                    <div className="flex gap-3 justify-center w-full">
+                      <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 3.6 }} className="px-3 py-1 rounded-full border border-[var(--border-color)] text-[var(--text-secondary)] text-sm">+ SQL</motion.div>
+                      <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 3.8 }} className="px-3 py-1 rounded-full border border-[var(--border-color)] text-[var(--text-secondary)] text-sm">+ Docker</motion.div>
+                    </div>
+                  </div>
+                </motion.div>
+
+              </div>
+            </motion.div>
+          )}
+
+          {/* Scene 9: Resource Explorer */}
+          {currentScene === 9 && (
+            <motion.div key="scene8_resource" variants={sceneVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 flex flex-col items-center pt-28 px-6 pb-48 overflow-y-auto custom-scrollbar">
+              <div className="text-center max-w-xl mb-8 shrink-0">
+                <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tighter text-[var(--text-primary)] mb-4">Master any topic, instantly</h2>
+                <p className="text-lg text-[var(--text-secondary)] leading-relaxed">Enter a subject. Resource Explorer generates a complete learning roadmap with curated resources, ready to export.</p>
+              </div>
+
+              <div className="syn-card p-6 md:p-8 rounded-3xl w-full max-w-2xl mx-auto flex flex-col gap-6 shrink-0">
+                {/* Input Phase */}
+                <div className="flex items-center gap-4 bg-[var(--input-bg)] p-3 md:p-4 rounded-2xl border border-[var(--border-color)]">
+                  <Compass className="w-6 h-6 text-[var(--primary-color)] shrink-0" />
+                  <div className="flex-1 overflow-hidden relative h-6">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: "100%" }}
+                      transition={{ duration: 1.5, delay: 0.5, ease: "linear" }}
+                      className="overflow-hidden whitespace-nowrap text-[var(--text-primary)] font-medium font-mono text-sm md:text-base"
+                    >
+                      I want to learn System Design...
+                    </motion.div>
+                  </div>
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 2.2 }}
+                    className="bg-[var(--primary-color)] text-[var(--primary-content)] p-2 rounded-full flex items-center justify-center shrink-0"
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                  </motion.div>
+                </div>
+
+                {/* Roadmap Building Phase */}
+                <div className="relative mt-2 pl-4 md:pl-10">
+                  {/* Line connecting nodes */}
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: "calc(100% - 24px)" }}
+                    transition={{ duration: 1.5, delay: 2.5, ease: "easeInOut" }}
+                    className="absolute roadmap-line top-5 w-[2px] bg-gradient-to-b from-[var(--primary-color)] to-[var(--c-planner)] z-0 origin-top"
+                  />
+
+                  <div className="flex flex-col gap-5 relative z-10">
+                    {/* Node 1 */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 3, duration: 0.5 }}
+                      className="flex items-center gap-4 md:gap-6 group"
+                    >
+                      <motion.div 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 3, type: "spring", stiffness: 200, damping: 20 }}
+                        whileHover={{ scale: 1.1 }}
+                        className="w-10 h-10 rounded-full bg-[var(--bg-color)] border-2 border-[var(--primary-color)] flex items-center justify-center shrink-0 relative z-10 shadow-sm transition-colors group-hover:bg-[var(--primary-color)] group-hover:text-white"
+                      >
+                        <span className="font-bold text-sm text-[var(--primary-color)] group-hover:text-white transition-colors">1</span>
+                      </motion.div>
+                      <div className="bg-[var(--bg-color)] border border-[var(--border-color)] p-4 rounded-xl flex-1 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 hover:shadow-md hover:border-[var(--primary-color)] transition-all">
+                        <div>
+                          <h4 className="font-semibold text-[var(--text-primary)] mb-0.5">Client-Server Model</h4>
+                          <p className="text-xs text-[var(--text-secondary)]">2 hrs • Foundational</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <div className="bg-red-500/10 text-red-500 text-xs font-semibold px-2.5 py-1 rounded-md flex items-center gap-1"><FileText className="w-3 h-3" /> PDF</div>
+                          <div className="bg-blue-500/10 text-blue-500 text-xs font-semibold px-2.5 py-1 rounded-md flex items-center gap-1"><PlayCircle className="w-3 h-3" /> Video</div>
+                        </div>
+                      </div>
+                    </motion.div>
+
+                    {/* Node 2 */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 3.5, duration: 0.5 }}
+                      className="flex items-center gap-4 md:gap-6 group"
+                    >
+                      <motion.div 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 3.5, type: "spring", stiffness: 200, damping: 20 }}
+                        whileHover={{ scale: 1.1 }}
+                        className="w-10 h-10 rounded-full bg-[var(--bg-color)] border-2 border-[var(--primary-color)] flex items-center justify-center shrink-0 relative z-10 shadow-sm transition-colors group-hover:bg-[var(--primary-color)] group-hover:text-white"
+                      >
+                        <span className="font-bold text-sm text-[var(--primary-color)] group-hover:text-white transition-colors">2</span>
+                      </motion.div>
+                      <div className="bg-[var(--bg-color)] border border-[var(--border-color)] p-4 rounded-xl flex-1 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 hover:shadow-md hover:border-[var(--primary-color)] transition-all">
+                        <div>
+                          <h4 className="font-semibold text-[var(--text-primary)] mb-0.5">Load Balancing</h4>
+                          <p className="text-xs text-[var(--text-secondary)]">3.5 hrs • Intermediate</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <div className="bg-green-500/10 text-green-500 text-xs font-semibold px-2.5 py-1 rounded-md flex items-center gap-1"><AlignLeft className="w-3 h-3" /> Article</div>
+                          <div className="bg-blue-500/10 text-blue-500 text-xs font-semibold px-2.5 py-1 rounded-md flex items-center gap-1"><PlayCircle className="w-3 h-3" /> Video</div>
+                        </div>
+                      </div>
+                    </motion.div>
+
+                    {/* Node 3 */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 4, duration: 0.5 }}
+                      className="flex items-center gap-4 md:gap-6 group"
+                    >
+                      <motion.div 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 4, type: "spring", stiffness: 200, damping: 20 }}
+                        whileHover={{ scale: 1.1 }}
+                        className="w-10 h-10 rounded-full bg-[var(--bg-color)] border-2 border-[var(--primary-color)] flex items-center justify-center shrink-0 relative z-10 shadow-sm transition-colors group-hover:bg-[var(--primary-color)] group-hover:text-white"
+                      >
+                        <span className="font-bold text-sm text-[var(--primary-color)] group-hover:text-white transition-colors">3</span>
+                      </motion.div>
+                      <div className="bg-[var(--bg-color)] border border-[var(--border-color)] p-4 rounded-xl flex-1 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 hover:shadow-md hover:border-[var(--primary-color)] transition-all">
+                        <div>
+                          <h4 className="font-semibold text-[var(--text-primary)] mb-0.5">Database Sharding</h4>
+                          <p className="text-xs text-[var(--text-secondary)]">4 hrs • Advanced</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <div className="bg-purple-500/10 text-purple-500 text-xs font-semibold px-2.5 py-1 rounded-md flex items-center gap-1"><Book className="w-3 h-3" /> Book</div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </div>
+                </div>
+
+                {/* Export Button */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 5 }}
+                  className="mt-2 flex justify-end"
+                >
+                  <button className="flex items-center gap-2 bg-[var(--primary-color)] text-[var(--primary-content)] px-6 py-2.5 rounded-full font-semibold text-sm shadow-[0_0_20px_rgba(5,102,217,0.3)] transition-transform hover:scale-105">
+                    <Calendar className="w-4 h-4" />
+                    Export to Planner
+                  </button>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Scene 10: Welcome Bento */}
+          {currentScene === 10 && (
+            <motion.div key="scene8" variants={sceneVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 flex flex-col items-center pt-24 pb-32 px-4 overflow-y-auto custom-scrollbar">
+              <div className="w-full max-w-4xl flex flex-col items-center mt-auto mb-auto">
+                <div className="text-center mb-10 shrink-0">
+                  <h1 className="font-display text-5xl font-semibold tracking-tighter mb-3 text-[var(--text-primary)]">This is Synapse</h1>
+                  <p className="text-lg text-[var(--text-secondary)]">Your intelligence, augmented.</p>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 w-full shrink-0">
+                  <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="syn-card p-6 rounded-3xl flex flex-col items-center justify-center text-center">
+                    <BookOpen className="w-8 h-8 mb-4 text-[var(--c-academic)]" />
+                    <h3 className="font-display text-lg font-semibold text-[var(--text-primary)]">AI Notebook</h3>
+                  </motion.div>
+                  <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="syn-card p-6 rounded-3xl flex flex-col items-center justify-center text-center border-2 border-[var(--primary-color)]">
+                    <MessageCircle className="w-8 h-8 mb-4 text-[var(--primary-color)]" />
+                    <h3 className="font-display text-lg font-semibold text-[var(--text-primary)]">Study Groups</h3>
+                  </motion.div>
+                  <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="syn-card p-6 rounded-3xl flex flex-col items-center justify-center text-center">
+                    <FileText className="w-8 h-8 mb-4 text-[var(--c-planner)]" />
+                    <h3 className="font-display text-lg font-semibold text-[var(--text-primary)]">Resume Intelligence</h3>
+                  </motion.div>
+                  <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }} className="syn-card p-6 rounded-3xl flex flex-col items-center justify-center text-center">
+                    <Compass className="w-8 h-8 mb-4 text-[var(--c-finance)]" />
+                    <h3 className="font-display text-lg font-semibold text-[var(--text-primary)]">Resource Explorer</h3>
+                  </motion.div>
+                  <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }} className="syn-card p-6 rounded-3xl flex flex-col items-center justify-center text-center">
+                    <Briefcase className="w-8 h-8 mb-4 text-[var(--c-vault)]" />
+                    <h3 className="font-display text-lg font-semibold text-[var(--text-primary)]">Career Vault</h3>
+                  </motion.div>
+                  <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.6 }} className="syn-card p-6 rounded-3xl flex flex-col items-center justify-center text-center gap-3 h-full">
+                    <Sparkles className="w-6 h-6 text-[var(--text-primary)]" />
+                    <span className="font-medium text-[var(--text-primary)]">Today Dashboard</span>
+                  </motion.div>
+                </div>
+
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="mt-16 flex justify-center w-full shrink-0 pb-12">
+                  <button onClick={completeOnboarding} className="group relative inline-flex items-center justify-center gap-3 px-10 py-5 bg-[var(--primary-color)] text-[var(--primary-content)] rounded-full font-semibold text-xl overflow-hidden transition-transform hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(5,102,217,0.3)]">
+                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out rounded-full" />
+                    <Sparkles className="w-6 h-6 relative z-10" />
+                    <span className="relative z-10">Launch Synapse</span>
+                    <ArrowRight className="w-6 h-6 relative z-10 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+
+        </AnimatePresence>
+      </main>
+
+      {/* Bottom Nav / Progress Chain */}
+      <div className="fixed bottom-0 left-0 w-full z-50 flex flex-col justify-end pointer-events-none transition-colors duration-500" style={{ background: 'var(--bottom-gradient)' }}>
+        <div className="flex justify-between items-center w-full max-w-2xl mx-auto px-4 sm:px-8 pb-8 pt-24 pointer-events-auto">
+          {/* Back Button */}
+          <div className="flex-1 flex justify-start">
+            <button type="button" onClick={prevScene} className={`text-sm font-medium text-[var(--text-secondary)] ${currentScene === 0 ? 'opacity-0 pointer-events-none' : 'opacity-50 hover:opacity-100'} transition-opacity px-2 sm:px-4 py-2`}>
+              Back
+            </button>
+          </div>
+          
+          {/* Progress Dots */}
+          <div className="flex items-center gap-1.5 sm:gap-2 justify-center">
+            {[...Array(totalScenes)].map((_, i) => (
+              <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === currentScene ? 'w-6 sm:w-8 bg-[var(--primary-color)]' : 'w-1.5 sm:w-2 bg-[var(--text-primary)] opacity-20'}`} />
+            ))}
+          </div>
+
+          {/* Next Button */}
+          <div className="flex-1 flex justify-end">
+            {currentScene < totalScenes - 1 ? (
+              <button 
+                type="button" 
+                onClick={nextScene} 
+                disabled={
+                  (currentScene === 2 && !selectedCourse) ||
+                  (currentScene === 3 && (!selectedSemester || !collegeName.trim() || academicSubmitting))
+                }
+                className="text-sm font-medium bg-[var(--bg-color)] hover:bg-[var(--primary-color)] hover:text-[var(--primary-content)] px-4 sm:px-6 py-2 rounded-full transition-all duration-300 text-[var(--primary-color)] border border-[var(--primary-color)] flex items-center justify-center min-w-[80px] sm:min-w-[100px] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {currentScene === 3 && academicSubmitting ? 'Saving...' : 'Next'}
+              </button>
+            ) : (
+              <div className="min-w-[80px] sm:min-w-[100px]" />
+            )}
+          </div>
+        </div>
       </div>
 
-      <motion.section 
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-3xl rounded-2xl border border-white/50 bg-white/80 backdrop-blur-xl p-6 shadow-2xl sm:p-10"
-      >
-        <div className="mb-8">
-          <p className="text-sm font-bold text-indigo-600 tracking-wide uppercase flex items-center gap-2">
-            <Sparkles className="w-4 h-4" /> Step {step} of 3
-          </p>
-          <h1 className="mt-2 text-3xl font-bold bg-gradient-to-br from-slate-900 to-slate-600 bg-clip-text text-transparent">
-            Finish setting up Synapse
-          </h1>
-          <p className="mt-2 text-sm leading-6 text-slate-600 font-medium">
-            These details help Synapse personalize your academic dashboard.
-          </p>
-        </div>
-
-        <div className="mb-10 flex gap-2">
-          {[1, 2, 3].map((item) => (
-            <motion.div
-              layout
-              className={`h-2 rounded-full ${
-                item <= step ? 'bg-indigo-600' : 'bg-slate-200'
-              }`}
-              style={{ flex: item === step ? 2 : 1 }}
-              key={item}
-            />
-          ))}
-        </div>
-
-        <AnimatePresence mode="wait">
-          {step === 1 && (
-            <motion.div 
-              key="step1"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              className="space-y-6"
-            >
-            <div>
-              <h2 className="text-lg font-semibold">Monthly Budget</h2>
-              <p className="mt-1 text-sm text-slate-600">
-                Add your total budget and an optional category split.
-              </p>
-            </div>
-
-            <label className="block text-sm font-medium text-slate-700">
-              Total budget
-              <input
-                className={`${inputClass} mt-2`}
-                min="0"
-                onChange={(event) => setMonthlyBudget(event.target.value)}
-                type="number"
-                value={monthlyBudget}
-              />
-            </label>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              {budgetCategories.map((category) => (
-                <label
-                  className="block text-sm font-medium text-slate-700"
-                  key={category}
-                >
-                  {category}
-                  <input
-                    className={`${inputClass} mt-2`}
-                    min="0"
-                    onChange={(event) =>
-                      handleCategoryChange(category, event.target.value)
-                    }
-                    type="number"
-                    value={categorySplit[category]}
-                  />
-                </label>
-              ))}
-            </div>
-
-            <p className="text-sm text-slate-600">
-              Category split total: Rs {budgetSplitTotal}
-            </p>
-            </motion.div>
-          )}
-
-          {step === 2 && (
-            <motion.div 
-              key="step2"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              className="space-y-6"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-bold text-slate-800">Add first subjects</h2>
-                  <p className="mt-1 text-sm text-slate-600">
-                    Add at least one subject to continue.
-                  </p>
-                </div>
-                <div className="relative">
-                  <input 
-                    type="file" 
-                    accept="application/pdf"
-                    onChange={handleTimetableImport}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                    disabled={importing}
-                  />
-                  <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="button" 
-                    className="relative flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 px-4 py-2.5 text-sm font-bold text-indigo-700 hover:shadow-md transition-all pointer-events-none overflow-hidden group"
-                  >
-                    <div className="absolute inset-0 bg-indigo-100 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300" />
-                    <span className="relative z-10 flex items-center gap-2">
-                      <FileText className="w-4 h-4" />
-                      {importing ? 'Processing AI...' : 'Auto-Import Timetable'}
-                    </span>
-                  </motion.button>
-                </div>
-              </div>
-
-              <motion.div 
-                variants={containerVariants}
-                initial="hidden"
-                animate="show"
-                className="space-y-4"
-              >
-                <AnimatePresence>
-                  {subjects.map((subject, index) => (
-                    <motion.div
-                      variants={itemVariants}
-                      layout
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9, height: 0, marginTop: 0, padding: 0, overflow: 'hidden' }}
-                      className="grid gap-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-[100px_1fr_1fr_auto] hover:border-indigo-200 transition-colors"
-                      key={index}
-                    >
-                  <label className="block text-sm font-medium text-slate-700">
-                    Code
-                    <input
-                      className={`${inputClass} mt-2`}
-                      onChange={(event) =>
-                        handleSubjectChange(index, 'code', event.target.value)
-                      }
-                      type="text"
-                      value={subject.code}
-                      placeholder="Ex: 20IMCAT"
-                    />
-                  </label>
-
-                  <label className="block text-sm font-medium text-slate-700">
-                    Name
-                    <input
-                      className={`${inputClass} mt-2`}
-                      onChange={(event) =>
-                        handleSubjectChange(index, 'name', event.target.value)
-                      }
-                      type="text"
-                      value={subject.name}
-                      placeholder="Ex: Database Management"
-                    />
-                  </label>
-
-                  <label className="block text-sm font-medium text-slate-700">
-                    Professor
-                    <input
-                      className={`${inputClass} mt-2`}
-                      onChange={(event) =>
-                        handleSubjectChange(
-                          index,
-                          'professor',
-                          event.target.value
-                        )
-                      }
-                      type="text"
-                      value={subject.professor}
-                      placeholder="Ex: LIBIN M JOSEPH"
-                    />
-                  </label>
-
-                  <button
-                    className="inline-flex items-center justify-center rounded-md border border-slate-200 px-3 py-2 text-slate-500 transition hover:bg-slate-100 sm:mt-7"
-                    onClick={() => removeSubject(index)}
-                    type="button"
-                  >
-                    <Trash2 className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </motion.div>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="inline-flex items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 px-4 py-3 text-sm font-bold text-slate-600 transition hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50/50"
-                onClick={addSubject}
-                type="button"
-              >
-                <Plus className="h-4 w-4" aria-hidden="true" />
-                Add another subject
-              </motion.button>
-            </motion.div>
-          )}
-
-          {step === 3 && (
-            <motion.div 
-              key="step3"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              className="space-y-6"
-            >
-              <div>
-                <h2 className="text-lg font-bold text-slate-800">Create first habits</h2>
-                <p className="mt-1 text-sm text-slate-600">
-                  Choose any habits you want Synapse to keep visible.
-                </p>
-              </div>
-
-              <motion.div 
-                variants={containerVariants}
-                initial="hidden"
-                animate="show"
-                className="flex flex-wrap gap-3"
-              >
-                {habitSuggestions.map((habit) => {
-                  const selected = selectedHabits.includes(habit);
-
-                  return (
-                    <motion.button
-                      variants={itemVariants}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className={`inline-flex items-center gap-2 rounded-full border-2 px-5 py-2.5 text-sm font-bold transition-all shadow-sm ${
-                        selected
-                          ? 'border-indigo-600 bg-indigo-600 text-white shadow-indigo-200'
-                          : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-slate-50'
-                      }`}
-                      key={habit}
-                      onClick={() => toggleHabit(habit)}
-                      type="button"
-                    >
-                    {selected ? <Check className="h-4 w-4" /> : null}
-                    {habit}
-                    </motion.button>
-                  );
-                })}
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {error && (
-            <motion.p 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-6 rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm font-medium text-red-700"
-            >
-              {error}
-            </motion.p>
-          )}
-        </AnimatePresence>
-
-        <div className="mt-10 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between border-t border-slate-100 pt-6">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="rounded-xl border border-slate-300 bg-white px-6 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:opacity-50"
-            disabled={step === 1 || saving}
-            onClick={() => {
-              setError('');
-              setStep((current) => Math.max(current - 1, 1));
-            }}
-            type="button"
-          >
-            Back
-          </motion.button>
-
-          {step < 3 ? (
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm shadow-indigo-200 transition-colors hover:bg-indigo-700"
-              onClick={nextStep}
-              type="button"
-            >
-              Continue
-            </motion.button>
-          ) : (
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-200 transition-all hover:from-indigo-700 hover:to-purple-700 disabled:opacity-60 flex items-center gap-2"
-              disabled={saving}
-              onClick={completeOnboarding}
-              type="button"
-            >
-              {saving && <span className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />}
-              {saving ? 'Setting up Workspace...' : 'Finish onboarding'}
-            </motion.button>
-          )}
-        </div>
-      </motion.section>
-    </main>
+    </div>
   );
 }
 

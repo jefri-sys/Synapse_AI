@@ -27,15 +27,15 @@ const userSchema = new mongoose.Schema(
     },
     college: {
       type: String,
-      required: true,
+      default: '',
     },
     course: {
       type: String,
-      required: true,
+      default: '',
     },
     semester: {
       type: Number,
-      required: true,
+      default: null,
     },
     year: {
       type: Number,

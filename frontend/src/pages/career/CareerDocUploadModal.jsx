@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { X, UploadCloud, AlertCircle } from 'lucide-react';
 import api from '../../services/api.js';
+import { Card } from '../../components/ui/card.jsx';
+import { Button } from '../../components/ui/button.jsx';
 
 const categoryOptions = [
   { label: 'Certifications', value: 'certification' },
@@ -67,30 +69,30 @@ export default function CareerDocUploadModal({ onClose, onSuccess, onError }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
-        <div className="flex justify-between items-center p-5 border-b border-gray-100">
-          <h3 className="font-bold text-gray-900 text-lg">Upload Document</h3>
-          <button onClick={onClose} disabled={uploading} className="text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50">
+      <Card className="w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="flex justify-between items-center p-5 border-b border-surface-border">
+          <h3 className="font-bold text-text-primary text-lg">Upload Document</h3>
+          <button onClick={onClose} disabled={uploading} className="text-text-tertiary hover:text-text-secondary transition-colors disabled:opacity-50">
             <X className="w-5 h-5"/>
           </button>
         </div>
 
         <form onSubmit={handleUpload} className="p-5">
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-xl text-sm flex items-start gap-2">
+            <div className="mb-4 bg-status-danger-subtle border border-status-danger/20 text-status-danger px-4 py-3 rounded-xl text-sm flex items-start gap-2">
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
               <p>{error}</p>
             </div>
           )}
 
           <div className="mb-4">
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Category *</label>
+            <label className="block text-sm font-semibold text-text-primary mb-1.5">Category *</label>
             <select
               required
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               disabled={uploading}
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-colors"
+              className="w-full bg-surface-base border border-surface-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary transition-colors text-text-primary"
             >
               <option value="" disabled>Select category...</option>
               {categoryOptions.map(cat => (
@@ -100,8 +102,8 @@ export default function CareerDocUploadModal({ onClose, onSuccess, onError }) {
           </div>
 
           <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Document *</label>
-            <div className="relative border-2 border-dashed border-gray-200 rounded-xl p-6 hover:bg-gray-50 hover:border-indigo-300 transition-colors group">
+            <label className="block text-sm font-semibold text-text-primary mb-1.5">Document *</label>
+            <div className="relative border-2 border-dashed border-surface-border rounded-xl p-6 hover:bg-surface-raised hover:border-brand-primary-subtle transition-colors group">
               <input
                 type="file"
                 required
@@ -111,11 +113,11 @@ export default function CareerDocUploadModal({ onClose, onSuccess, onError }) {
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
               />
               <div className="flex flex-col items-center justify-center text-center">
-                <UploadCloud className={`w-8 h-8 mb-2 ${file ? 'text-indigo-500' : 'text-gray-400 group-hover:text-indigo-400'}`} />
-                <span className="text-sm font-medium text-gray-900">
+                <UploadCloud className={`w-8 h-8 mb-2 ${file ? 'text-brand-primary' : 'text-text-tertiary group-hover:text-brand-primary/70'}`} />
+                <span className="text-sm font-medium text-text-primary">
                   {file ? file.name : 'Click or drag file to upload'}
                 </span>
-                <span className="text-xs text-gray-500 mt-1">
+                <span className="text-xs text-text-secondary mt-1">
                   Supports .pdf, .jpg, .png, .webp
                 </span>
               </div>
@@ -124,13 +126,13 @@ export default function CareerDocUploadModal({ onClose, onSuccess, onError }) {
 
           {uploading && (
             <div className="mb-6">
-              <div className="flex justify-between text-xs font-semibold text-gray-600 mb-2">
+              <div className="flex justify-between text-xs font-semibold text-text-secondary mb-2">
                 <span>Uploading...</span>
                 <span>{progress}%</span>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-surface-raised rounded-full h-2 overflow-hidden border border-surface-border">
                 <div 
-                  className="bg-indigo-600 h-2 rounded-full transition-all duration-300 ease-out" 
+                  className="bg-brand-primary h-full rounded-full transition-all duration-300 ease-out" 
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
@@ -138,18 +140,19 @@ export default function CareerDocUploadModal({ onClose, onSuccess, onError }) {
           )}
 
           <div className="flex justify-end gap-3 pt-2">
-            <button
+            <Button
               type="button"
               onClick={onClose}
               disabled={uploading}
-              className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50"
+              variant="outline"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={uploading || !file || !category}
-              className="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              variant="primary"
+              className="flex items-center gap-2"
             >
               {uploading ? (
                 <>
@@ -157,10 +160,10 @@ export default function CareerDocUploadModal({ onClose, onSuccess, onError }) {
                   Uploading
                 </>
               ) : 'Upload Document'}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 }

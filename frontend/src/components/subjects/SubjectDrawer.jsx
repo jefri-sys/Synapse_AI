@@ -9,6 +9,8 @@ import {
   AiFillFileExcel, AiFillFilePpt, AiFillFileZip, AiFillFile, AiFillPicture, AiFillFolder 
 } from 'react-icons/ai';
 import { subjectFileService } from '../../services/subjectFileService';
+import { Card } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
 
 export default function SubjectDrawer({ subject, isOpen, onClose }) {
   const [folders, setFolders] = useState([]);
@@ -244,25 +246,25 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
 
   const getFileIcon = (file) => {
     const type = file.fileType || '';
-    if (type.includes('pdf')) return <AiFillFilePdf className="w-[72px] h-[72px] text-red-500 drop-shadow-sm" />;
-    if (type.includes('video')) return <AiFillVideoCamera className="w-[72px] h-[72px] text-purple-500 drop-shadow-sm" />;
-    if (type.includes('word') || type.includes('document')) return <AiFillFileWord className="w-[72px] h-[72px] text-blue-500 drop-shadow-sm" />;
-    if (type.includes('excel') || type.includes('spreadsheet')) return <AiFillFileExcel className="w-[72px] h-[72px] text-green-600 drop-shadow-sm" />;
-    if (type.includes('powerpoint') || type.includes('presentation')) return <AiFillFilePpt className="w-[72px] h-[72px] text-orange-500 drop-shadow-sm" />;
-    if (type.includes('zip') || type.includes('compressed') || type.includes('rar')) return <AiFillFileZip className="w-[72px] h-[72px] text-yellow-500 drop-shadow-sm" />;
-    return <AiFillFile className="w-[72px] h-[72px] text-slate-400 drop-shadow-sm" />;
+    if (type.includes('pdf')) return <AiFillFilePdf className="w-[72px] h-[72px] text-status-danger drop-shadow-sm" />;
+    if (type.includes('video')) return <AiFillVideoCamera className="w-[72px] h-[72px] text-status-info drop-shadow-sm" />;
+    if (type.includes('word') || type.includes('document')) return <AiFillFileWord className="w-[72px] h-[72px] text-brand-primary drop-shadow-sm" />;
+    if (type.includes('excel') || type.includes('spreadsheet')) return <AiFillFileExcel className="w-[72px] h-[72px] text-status-success drop-shadow-sm" />;
+    if (type.includes('powerpoint') || type.includes('presentation')) return <AiFillFilePpt className="w-[72px] h-[72px] text-status-warning drop-shadow-sm" />;
+    if (type.includes('zip') || type.includes('compressed') || type.includes('rar')) return <AiFillFileZip className="w-[72px] h-[72px] text-status-warning drop-shadow-sm" />;
+    return <AiFillFile className="w-[72px] h-[72px] text-text-tertiary drop-shadow-sm" />;
   };
 
   const getSmallIcon = (type) => {
-    if (!type) return <AiFillFile className="w-5 h-5 text-slate-400" />;
-    if (type.includes('pdf')) return <AiFillFilePdf className="w-5 h-5 text-red-500" />;
-    if (type.includes('image')) return <AiFillPicture className="w-5 h-5 text-blue-500" />;
-    if (type.includes('video')) return <AiFillVideoCamera className="w-5 h-5 text-purple-500" />;
-    if (type.includes('word') || type.includes('document')) return <AiFillFileWord className="w-5 h-5 text-blue-500" />;
-    if (type.includes('excel') || type.includes('spreadsheet')) return <AiFillFileExcel className="w-5 h-5 text-green-600" />;
-    if (type.includes('powerpoint') || type.includes('presentation')) return <AiFillFilePpt className="w-5 h-5 text-orange-500" />;
-    if (type.includes('zip') || type.includes('compressed') || type.includes('rar')) return <AiFillFileZip className="w-5 h-5 text-yellow-500" />;
-    return <AiFillFile className="w-5 h-5 text-slate-400" />;
+    if (!type) return <AiFillFile className="w-5 h-5 text-text-tertiary" />;
+    if (type.includes('pdf')) return <AiFillFilePdf className="w-5 h-5 text-status-danger" />;
+    if (type.includes('image')) return <AiFillPicture className="w-5 h-5 text-brand-primary" />;
+    if (type.includes('video')) return <AiFillVideoCamera className="w-5 h-5 text-status-info" />;
+    if (type.includes('word') || type.includes('document')) return <AiFillFileWord className="w-5 h-5 text-brand-primary" />;
+    if (type.includes('excel') || type.includes('spreadsheet')) return <AiFillFileExcel className="w-5 h-5 text-status-success" />;
+    if (type.includes('powerpoint') || type.includes('presentation')) return <AiFillFilePpt className="w-5 h-5 text-status-warning" />;
+    if (type.includes('zip') || type.includes('compressed') || type.includes('rar')) return <AiFillFileZip className="w-5 h-5 text-status-warning" />;
+    return <AiFillFile className="w-5 h-5 text-text-tertiary" />;
   };
 
   const renderPreviewContent = () => {
@@ -282,7 +284,7 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
     
     if (type.includes('image')) {
       return (
-        <div className="relative w-full h-full flex items-center justify-center p-4 bg-gray-950">
+        <div className="relative w-full h-full flex items-center justify-center p-4 bg-surface-sunken">
           <img 
             src={url} 
             alt={previewFile.originalName} 
@@ -301,7 +303,7 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
 
     if (type.includes('video')) {
       return (
-        <div className="w-full h-full flex items-center justify-center bg-gray-950">
+        <div className="w-full h-full flex items-center justify-center bg-surface-sunken">
           <video controls src={url} className="w-full max-h-[80vh] outline-none" />
         </div>
       );
@@ -309,20 +311,20 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
 
     if (type.includes('audio')) {
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center bg-gray-950 p-8">
-          <div className="w-32 h-32 bg-gray-900 rounded-full flex items-center justify-center mb-8 shadow-xl">
-            <Music className="w-16 h-16 text-indigo-500" />
+        <div className="w-full h-full flex flex-col items-center justify-center bg-surface-sunken p-8">
+          <div className="w-32 h-32 bg-surface-sunken rounded-full flex items-center justify-center mb-8 shadow-xl">
+            <Music className="w-16 h-16 text-brand-primary" />
           </div>
           <audio controls src={url} className="w-full max-w-md outline-none" />
-          <p className="mt-6 text-gray-400 font-medium">{previewFile.originalName}</p>
+          <p className="mt-6 text-text-tertiary font-medium">{previewFile.originalName}</p>
         </div>
       );
     }
 
     if (type.includes('word') || type.includes('document') || type.includes('excel') || type.includes('spreadsheet') || type.includes('powerpoint') || type.includes('presentation')) {
       return (
-        <div className="w-full h-full flex flex-col relative bg-white">
-          <div className="bg-gray-100 text-gray-500 text-xs py-2 px-4 text-center border-b border-gray-200">
+        <div className="w-full h-full flex flex-col relative bg-surface-base">
+          <div className="bg-surface-raised text-text-secondary text-xs py-2 px-4 text-center border-b border-surface-border">
             Powered by Google Docs Viewer — large files may take a moment to load
           </div>
           <iframe 
@@ -332,10 +334,10 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
             onLoad={handleDocsLoad}
           />
           {docsError && (
-            <div className="absolute inset-0 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-8 z-10 text-center">
-              <AiFillFile className="w-16 h-16 text-slate-300 mb-4" />
-              <h3 className="text-lg font-semibold text-slate-700 mb-6">Preview unavailable — click to download</h3>
-              <a href={url} target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-md transition-colors flex items-center gap-2">
+            <div className="absolute inset-0 bg-surface-base/95 backdrop-blur-sm flex flex-col items-center justify-center p-8 z-10 text-center">
+              <AiFillFile className="w-16 h-16 text-text-tertiary mb-4" />
+              <h3 className="text-lg font-semibold text-text-primary mb-6">Preview unavailable — click to download</h3>
+              <a href={url} target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-brand-primary hover:bg-brand-primary text-white font-medium rounded-lg shadow-md transition-colors flex items-center gap-2">
                 <Download className="w-5 h-5" /> Download {previewFile.originalName}
               </a>
             </div>
@@ -346,10 +348,10 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
     
     // Unsupported
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center p-8 bg-gray-950 text-center">
-        <AiFillFile className="w-24 h-24 text-gray-800 mb-6" />
-        <h3 className="text-xl font-semibold text-gray-300 mb-8">This file type cannot be previewed</h3>
-        <a href={url} target="_blank" rel="noopener noreferrer" className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl shadow-lg transition-colors flex items-center gap-3">
+      <div className="w-full h-full flex flex-col items-center justify-center p-8 bg-surface-sunken text-center">
+        <AiFillFile className="w-24 h-24 text-text-primary mb-6" />
+        <h3 className="text-xl font-semibold text-text-tertiary mb-8">This file type cannot be previewed</h3>
+        <a href={url} target="_blank" rel="noopener noreferrer" className="px-8 py-4 bg-brand-primary hover:bg-brand-primary text-white font-medium rounded-xl shadow-lg transition-colors flex items-center gap-3">
           <Download className="w-5 h-5" /> Download File
         </a>
       </div>
@@ -367,10 +369,10 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
         <div key={folder._id} className="w-full">
           <button
             onClick={() => handleMove(folder._id)}
-            className="w-full text-left py-1.5 px-2 hover:bg-indigo-50 rounded flex items-center gap-2 text-sm text-slate-700 group transition-colors"
+            className="w-full text-left py-1.5 px-2 hover:bg-brand-primary-subtle rounded flex items-center gap-2 text-sm text-text-primary group transition-colors"
             style={{ paddingLeft: `${(depth * 1.5) + 0.5}rem` }}
           >
-            <AiFillFolder className="w-4 h-4 text-yellow-400 group-hover:text-yellow-500" />
+            <AiFillFolder className="w-4 h-4 text-status-warning group-hover:text-status-warning" />
             {folder.name}
           </button>
           {renderFolderTree(folder._id, depth + 1)}
@@ -385,55 +387,55 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
     <>
       <div className="fixed inset-0 z-50 flex" {...getRootProps()}>
         <input {...getInputProps()} />
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
+        <div className="fixed inset-0 bg-surface-sunken/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
         
         {/* Full Screen Modal */}
         <div 
-          className="relative w-full bg-white h-full shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out overflow-hidden"
+          className="relative w-full bg-surface-base h-full shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out overflow-hidden"
           onClick={(e) => { e.stopPropagation(); setContextMenu(null); }}
         >
           {isDragActive && (
-            <div className="absolute inset-0 z-10 bg-indigo-500/10 border-4 border-indigo-500 border-dashed m-4 rounded-2xl flex items-center justify-center backdrop-blur-sm pointer-events-none">
-              <div className="bg-white p-6 rounded-xl shadow-xl flex flex-col items-center">
-                <UploadCloud className="w-12 h-12 text-indigo-500 mb-3" />
-                <p className="text-lg font-bold text-slate-700">Drop files to upload</p>
-              </div>
+            <div className="absolute inset-0 z-10 bg-brand-primary/10 border-4 border-brand-primary border-dashed m-4 rounded-2xl flex items-center justify-center backdrop-blur-sm pointer-events-none">
+              <Card className="p-6 flex flex-col items-center shadow-xl border-none">
+                <UploadCloud className="w-12 h-12 text-brand-primary mb-3" />
+                <p className="text-lg font-bold text-text-primary">Drop files to upload</p>
+              </Card>
             </div>
           )}
 
           {/* Header */}
-          <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-white z-20 shadow-sm shrink-0">
+          <div className="px-6 py-4 border-b border-surface-border flex justify-between items-center bg-surface-base z-20 shadow-sm shrink-0">
             <div>
-              <h2 className="text-xl font-bold text-slate-800 tracking-tight">{subject?.code} File Explorer</h2>
-              <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">{subject?.name}</p>
+              <h2 className="text-xl font-bold text-text-primary tracking-tight">{subject?.code} File Explorer</h2>
+              <p className="text-sm font-medium text-text-secondary uppercase tracking-wide">{subject?.name}</p>
             </div>
-            <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
+            <button onClick={onClose} className="p-2 text-text-tertiary hover:text-text-secondary hover:bg-surface-raised rounded-full transition-colors">
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Breadcrumb Navigation */}
-          <div className="bg-white border-b border-gray-200 px-6 py-2.5 flex items-center gap-2 overflow-x-auto shrink-0">
+          <div className="bg-surface-base border-b border-surface-border px-6 py-2.5 flex items-center gap-2 overflow-x-auto shrink-0">
             {folderStack.length > 0 && (
               <button 
                 onClick={() => setFolderStack(prev => prev.slice(0, -1))}
-                className="flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-800 mr-2 transition-colors"
+                className="flex items-center gap-1 text-sm font-medium text-brand-primary hover:text-text-primary mr-2 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" /> Back
               </button>
             )}
             <button 
               onClick={() => setFolderStack([])}
-              className={`text-sm hover:underline whitespace-nowrap transition-colors ${folderStack.length === 0 ? 'text-slate-800 font-semibold' : 'text-indigo-600'}`}
+              className={`text-sm hover:underline whitespace-nowrap transition-colors ${folderStack.length === 0 ? 'text-text-primary font-semibold' : 'text-brand-primary'}`}
             >
               {subject?.name}
             </button>
             {folderStack.map((folder, index) => (
               <React.Fragment key={folder._id}>
-                <span className="text-slate-400 text-sm">/</span>
+                <span className="text-text-tertiary text-sm">/</span>
                 <button 
                   onClick={() => setFolderStack(folderStack.slice(0, index + 1))}
-                  className={`text-sm hover:underline whitespace-nowrap transition-colors ${index === folderStack.length - 1 ? 'text-slate-800 font-semibold' : 'text-indigo-600'}`}
+                  className={`text-sm hover:underline whitespace-nowrap transition-colors ${index === folderStack.length - 1 ? 'text-text-primary font-semibold' : 'text-brand-primary'}`}
                 >
                   {folder.name}
                 </button>
@@ -442,31 +444,32 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
           </div>
 
           {/* Content Area */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/50">
+          <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-surface-raised/50">
             {/* Toolbar */}
-            <div className="flex items-center justify-between bg-white px-4 py-3 rounded-lg border border-gray-200 shadow-sm shrink-0">
-              <span className="text-sm font-medium text-slate-600">
+            <div className="flex items-center justify-between bg-surface-base px-4 py-3 rounded-lg border border-surface-border shadow-sm shrink-0">
+              <span className="text-sm font-medium text-text-secondary">
                 {folders.length} {folders.length === 1 ? 'folder' : 'folders'}, {files.length} {files.length === 1 ? 'file' : 'files'}
               </span>
               <div className="flex items-center gap-2">
-                <button 
+                <Button 
                   onClick={() => {
                     setCreatingFolder(true);
                     setTimeout(() => createInputRef.current?.focus(), 50);
                   }}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-slate-700 text-sm font-medium rounded-md transition-colors mr-2 shadow-sm"
+                  variant="outline"
+                  className="gap-2 px-3 py-1.5 text-sm h-auto mr-2 shadow-sm"
                 >
                   <FolderPlus className="w-4 h-4" /> New Folder
-                </button>
+                </Button>
                 <div {...getCompactRootProps()} className="cursor-pointer">
                   <input {...getCompactInputProps()} />
-                  <button className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-medium rounded-md transition-colors mr-2 shadow-sm">
+                  <Button variant="secondary" className="gap-2 px-3 py-1.5 text-sm h-auto mr-2 shadow-sm">
                     <UploadCloud className="w-4 h-4" /> Upload File
-                  </button>
+                  </Button>
                 </div>
-                <div className="flex bg-slate-100 p-1 rounded-lg">
-                  <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}><LayoutGrid className="w-4 h-4" /></button>
-                  <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}><List className="w-4 h-4" /></button>
+                <div className="flex bg-surface-raised p-1 rounded-lg">
+                  <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-surface-base shadow-sm text-brand-primary' : 'text-text-secondary hover:text-text-primary'}`}><LayoutGrid className="w-4 h-4" /></button>
+                  <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-surface-base shadow-sm text-brand-primary' : 'text-text-secondary hover:text-text-primary'}`}><List className="w-4 h-4" /></button>
                 </div>
               </div>
             </div>
@@ -475,12 +478,12 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
             {Object.keys(uploadingFiles).length > 0 && (
               <div className="space-y-3 shrink-0">
                 {Object.entries(uploadingFiles).map(([name, progress]) => (
-                  <div key={name} className="bg-white border border-blue-100 p-3 rounded-lg shadow-sm">
+                  <div key={name} className="bg-surface-base border border-brand-primary-subtle p-3 rounded-lg shadow-sm">
                     <div className="flex justify-between text-xs mb-2">
-                      <span className="font-medium text-slate-700 truncate mr-4">{name}</span>
-                      <span className="text-indigo-600 font-semibold">{progress}%</span>
+                      <span className="font-medium text-text-primary truncate mr-4">{name}</span>
+                      <span className="text-brand-primary font-semibold">{progress}%</span>
                     </div>
-                    <div className="w-full bg-slate-100 rounded-full h-1.5"><div className="bg-indigo-500 h-1.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} /></div>
+                    <div className="w-full bg-surface-raised rounded-full h-1.5"><div className="bg-brand-primary h-1.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} /></div>
                   </div>
                 ))}
               </div>
@@ -488,8 +491,8 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
 
             {/* Grid / List View */}
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-16 text-slate-400">
-                <Loader2 className="w-8 h-8 animate-spin mb-3 text-indigo-500" />
+              <div className="flex flex-col items-center justify-center py-16 text-text-tertiary">
+                <Loader2 className="w-8 h-8 animate-spin mb-3 text-brand-primary" />
                 <p className="text-sm">Loading contents...</p>
               </div>
             ) : folders.length > 0 || files.length > 0 || creatingFolder ? (
@@ -499,7 +502,7 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
                   {creatingFolder && (
                     <div className="relative border border-transparent rounded p-2 flex flex-col items-center w-28 h-32">
                       <div className="mb-1 flex items-center justify-center h-[76px] w-full">
-                        <AiFillFolder className="w-[72px] h-[72px] text-yellow-400 drop-shadow-sm" />
+                        <AiFillFolder className="w-[72px] h-[72px] text-status-warning drop-shadow-sm" />
                       </div>
                       <form onSubmit={handleCreateFolder} className="w-full px-0.5">
                         <input
@@ -509,7 +512,7 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
                           onChange={(e) => setNewFolderName(e.target.value)}
                           onBlur={() => setCreatingFolder(false)}
                           onKeyDown={(e) => { if (e.key === 'Escape') setCreatingFolder(false); }}
-                          className="w-full text-[12px] text-center border border-indigo-400 rounded px-1 py-0.5 outline-none shadow-sm focus:ring-1 focus:ring-indigo-500"
+                          className="w-full text-[12px] text-center border border-brand-primary rounded px-1 py-0.5 outline-none shadow-sm focus:ring-1 focus:ring-brand-primary"
                         />
                       </form>
                     </div>
@@ -525,7 +528,7 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
                       onDragLeave={handleDragLeave}
                       onDrop={(e) => handleDrop(e, folder._id)}
                       className={`relative border rounded p-2 transition-all cursor-pointer group flex flex-col items-center w-28 h-32
-                        ${dragOverFolderId === folder._id ? 'bg-blue-50 border-blue-400 border-2' : 'border-transparent hover:bg-blue-100/40 hover:border-blue-200'}
+                        ${dragOverFolderId === folder._id ? 'bg-brand-primary-subtle border-brand-primary border-2' : 'border-transparent hover:bg-brand-primary-subtle/40 hover:border-brand-primary-subtle'}
                       `}
                       onClick={() => {
                         if (renamingItem?.id !== folder._id) {
@@ -539,7 +542,7 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
                       }}
                     >
                       <div className="mb-1 flex items-center justify-center h-[76px] w-full">
-                        <AiFillFolder className="w-[72px] h-[72px] text-yellow-400 drop-shadow-sm" />
+                        <AiFillFolder className="w-[72px] h-[72px] text-status-warning drop-shadow-sm" />
                       </div>
                       <div className="w-full px-0.5">
                         {renamingItem?.id === folder._id ? (
@@ -551,17 +554,17 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
                               onChange={(e) => setRenamingItem({ ...renamingItem, currentName: e.target.value })}
                               onBlur={() => setRenamingItem(null)}
                               onKeyDown={(e) => { if (e.key === 'Escape') setRenamingItem(null); }}
-                              className="w-full text-[12px] text-center border border-indigo-400 rounded px-1 py-0.5 outline-none"
+                              className="w-full text-[12px] text-center border border-brand-primary rounded px-1 py-0.5 outline-none"
                             />
                           </form>
                         ) : (
-                          <p className="text-[12px] text-slate-800 text-center leading-snug line-clamp-2 w-full break-words group-hover:text-blue-900 transition-colors">
+                          <p className="text-[12px] text-text-primary text-center leading-snug line-clamp-2 w-full break-words group-hover:text-brand-primary-hover transition-colors">
                             {folder.name}
                           </p>
                         )}
                       </div>
                       <button 
-                        className="absolute top-2 right-2 p-1 text-slate-400 opacity-0 group-hover:opacity-100 hover:text-slate-700 hover:bg-slate-200 rounded transition-all"
+                        className="absolute top-2 right-2 p-1 text-text-tertiary opacity-0 group-hover:opacity-100 hover:text-text-primary hover:bg-surface-border rounded transition-all"
                         onClick={(e) => { e.stopPropagation(); setContextMenu({ x: e.clientX, y: e.clientY, item: folder, type: 'folder' }); }}
                       >
                         <MoreVertical className="w-4 h-4" />
@@ -575,7 +578,7 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
                       key={file._id} 
                       draggable={renamingItem?.id !== file._id}
                       onDragStart={(e) => handleDragStart(e, file, 'file')}
-                      className="relative border border-transparent rounded p-2 hover:bg-blue-100/40 hover:border-blue-200 transition-all cursor-pointer group flex flex-col items-center w-28 h-32"
+                      className="relative border border-transparent rounded p-2 hover:bg-brand-primary-subtle/40 hover:border-brand-primary-subtle transition-all cursor-pointer group flex flex-col items-center w-28 h-32"
                       onClick={() => { if (renamingItem?.id !== file._id) setPreviewFile(file); }}
                       onContextMenu={(e) => {
                         e.preventDefault();
@@ -596,17 +599,17 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
                               onChange={(e) => setRenamingItem({ ...renamingItem, currentName: e.target.value })}
                               onBlur={() => setRenamingItem(null)}
                               onKeyDown={(e) => { if (e.key === 'Escape') setRenamingItem(null); }}
-                              className="w-full text-[12px] text-center border border-indigo-400 rounded px-1 py-0.5 outline-none"
+                              className="w-full text-[12px] text-center border border-brand-primary rounded px-1 py-0.5 outline-none"
                             />
                           </form>
                         ) : (
-                          <p className="text-[12px] text-slate-800 text-center leading-snug line-clamp-2 w-full break-words group-hover:text-blue-900 transition-colors" title={file.originalName}>
+                          <p className="text-[12px] text-text-primary text-center leading-snug line-clamp-2 w-full break-words group-hover:text-brand-primary-hover transition-colors" title={file.originalName}>
                             {file.originalName}
                           </p>
                         )}
                       </div>
                       <button 
-                        className="absolute top-2 right-2 p-1 text-slate-400 opacity-0 group-hover:opacity-100 hover:text-slate-700 hover:bg-slate-200 rounded transition-all"
+                        className="absolute top-2 right-2 p-1 text-text-tertiary opacity-0 group-hover:opacity-100 hover:text-text-primary hover:bg-surface-border rounded transition-all"
                         onClick={(e) => { e.stopPropagation(); setContextMenu({ x: e.clientX, y: e.clientY, item: file, type: 'file' }); }}
                       >
                         <MoreVertical className="w-4 h-4" />
@@ -615,23 +618,23 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
                   ))}
                 </div>
               ) : (
-                <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <Card className="p-0 overflow-hidden shadow-sm">
                   <div className="divide-y divide-gray-100">
                     {folders.map(folder => (
                       <div 
                         key={folder._id}
-                        className="flex items-center gap-4 p-3 hover:bg-blue-50 cursor-pointer transition-colors group relative"
+                        className="flex items-center gap-4 p-3 hover:bg-brand-primary-subtle cursor-pointer transition-colors group relative"
                         onClick={() => setFolderStack([...folderStack, { _id: folder._id, name: folder.name }])}
                         onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setContextMenu({ x: e.clientX, y: e.clientY, item: folder, type: 'folder' }); }}
                       >
-                        <div className="shrink-0 p-1.5 bg-slate-50 rounded-lg border border-slate-100">
-                          <AiFillFolder className="w-5 h-5 text-yellow-400" />
+                        <div className="shrink-0 p-1.5 bg-surface-raised rounded-lg border border-surface-border">
+                          <AiFillFolder className="w-5 h-5 text-status-warning" />
                         </div>
                         <div className="min-w-0 flex-1 flex items-center">
-                          <h4 className="text-sm font-semibold text-slate-800 truncate">{folder.name}</h4>
+                          <h4 className="text-sm font-semibold text-text-primary truncate">{folder.name}</h4>
                         </div>
                         <button 
-                          className="p-1.5 text-slate-400 opacity-0 group-hover:opacity-100 hover:text-slate-700 hover:bg-slate-200 rounded transition-all shrink-0"
+                          className="p-1.5 text-text-tertiary opacity-0 group-hover:opacity-100 hover:text-text-primary hover:bg-surface-border rounded transition-all shrink-0"
                           onClick={(e) => { e.stopPropagation(); setContextMenu({ x: e.clientX - 100, y: e.clientY, item: folder, type: 'folder' }); }}
                         >
                           <MoreVertical className="w-4 h-4" />
@@ -641,22 +644,22 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
                     {files.map(file => (
                       <div 
                         key={file._id}
-                        className="flex items-center gap-4 p-3 hover:bg-blue-50 cursor-pointer transition-colors group relative"
+                        className="flex items-center gap-4 p-3 hover:bg-brand-primary-subtle cursor-pointer transition-colors group relative"
                         onClick={() => setPreviewFile(file)}
                         onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setContextMenu({ x: e.clientX, y: e.clientY, item: file, type: 'file' }); }}
                       >
-                        <div className="shrink-0 p-1.5 bg-slate-50 rounded-lg border border-slate-100">
+                        <div className="shrink-0 p-1.5 bg-surface-raised rounded-lg border border-surface-border">
                           {getSmallIcon(file.fileType)}
                         </div>
                         <div className="min-w-0 flex-1 flex justify-between gap-4">
-                          <h4 className="text-sm font-semibold text-slate-800 truncate">{file.originalName}</h4>
-                          <div className="flex items-center gap-4 text-xs text-slate-400 whitespace-nowrap">
+                          <h4 className="text-sm font-semibold text-text-primary truncate">{file.originalName}</h4>
+                          <div className="flex items-center gap-4 text-xs text-text-tertiary whitespace-nowrap">
                             <span>{formatSize(file.fileSize)}</span>
                             <span>{new Date(file.uploadedAt).toLocaleDateString()}</span>
                           </div>
                         </div>
                         <button 
-                          className="p-1.5 text-slate-400 opacity-0 group-hover:opacity-100 hover:text-slate-700 hover:bg-slate-200 rounded transition-all shrink-0"
+                          className="p-1.5 text-text-tertiary opacity-0 group-hover:opacity-100 hover:text-text-primary hover:bg-surface-border rounded transition-all shrink-0"
                           onClick={(e) => { e.stopPropagation(); setContextMenu({ x: e.clientX - 100, y: e.clientY, item: file, type: 'file' }); }}
                         >
                           <MoreVertical className="w-4 h-4" />
@@ -664,19 +667,19 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
                       </div>
                     ))}
                   </div>
-                </div>
+                </Card>
               )
             ) : (
               <div 
                 {...getCompactRootProps()} 
-                className="flex flex-col items-center justify-center py-20 px-4 bg-white border border-gray-200 border-dashed rounded-xl text-center shadow-sm cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/50 transition-colors"
+                className="flex flex-col items-center justify-center py-20 px-4 bg-surface-base border border-surface-border border-dashed rounded-xl text-center shadow-sm cursor-pointer hover:border-brand-primary hover:bg-brand-primary-subtle/50 transition-colors"
               >
                 <input {...getCompactInputProps()} />
-                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                  <UploadCloud className="w-8 h-8 text-slate-400" />
+                <div className="w-16 h-16 bg-surface-raised rounded-full flex items-center justify-center mb-4">
+                  <UploadCloud className="w-8 h-8 text-text-tertiary" />
                 </div>
-                <h4 className="text-base font-semibold text-slate-800">This folder is empty</h4>
-                <p className="text-sm text-slate-500 mt-1 max-w-sm">Drag and drop files here, or click to upload</p>
+                <h4 className="text-base font-semibold text-text-primary">This folder is empty</h4>
+                <p className="text-sm text-text-secondary mt-1 max-w-sm">Drag and drop files here, or click to upload</p>
               </div>
             )}
           </div>
@@ -685,30 +688,30 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
         {/* Context Menu */}
         {contextMenu && (
           <div 
-            className="fixed z-[10000] bg-white border border-gray-200 rounded-lg shadow-xl py-1 w-48 overflow-hidden animate-in fade-in zoom-in-95 duration-100"
+            className="fixed z-[10000] bg-surface-base border border-surface-border rounded-lg shadow-xl py-1 w-48 overflow-hidden animate-in fade-in zoom-in-95 duration-100"
             style={{ top: Math.min(contextMenu.y, window.innerHeight - 150), left: Math.min(contextMenu.x, window.innerWidth - 200) }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-3 py-2 border-b border-gray-100 mb-1">
-              <p className="text-xs font-semibold text-slate-700 truncate">{contextMenu.item.name || contextMenu.item.originalName}</p>
+            <div className="px-3 py-2 border-b border-surface-border mb-1">
+              <p className="text-xs font-semibold text-text-primary truncate">{contextMenu.item.name || contextMenu.item.originalName}</p>
             </div>
             {contextMenu.type === 'file' && (
               <>
-                <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 flex items-center gap-2" onClick={() => { setPreviewFile(contextMenu.item); setContextMenu(null); }}>
+                <button className="w-full text-left px-4 py-2 text-sm text-text-primary hover:bg-brand-primary-subtle flex items-center gap-2" onClick={() => { setPreviewFile(contextMenu.item); setContextMenu(null); }}>
                   <AiFillFile className="w-4 h-4" /> Open
                 </button>
-                <a href={contextMenu.item.fileUrl} target="_blank" rel="noopener noreferrer" className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 flex items-center gap-2" onClick={() => setContextMenu(null)}>
+                <a href={contextMenu.item.fileUrl} target="_blank" rel="noopener noreferrer" className="w-full text-left px-4 py-2 text-sm text-text-primary hover:bg-brand-primary-subtle flex items-center gap-2" onClick={() => setContextMenu(null)}>
                   <Download className="w-4 h-4" /> Download
                 </a>
               </>
             )}
-            <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 flex items-center gap-2" onClick={() => { setRenamingItem({ id: contextMenu.item._id, type: contextMenu.type, currentName: contextMenu.item.name || contextMenu.item.originalName }); setContextMenu(null); }}>
+            <button className="w-full text-left px-4 py-2 text-sm text-text-primary hover:bg-brand-primary-subtle flex items-center gap-2" onClick={() => { setRenamingItem({ id: contextMenu.item._id, type: contextMenu.type, currentName: contextMenu.item.name || contextMenu.item.originalName }); setContextMenu(null); }}>
               <Edit2 className="w-4 h-4" /> Rename
             </button>
-            <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 flex items-center gap-2" onClick={() => openMoveModal(contextMenu.item, contextMenu.type)}>
+            <button className="w-full text-left px-4 py-2 text-sm text-text-primary hover:bg-brand-primary-subtle flex items-center gap-2" onClick={() => openMoveModal(contextMenu.item, contextMenu.type)}>
               <CornerUpRight className="w-4 h-4" /> Move
             </button>
-            <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2" onClick={() => handleDelete(contextMenu.item._id, contextMenu.type)}>
+            <button className="w-full text-left px-4 py-2 text-sm text-status-danger hover:bg-status-danger-subtle flex items-center gap-2" onClick={() => handleDelete(contextMenu.item._id, contextMenu.type)}>
               <Trash2 className="w-4 h-4" /> Delete
             </button>
           </div>
@@ -717,24 +720,24 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
         {/* Move Modal */}
         {moveItem && (
           <div className="fixed inset-0 z-[10001] bg-black/50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden max-h-[80vh]">
-              <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
-                <h3 className="font-semibold text-slate-800 truncate">Move: {moveItem.name}</h3>
-                <button onClick={() => setMoveItem(null)} className="p-1 hover:bg-slate-100 rounded text-slate-500"><X className="w-5 h-5"/></button>
+            <div className="bg-surface-base rounded-xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden max-h-[80vh]">
+              <div className="px-5 py-4 border-b border-surface-border flex justify-between items-center">
+                <h3 className="font-semibold text-text-primary truncate">Move: {moveItem.name}</h3>
+                <button onClick={() => setMoveItem(null)} className="p-1 hover:bg-surface-raised rounded text-text-secondary"><X className="w-5 h-5"/></button>
               </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-1">
                 {loadingMoveTree ? (
-                  <p className="text-sm text-slate-500 text-center py-4">Loading folders...</p>
+                  <p className="text-sm text-text-secondary text-center py-4">Loading folders...</p>
                 ) : (
                   <>
                     <button
                       onClick={() => handleMove(null)}
-                      className="w-full text-left py-2 px-3 hover:bg-indigo-50 rounded flex items-center gap-2 text-sm font-medium text-slate-800 transition-colors border border-transparent hover:border-indigo-100"
+                      className="w-full text-left py-2 px-3 hover:bg-brand-primary-subtle rounded flex items-center gap-2 text-sm font-medium text-text-primary transition-colors border border-transparent hover:border-brand-primary-subtle"
                     >
-                      <LayoutGrid className="w-4 h-4 text-slate-500" />
+                      <LayoutGrid className="w-4 h-4 text-text-secondary" />
                       Root Level
                     </button>
-                    <div className="my-2 border-t border-gray-100" />
+                    <div className="my-2 border-t border-surface-border" />
                     {renderFolderTree(null, 0)}
                   </>
                 )}
@@ -748,26 +751,26 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
       {previewFile && (
         <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setPreviewFile(null)} />
-          <div className={`relative bg-gray-950 flex flex-col shadow-2xl transition-all duration-300 overflow-hidden ${isFullscreen ? 'fixed inset-0 rounded-none w-full h-full' : 'w-[95vw] h-[95vh] rounded-2xl'}`}>
-            <div className="bg-gray-900 text-white px-4 py-3 flex items-center justify-between shrink-0 z-10">
+          <div className={`relative bg-surface-sunken flex flex-col shadow-2xl transition-all duration-300 overflow-hidden ${isFullscreen ? 'fixed inset-0 rounded-none w-full h-full' : 'w-[95vw] h-[95vh] rounded-2xl'}`}>
+            <div className="bg-surface-sunken text-white px-4 py-3 flex items-center justify-between shrink-0 z-10">
               <div className="flex items-center gap-3 overflow-hidden pr-4">
                 {getSmallIcon(previewFile.fileType)}
                 <h2 className="text-base font-medium truncate" title={previewFile.originalName}>{previewFile.originalName}</h2>
               </div>
               <div className="flex items-center gap-1 shrink-0">
-                <a href={previewFile.fileUrl} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium mr-2">
+                <a href={previewFile.fileUrl} target="_blank" rel="noopener noreferrer" className="p-2 text-text-tertiary hover:text-white hover:bg-surface-sunken rounded-lg transition-colors flex items-center gap-2 text-sm font-medium mr-2">
                   <Download className="w-5 h-5" />
                   <span className="hidden sm:inline">Download</span>
                 </a>
-                <button onClick={() => setIsFullscreen(!isFullscreen)} className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
+                <button onClick={() => setIsFullscreen(!isFullscreen)} className="p-2 text-text-tertiary hover:text-white hover:bg-surface-sunken rounded-lg transition-colors">
                   {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
                 </button>
-                <button onClick={() => setPreviewFile(null)} className="p-2 text-gray-400 hover:text-white hover:bg-red-500/20 hover:text-red-400 rounded-lg transition-colors ml-1">
+                <button onClick={() => setPreviewFile(null)} className="p-2 text-text-tertiary hover:text-white hover:bg-status-danger/20 hover:text-status-danger rounded-lg transition-colors ml-1">
                   <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
-            <div className="flex-1 overflow-hidden relative bg-gray-950">
+            <div className="flex-1 overflow-hidden relative bg-surface-sunken">
               {renderPreviewContent()}
             </div>
           </div>

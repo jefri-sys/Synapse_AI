@@ -14,6 +14,8 @@ const useVoiceCall = (socket, currentUserId) => {
   const streamRef = useRef(null);
   const mediaRef = useRef(null); 
   const pendingOfferRef = useRef(null);
+  const pendingCandidatesRef = useRef([]);
+  const [remoteStream, setRemoteStream] = useState(null);
 
   useEffect(() => {
     if (!socket) return;
@@ -60,6 +62,8 @@ const useVoiceCall = (socket, currentUserId) => {
         } catch (e) {
           console.error('Error adding ICE candidate', e);
         }
+      } else {
+        pendingCandidatesRef.current.push(candidate);
       }
     };
 
@@ -105,8 +109,11 @@ const useVoiceCall = (socket, currentUserId) => {
 
     pc.ontrack = (event) => {
       setCallStatus('connected');
-      if (mediaRef.current) {
-        mediaRef.current.srcObject = event.streams[0];
+      if (event.streams && event.streams[0]) {
+        setRemoteStream(event.streams[0]);
+        if (mediaRef.current) {
+          mediaRef.current.srcObject = event.streams[0];
+        }
       }
     };
 
@@ -166,6 +173,11 @@ const useVoiceCall = (socket, currentUserId) => {
       if (pendingOfferRef.current) {
         await pc.setRemoteDescription(new RTCSessionDescription(pendingOfferRef.current));
         pendingOfferRef.current = null;
+        
+        for (const candidate of pendingCandidatesRef.current) {
+          await pc.addIceCandidate(new RTCIceCandidate(candidate));
+        }
+        pendingCandidatesRef.current = [];
       }
 
       const answer = await pc.createAnswer();
@@ -219,6 +231,8 @@ const useVoiceCall = (socket, currentUserId) => {
     setActiveConvId(null);
     setIsCaller(false);
     pendingOfferRef.current = null;
+    pendingCandidatesRef.current = [];
+    setRemoteStream(null);
   };
 
   return {
@@ -231,7 +245,8 @@ const useVoiceCall = (socket, currentUserId) => {
     endCall,
     mediaRef,
     micError,
-    streamRef
+    streamRef,
+    remoteStream
   };
 };
 

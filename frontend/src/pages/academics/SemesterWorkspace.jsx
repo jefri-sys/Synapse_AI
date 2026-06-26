@@ -9,17 +9,17 @@ const SemesterWorkspace = ({ semesterId, onBack }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4 border-b border-slate-200 pb-4">
+      <div className="flex items-center gap-4 border-b border-surface-border pb-4">
         <button 
           onClick={onBack}
-          className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+          className="p-2 text-text-tertiary hover:text-text-primary hover:bg-surface-raised rounded-lg transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h2 className="text-xl font-bold text-slate-800">Semester Workspace</h2>
+        <h2 className="text-xl font-bold text-text-primary">Semester Workspace</h2>
       </div>
 
-      <div className="flex space-x-1 rounded-xl bg-slate-100 p-1">
+      <div className="flex space-x-1 rounded-xl bg-surface-raised p-1">
         <button
           className={`flex-1 rounded-lg py-2.5 text-sm font-medium leading-5 transition-all ${
             activeTab === 'subjects'

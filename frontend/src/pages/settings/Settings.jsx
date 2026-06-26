@@ -3,15 +3,21 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   User, Lock, Bell, Moon, Sun, 
-  AlertTriangle, Upload, Trash2, Edit2, Save, X, ArrowLeft, Sparkles
+  AlertTriangle, Upload, Trash2, Edit2, Save, X, ArrowLeft, Sparkles, Monitor, Smartphone
 } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth.js';
 import AIPersonalizationSettings from './AIPersonalizationSettings';
+import { Switch } from '../../components/ui/switch';
+import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 axios.defaults.withCredentials = true;
 
 const Settings = () => {
   const navigate = useNavigate();
+  const { user, updateUser } = useAuth();
   
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(true);
@@ -46,8 +52,8 @@ const Settings = () => {
         if (u.notificationPreferences) {
           setNotifications(prev => ({ ...prev, ...u.notificationPreferences }));
         }
-        if (u.theme === 'dark') document.documentElement.classList.add('dark');
-        else document.documentElement.classList.remove('dark');
+        if (u.theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        else document.documentElement.removeAttribute('data-theme');
       }
 
     } catch (err) {
@@ -68,6 +74,7 @@ const Settings = () => {
     e.preventDefault();
     try {
       await axios.patch(`${API_URL}/api/users/profile`, profile);
+      if (user) updateUser({ ...user, ...profile });
       showMessage('success', 'Profile updated successfully.');
     } catch (err) {
       showMessage('error', err.response?.data?.message || 'Error updating profile');
@@ -99,8 +106,9 @@ const Settings = () => {
     const newTheme = profile.theme === 'light' ? 'dark' : 'light';
     setProfile({ ...profile, theme: newTheme });
     
-    if (newTheme === 'dark') document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
+    if (user) updateUser({ ...user, theme: newTheme });
+    if (newTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    else document.documentElement.removeAttribute('data-theme');
 
     try {
       await axios.patch(`${API_URL}/api/users/profile`, { theme: newTheme });
@@ -151,7 +159,7 @@ const Settings = () => {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen dark:bg-gray-900 dark:text-white">Loading Settings...</div>;
+    return <div className="flex justify-center items-center h-screen bg-surface-base text-text-primary">Loading Settings...</div>;
   }
 
   const tabs = [
@@ -163,17 +171,17 @@ const Settings = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
+    <div className="min-h-screen bg-surface-sunken p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
-          <button onClick={() => navigate(-1)} className="p-2 bg-gray-200 dark:bg-gray-800 rounded-full hover:bg-gray-300 dark:hover:bg-gray-700 transition">
-            <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+          <button onClick={() => navigate(-1)} className="p-2 bg-surface-base border border-surface-border rounded-full hover:bg-surface-sunken transition">
+            <ArrowLeft className="w-5 h-5 text-text-primary" />
           </button>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+          <h1 className="text-3xl font-bold text-text-primary">Settings</h1>
         </div>
         
         {message.text && (
-          <div className={`p-4 mb-6 rounded-lg ${message.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+          <div className={`p-4 mb-6 rounded-lg ${message.type === 'error' ? 'bg-status-danger-subtle text-status-danger' : 'bg-status-success-subtle text-status-success'}`}>
             {message.text}
           </div>
         )}
@@ -181,102 +189,138 @@ const Settings = () => {
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar Tabs */}
           <div className="w-full md:w-64 flex-shrink-0">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden flex flex-col">
+            <Card className="p-0 rounded-xl shadow-sm overflow-hidden flex flex-col">
               {tabs.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-3 px-6 py-4 text-left transition-colors ${
                     activeTab === tab.id 
-                      ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 border-l-4 border-blue-600' 
-                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border-l-4 border-transparent'
+                      ? 'bg-brand-primary-subtle text-brand-primary border-l-4 border-brand-primary' 
+                      : 'text-text-secondary hover:bg-surface-sunken border-l-4 border-transparent'
                   }`}
                 >
                   {tab.icon}
                   <span className="font-medium">{tab.label}</span>
                 </button>
               ))}
-              <div className="border-t border-gray-100 dark:border-gray-700 my-2"></div>
-              <button
+              <div className="border-t border-surface-border my-2"></div>
+              <Button
+                variant="ghost"
+                tone="danger"
                 onClick={() => setShowResetModal(true)}
-                className="flex items-center gap-3 px-6 py-4 text-left text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
+                className="flex items-center gap-3 px-6 py-4 text-left w-full justify-start rounded-none h-auto border-l-4 border-transparent"
               >
                 <AlertTriangle size={18} />
                 <span className="font-medium">Reset Synapse Data</span>
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
+                tone="danger"
                 onClick={() => setShowDeleteModal(true)}
-                className="flex items-center gap-3 px-6 py-4 text-left text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                className="flex items-center gap-3 px-6 py-4 text-left w-full justify-start rounded-none h-auto border-l-4 border-transparent"
               >
                 <Trash2 size={18} />
                 <span className="font-medium">Delete Account</span>
-              </button>
-            </div>
+              </Button>
+            </Card>
           </div>
 
           {/* Main Content Area */}
-          <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 md:p-8">
+          <Card className="flex-1 rounded-xl shadow-sm p-6 md:p-8">
             
             {/* 1. Profile Section */}
             {activeTab === 'profile' && (
               <div>
-                <h2 className="text-xl font-semibold mb-6 dark:text-white">Profile Settings</h2>
+                <h2 className="text-xl font-semibold mb-6 text-text-primary">Profile Settings</h2>
                 <form onSubmit={handleProfileUpdate} className="space-y-6">
                   <div className="flex items-center gap-6 mb-6">
-                    <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center overflow-hidden shrink-0">
-                      {profile.avatar ? <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" /> : <User size={40} className="text-gray-400" />}
+                    <div className="w-20 h-20 bg-surface-sunken border border-surface-border rounded-full flex items-center justify-center overflow-hidden shrink-0">
+                      {profile.avatar ? <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" /> : <User size={40} className="text-text-tertiary" />}
                     </div>
                     <div className="relative">
                       <input type="file" accept="image/*" onChange={handleAvatarChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" title="Change Avatar" />
-                      <button type="button" className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white transition pointer-events-none">
-                        <Upload size={16} /> Change Avatar
-                      </button>
+                      <Button variant="outline" type="button" className="pointer-events-none">
+                        <Upload size={16} className="mr-2" /> Change Avatar
+                      </Button>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name</label>
-                      <input type="text" value={profile.name} onChange={e => setProfile({...profile, name: e.target.value})} className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500" />
+                      <label className="block text-sm font-medium text-text-secondary mb-2">Name</label>
+                      <Input type="text" value={profile.name} onChange={e => setProfile({...profile, name: e.target.value})} />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">College</label>
-                      <input type="text" value={profile.college} onChange={e => setProfile({...profile, college: e.target.value})} className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500" />
+                      <label className="block text-sm font-medium text-text-secondary mb-2">College</label>
+                      <Input type="text" value={profile.college} onChange={e => setProfile({...profile, college: e.target.value})} />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Course</label>
-                      <input type="text" value={profile.course} onChange={e => setProfile({...profile, course: e.target.value})} className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500" />
+                      <label className="block text-sm font-medium text-text-secondary mb-2">Course</label>
+                      <Input type="text" value={profile.course} onChange={e => setProfile({...profile, course: e.target.value})} />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Semester</label>
-                      <input type="number" value={profile.semester} onChange={e => setProfile({...profile, semester: e.target.value})} className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500" />
+                      <label className="block text-sm font-medium text-text-secondary mb-2">Semester</label>
+                      <Input type="number" value={profile.semester} onChange={e => setProfile({...profile, semester: e.target.value})} />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Target CGPA</label>
-                      <input type="number" step="0.1" value={profile.targetCGPA} onChange={e => setProfile({...profile, targetCGPA: e.target.value})} className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500" />
+                      <label className="block text-sm font-medium text-text-secondary mb-2">Target CGPA</label>
+                      <Input type="number" step="0.1" value={profile.targetCGPA} onChange={e => setProfile({...profile, targetCGPA: e.target.value})} />
                     </div>
                   </div>
-                  <button type="submit" className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">
-                    <Save size={18} /> Save Profile
-                  </button>
+                  <Button type="submit" variant="primary">
+                    <Save size={18} className="mr-2" /> Save Profile
+                  </Button>
                 </form>
+              </div>
+            )}
+
+            {/* 2. Security Section */}
+            {activeTab === 'security' && (
+              <div className="animate-in fade-in duration-300">
+                <h2 className="text-xl font-semibold mb-6 text-text-primary">Security Settings</h2>
+                
+                {/* Change Password Form */}
+                <div className="mb-10">
+                  <h3 className="text-lg font-medium text-text-primary mb-4">Change Password</h3>
+                  <form onSubmit={handlePasswordUpdate} className="space-y-4 max-w-md">
+                    <div>
+                      <label className="block text-sm font-medium text-text-secondary mb-1">Current Password</label>
+                      <Input 
+                        type="password" 
+                        value={passwords.currentPassword} 
+                        onChange={e => setPasswords({...passwords, currentPassword: e.target.value})} 
+                        required 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-text-secondary mb-1">New Password</label>
+                      <Input 
+                        type="password" 
+                        value={passwords.newPassword} 
+                        onChange={e => setPasswords({...passwords, newPassword: e.target.value})} 
+                        required 
+                      />
+                    </div>
+                    <Button type="submit" variant="primary">
+                      Update Password
+                    </Button>
+                  </form>
+                </div>
               </div>
             )}
 
             {/* 5. Notifications Section */}
             {activeTab === 'notifications' && (
               <div>
-                <h2 className="text-xl font-semibold mb-6 dark:text-white">Notification Preferences</h2>
+                <h2 className="text-xl font-semibold mb-6 text-text-primary">Notification Preferences</h2>
                 <div className="space-y-4 max-w-lg">
                   {Object.entries(notifications).map(([key, enabled]) => (
-                    <div key={key} className="flex justify-between items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div key={key} className="flex justify-between items-center p-4 border border-surface-border rounded-lg">
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-white capitalize">{key.replace(/_/g, ' ').toLowerCase()}</p>
+                        <p className="font-medium text-text-primary capitalize">{key.replace(/_/g, ' ').toLowerCase()}</p>
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" checked={enabled} onChange={(e) => handleNotificationUpdate(key, e.target.checked)} />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                      </label>
+                      <Switch checked={enabled} onCheckedChange={(val) => handleNotificationUpdate(key, val)} />
                     </div>
                   ))}
                 </div>
@@ -286,19 +330,16 @@ const Settings = () => {
             {/* 6. Appearance Section */}
             {activeTab === 'appearance' && (
               <div>
-                <h2 className="text-xl font-semibold mb-6 dark:text-white">Appearance</h2>
-                <div className="flex items-center justify-between p-6 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 max-w-md">
+                <h2 className="text-xl font-semibold mb-6 text-text-primary">Appearance</h2>
+                <div className="flex items-center justify-between p-6 border border-surface-border rounded-xl bg-surface-sunken max-w-md">
                   <div className="flex items-center gap-4">
-                    {profile.theme === 'light' ? <Sun size={24} className="text-yellow-500" /> : <Moon size={24} className="text-blue-400" />}
+                    {profile.theme === 'light' ? <Sun size={24} className="text-status-warning" /> : <Moon size={24} className="text-brand-primary" />}
                     <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">Dark Mode</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Toggle dark theme</p>
+                      <h3 className="font-semibold text-text-primary">Dark Mode</h3>
+                      <p className="text-sm text-text-secondary">Toggle dark theme</p>
                     </div>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" className="sr-only peer" checked={profile.theme === 'dark'} onChange={handleThemeToggle} />
-                    <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-500"></div>
-                  </label>
+                  <Switch checked={profile.theme === 'dark'} onCheckedChange={handleThemeToggle} />
                 </div>
               </div>
             )}
@@ -308,79 +349,77 @@ const Settings = () => {
               <AIPersonalizationSettings />
             )}
 
-          </div>
+          </Card>
         </div>
       </div>
 
       {/* Reset Data Modal */}
       {showResetModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-6 animate-in fade-in zoom-in duration-200">
+          <Card className="rounded-xl shadow-2xl w-full max-w-md p-6 animate-in fade-in zoom-in duration-200">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-orange-600 flex items-center gap-2"><AlertTriangle /> Reset Synapse Data</h3>
-              <button onClick={() => setShowResetModal(false)} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"><X size={20} /></button>
+              <h3 className="text-xl font-bold text-status-warning flex items-center gap-2"><AlertTriangle /> Reset Synapse Data</h3>
+              <button onClick={() => setShowResetModal(false)} className="text-text-tertiary hover:text-text-secondary"><X size={20} /></button>
             </div>
-            <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm">
+            <p className="text-text-secondary mb-6 text-sm">
               This action will clear all your generated data (notebooks, habits, finances, groups) but your account and profile will remain active.
             </p>
             <form onSubmit={handleResetData}>
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm with Password</label>
-                <input 
+                <label className="block text-sm font-medium text-text-secondary mb-2">Confirm with Password</label>
+                <Input 
                   type="password" 
                   value={confirmPassword} 
                   onChange={e => setConfirmPassword(e.target.value)} 
                   required 
                   placeholder="Enter your password"
-                  className="w-full px-4 py-2 rounded-lg border border-orange-300 focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
               </div>
-              <div className="flex gap-3 justify-end">
-                <button type="button" onClick={() => setShowResetModal(false)} className="px-4 py-2 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">
+              <div className="flex gap-3 justify-end mt-6">
+                <Button variant="ghost" type="button" onClick={() => setShowResetModal(false)}>
                   Cancel
-                </button>
-                <button type="submit" className="px-4 py-2 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 transition shadow-lg shadow-orange-600/20">
+                </Button>
+                <Button variant="danger" type="submit" className="shadow-lg shadow-status-danger/20">
                   Reset Data
-                </button>
+                </Button>
               </div>
             </form>
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Delete Account Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-6 animate-in fade-in zoom-in duration-200">
+          <Card className="rounded-xl shadow-2xl w-full max-w-md p-6 animate-in fade-in zoom-in duration-200">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-red-600 flex items-center gap-2"><Trash2 /> Delete Account</h3>
-              <button onClick={() => setShowDeleteModal(false)} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"><X size={20} /></button>
+              <h3 className="text-xl font-bold text-status-danger flex items-center gap-2"><Trash2 /> Delete Account</h3>
+              <button onClick={() => setShowDeleteModal(false)} className="text-text-tertiary hover:text-text-secondary"><X size={20} /></button>
             </div>
-            <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm">
+            <p className="text-text-secondary mb-6 text-sm">
               This action is <span className="font-bold">permanent</span> and cannot be undone. All your data and your account will be permanently deleted.
             </p>
             <form onSubmit={handleDeleteAccount}>
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm with Password</label>
-                <input 
+                <label className="block text-sm font-medium text-text-secondary mb-2">Confirm with Password</label>
+                <Input 
                   type="password" 
                   value={confirmPassword} 
                   onChange={e => setConfirmPassword(e.target.value)} 
                   required 
                   placeholder="Enter your password"
-                  className="w-full px-4 py-2 rounded-lg border border-red-300 focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
               </div>
-              <div className="flex gap-3 justify-end">
-                <button type="button" onClick={() => setShowDeleteModal(false)} className="px-4 py-2 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">
+              <div className="flex gap-3 justify-end mt-6">
+                <Button variant="ghost" type="button" onClick={() => setShowDeleteModal(false)}>
                   Cancel
-                </button>
-                <button type="submit" className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition shadow-lg shadow-red-600/20">
+                </Button>
+                <Button variant="danger" type="submit" className="shadow-lg shadow-status-danger/20">
                   Delete Permanently
-                </button>
+                </Button>
               </div>
             </form>
-          </div>
+          </Card>
         </div>
       )}
 

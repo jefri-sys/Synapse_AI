@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import AuthLayout from '../../components/AuthLayout.jsx';
 import api from '../../services/api.js';
 
@@ -8,9 +9,6 @@ const initialForm = {
   email: '',
   password: '',
   confirmPassword: '',
-  college: '',
-  course: '',
-  semester: '',
 };
 
 const fieldClass = 'auth-input';
@@ -40,6 +38,8 @@ function Register() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const passwordStrength = useMemo(
     () => getPasswordStrength(form.password),
     [form.password]
@@ -71,9 +71,6 @@ function Register() {
         name: form.name,
         email: form.email,
         password: form.password,
-        college: form.college,
-        course: form.course,
-        semester: Number(form.semester),
       });
 
       setSuccess('Check your email.');
@@ -125,15 +122,25 @@ function Register() {
 
         <label className={labelClass}>
           Password
-          <input
-            className={fieldClass}
-            minLength={8}
-            name="password"
-            onChange={handleChange}
-            required
-            type="password"
-            value={form.password}
-          />
+          <div className="relative">
+            <input
+              className={`${fieldClass} pr-10`}
+              minLength={8}
+              name="password"
+              onChange={handleChange}
+              required
+              type={showPassword ? 'text' : 'password'}
+              value={form.password}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(prev => !prev)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </label>
 
         <div aria-live="polite" className="mt-2">
@@ -142,60 +149,32 @@ function Register() {
               className={`h-1.5 rounded-full ${passwordStrength.color} ${passwordStrength.width} transition-all duration-300`}
             />
           </div>
-          <p className="mt-2 text-xs font-medium text-neutral-400">
+          <p className="mt-2 text-xs font-medium text-[var(--marketing-text-tertiary)]">
             Password strength: <span className="text-white">{passwordStrength.label}</span>
           </p>
         </div>
 
         <label className={labelClass}>
           Confirm Password
-          <input
-            className={fieldClass}
-            minLength={8}
-            name="confirmPassword"
-            onChange={handleChange}
-            required
-            type="password"
-            value={form.confirmPassword}
-          />
-        </label>
-
-        <label className={labelClass}>
-          College
-          <input
-            className={fieldClass}
-            name="college"
-            onChange={handleChange}
-            required
-            type="text"
-            value={form.college}
-          />
-        </label>
-
-        <label className={labelClass}>
-          Course
-          <input
-            className={fieldClass}
-            name="course"
-            onChange={handleChange}
-            placeholder="MCA, BCA, B.Tech, B.Com"
-            required
-            type="text"
-            value={form.course}
-          />
-        </label>
-
-        <label className={labelClass}>
-          Semester
-          <input
-            className={fieldClass}
-            min={1}
-            name="semester"
-            onChange={handleChange}
-            required
-            type="number"
-            value={form.semester}
-          />
+          <div className="relative">
+            <input
+              className={`${fieldClass} pr-10`}
+              minLength={8}
+              name="confirmPassword"
+              onChange={handleChange}
+              required
+              type={showConfirmPassword ? 'text' : 'password'}
+              value={form.confirmPassword}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(prev => !prev)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+            >
+              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </label>
 
         {error ? (
@@ -205,7 +184,7 @@ function Register() {
         ) : null}
 
         {success ? (
-          <div className="auth-error-box !bg-emerald-500/10 !border-emerald-500 !text-emerald-400">
+          <div className="auth-error-box !bg-[var(--marketing-success)]/10 !border-[var(--marketing-success)] !text-[var(--marketing-success)]">
             {success}
           </div>
         ) : null}

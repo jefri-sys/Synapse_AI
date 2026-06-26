@@ -7,12 +7,12 @@ import brainNetworkImg from '../../assets/brain_network.png';
 
 const ZeroGravityBrain = () => {
   const arms = [
-    { angle: -45, len: 220, dur: '8s', icon: <Calendar size={28} color="#0EA5E9" />, delay: '0s' },
-    { angle: 45, len: 240, dur: '10s', icon: <LineChart size={28} color="#F97316" />, delay: '-2s' },
-    { angle: 180, len: 280, dur: '12s', icon: <BookOpen size={28} color="#38BDF8" />, delay: '-4s' },
-    { angle: 0, len: 260, dur: '9s', icon: <Target size={28} color="#8B5CF6" />, delay: '-1s' },
-    { angle: 135, len: 230, dur: '11s', icon: <MessageSquare size={28} color="#F43F5E" />, delay: '-3s' },
-    { angle: 225, len: 250, dur: '13s', icon: <LayoutDashboard size={28} color="#10B981" />, delay: '-5s' },
+    { angle: -45, len: 220, dur: '8s', icon: <Calendar size={28} color="var(--marketing-accent-primary)" />, delay: '0s' },
+    { angle: 45, len: 240, dur: '10s', icon: <LineChart size={28} color="var(--marketing-warning)" />, delay: '-2s' },
+    { angle: 180, len: 280, dur: '12s', icon: <BookOpen size={28} color="var(--marketing-accent-secondary)" />, delay: '-4s' },
+    { angle: 0, len: 260, dur: '9s', icon: <Target size={28} color="var(--marketing-accent-tertiary)" />, delay: '-1s' },
+    { angle: 135, len: 230, dur: '11s', icon: <MessageSquare size={28} color="var(--marketing-accent-quaternary)" />, delay: '-3s' },
+    { angle: 225, len: 250, dur: '13s', icon: <LayoutDashboard size={28} color="var(--marketing-success)" />, delay: '-5s' },
   ];
 
   return (
@@ -262,10 +262,7 @@ const Landing = () => {
       </nav>
 
       <section className="hero-section">
-        <div className="hero-badge">
-          <Sparkles size={16} /> 
-          <span>Next-Gen Student OS v2.0</span>
-        </div>
+
         <h1 className="hero-title">
           <span className="text-gradient">Connect Your Knowledge.</span><br />
           <span className="text-gradient-accent">Master Your Studies.</span>

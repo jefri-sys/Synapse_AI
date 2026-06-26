@@ -75,25 +75,25 @@ function VerifyEmail() {
       title="Verify email"
       subtitle="We are checking your verification link."
       footer={
-        <Link className="font-medium text-indigo-600" to="/login">
+        <Link className="auth-forgot-link" to="/login">
           Back to login
         </Link>
       }
     >
       {status === 'loading' ? (
-        <div className="flex items-center gap-3 rounded-md bg-slate-50 px-3 py-3 text-sm text-slate-700">
-          <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-indigo-600" />
+        <div className="flex items-center gap-3 text-[var(--marketing-text-tertiary)] text-sm font-medium">
+          <span className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--marketing-border)] border-t-[var(--marketing-accent-primary)]" />
           {message}
         </div>
       ) : null}
 
       {status === 'success' ? (
         <div className="space-y-4">
-          <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          <div className="auth-error-box !bg-[var(--marketing-success)]/10 !border-[var(--marketing-success)] !text-[var(--marketing-success)]">
             {message}
-          </p>
+          </div>
           <Link
-            className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
+            className="auth-btn"
             to="/login"
           >
             Go to Login
@@ -103,14 +103,14 @@ function VerifyEmail() {
 
       {status === 'error' ? (
         <div className="space-y-4">
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+          <div className="auth-error-box">
             {message}
-          </p>
+          </div>
 
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="auth-label">
             Email
             <input
-              className="mt-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+              className="auth-input"
               onChange={(event) => setEmail(event.target.value)}
               placeholder="you@example.com"
               type="email"
@@ -119,11 +119,11 @@ function VerifyEmail() {
           </label>
 
           {resendMessage ? (
-            <p className="text-sm text-slate-600">{resendMessage}</p>
+            <p className="text-sm text-[var(--marketing-text-tertiary)]">{resendMessage}</p>
           ) : null}
 
           <button
-            className="w-full rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+            className="auth-btn"
             disabled={resending}
             onClick={handleResend}
             type="button"

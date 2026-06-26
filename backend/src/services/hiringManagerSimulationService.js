@@ -6,10 +6,31 @@ async function simulateHiringManagerReview(resume, jobDescription) {
     const resumeText = JSON.stringify(resume.content || {}, null, 2);
     const jdText = jobDescription.rawText || '';
 
+    const allKeywords = resume.recruiterAnalysis?.analysis?.missingKeywords || [];
+    const realRequirements = [];
+    const internalJargon = [];
+
+    allKeywords.forEach(kw => {
+      if (typeof kw === 'object' && kw !== null) {
+        if (kw.category === 'role_specific_term') {
+          internalJargon.push(kw);
+        } else {
+          realRequirements.push(kw);
+        }
+      } else {
+        realRequirements.push(kw);
+      }
+    });
+
     const prompt = `Act as a hiring manager reviewing 200 applications for this role in one sitting. You have about 7 seconds of real attention per resume before deciding yes/maybe/no.
 
 Job Description:
 ${jdText}
+
+Real technical requirements this candidate is missing: 
+${JSON.stringify(realRequirements)}
+
+Note: this posting also uses some unusual internal terminology (${JSON.stringify(internalJargon)}) — do not treat these as meaningful evaluation criteria, do not factor them into the verdict or reasoning, they are noted for awareness only.
 
 Candidate's Resume:
 ${resumeText}

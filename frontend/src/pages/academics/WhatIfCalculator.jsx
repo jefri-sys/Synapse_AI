@@ -101,13 +101,13 @@ export default function WhatIfCalculator() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white shadow-lg flex flex-col justify-center items-center">
-        <h2 className="text-xl font-medium text-indigo-100">Predicted CGPA</h2>
+      <div className="rounded-lg bg-surface-raised border border-surface-border p-8 text-white shadow-lg flex flex-col justify-center items-center">
+        <h2 className="text-xl font-medium text-brand-primary-subtle">Predicted CGPA</h2>
         <div className="mt-2 flex items-baseline gap-2">
           <span className="text-6xl font-bold">{predictedCGPA.toFixed(2)}</span>
-          <span className="text-xl text-indigo-200">/ 10.0</span>
+          <span className="text-xl text-brand-primary-subtle">/ 10.0</span>
         </div>
-        <p className="mt-4 text-sm font-medium bg-white/20 px-4 py-1 rounded-full">
+        <p className="mt-4 text-sm font-medium bg-surface-base/20 px-4 py-1 rounded-full">
           Target CGPA: {targetCGPA.toFixed(1)}
         </p>
       </div>
@@ -120,14 +120,14 @@ export default function WhatIfCalculator() {
           const needed = getMarksNeeded(subject._id);
 
           return (
-            <div key={subject._id} className="rounded-lg bg-white p-6 shadow-sm border border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-800">{subject.name}</h3>
+            <div key={subject._id} className="rounded-lg bg-surface-base p-6 shadow-sm border border-surface-border">
+              <h3 className="text-lg font-semibold text-text-primary">{subject.name}</h3>
               
               <div className="mt-6 space-y-4">
                 <div>
-                  <div className="flex justify-between text-sm font-medium text-slate-700 mb-2">
+                  <div className="flex justify-between text-sm font-medium text-text-secondary mb-2">
                     <span>Hypothetical Final Exam Score</span>
-                    <span className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{currentScore} / {maxMarks}</span>
+                    <span className="text-brand-primary bg-brand-primary-subtle px-2 py-0.5 rounded">{currentScore} / {maxMarks}</span>
                   </div>
                   <input 
                     type="range"
@@ -139,13 +139,13 @@ export default function WhatIfCalculator() {
                   />
                 </div>
 
-                <div className="pt-4 border-t border-slate-100">
+                <div className="pt-4 border-t border-surface-border">
                   {needed !== null ? (
-                    <p className="text-sm text-slate-600">
-                      You need <span className="font-bold text-emerald-600">{needed}</span> marks in this subject's final to reach your target CGPA of {targetCGPA}.
+                    <p className="text-sm text-text-secondary">
+                      You need <span className="font-bold text-status-success">{needed}</span> marks in this subject's final to reach your target CGPA of {targetCGPA}.
                     </p>
                   ) : (
-                    <p className="text-sm text-amber-600 font-medium">
+                    <p className="text-sm text-status-warning font-medium">
                       Cannot reach target CGPA solely by improving this subject.
                     </p>
                   )}

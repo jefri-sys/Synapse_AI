@@ -17,7 +17,7 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return this.props.fallback || (
-        <div className="w-full h-full flex flex-col items-center justify-center text-neutral-500">
+        <div className="w-full h-full flex flex-col items-center justify-center text-[var(--marketing-text-tertiary)]">
           <p className="text-sm opacity-50">3D Background unavailable</p>
         </div>
       );

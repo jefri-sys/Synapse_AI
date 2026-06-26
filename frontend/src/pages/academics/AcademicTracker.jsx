@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Calendar, AlertTriangle, UploadCloud, FileText } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import api from '../../services/api';
+import { Card } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
+
 const getDaysUntil = (dateString) => {
   if (!dateString) return null;
   const target = new Date(dateString);
@@ -152,9 +155,9 @@ export default function AcademicTracker({ semesterId }) {
   }));
 
   const getColorByPoints = (points) => {
-    if (points >= 8) return '#10b981'; // green
-    if (points >= 6) return '#f59e0b'; // yellow
-    return '#ef4444'; // red
+    if (points >= 8) return 'var(--status-success)'; // green
+    if (points >= 6) return 'var(--status-warning)'; // yellow
+    return 'var(--status-danger)'; // red
   };
 
   return (
@@ -162,12 +165,12 @@ export default function AcademicTracker({ semesterId }) {
       {/* Top Banner & Chart */}
       {!semesterId && (
         <div className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-lg bg-indigo-600 p-6 text-white shadow-md flex flex-col justify-center items-center">
-            <h2 className="text-lg font-medium text-indigo-100">Overall CGPA</h2>
+          <div className="rounded-lg bg-brand-primary p-6 text-white shadow-md flex flex-col justify-center items-center">
+            <h2 className="text-lg font-medium text-brand-primary-hover">Overall CGPA</h2>
             <div className="mt-2 text-5xl font-bold">{cgpaData.cgpa !== null ? cgpaData.cgpa.toFixed(2) : 'Pending'}</div>
           </div>
-          <div className="md:col-span-2 rounded-lg bg-white p-6 shadow-md border border-slate-200">
-            <h3 className="mb-4 text-sm font-semibold text-slate-700">Subject Performance</h3>
+          <Card className="md:col-span-2 p-6 shadow-md">
+            <h3 className="mb-4 text-sm font-semibold text-text-primary">Subject Performance</h3>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
@@ -181,16 +184,16 @@ export default function AcademicTracker({ semesterId }) {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl font-bold text-slate-800">{semesterId ? 'Semester Subjects' : 'Your Subjects'}</h2>
+          <h2 className="text-xl font-bold text-text-primary">{semesterId ? 'Semester Subjects' : 'Your Subjects'}</h2>
           {!semesterId && (
             <select 
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 bg-white"
+              className="rounded-md border border-surface-border px-3 py-1.5 text-sm font-medium text-text-primary bg-surface-base"
               value={semesterFilter}
               onChange={(e) => setSemesterFilter(e.target.value)}
             >
@@ -204,7 +207,7 @@ export default function AcademicTracker({ semesterId }) {
             const semData = cgpaData.semesters?.find(s => s.semester === Number(semesterFilter));
             if (semData) {
               return (
-                <div className="rounded-md bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 border border-indigo-100">
+                <div className="rounded-md bg-brand-primary-subtle px-3 py-1.5 text-sm font-medium text-brand-primary border border-brand-primary-subtle">
                   SGPA: {semData.sgpa !== null ? semData.sgpa.toFixed(2) : 'Pending'}
                 </div>
               );
@@ -213,40 +216,42 @@ export default function AcademicTracker({ semesterId }) {
           })()}
         </div>
         <div className="flex gap-2">
-          <button
+          <Button
             onClick={() => navigate('/academics/import')}
-            className="inline-flex items-center gap-2 rounded-md bg-indigo-50 border border-indigo-200 px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition-colors"
+            variant="outline"
+            className="gap-2 border-brand-primary-subtle text-brand-primary bg-brand-primary-subtle hover:bg-brand-primary-subtle"
           >
             <FileText className="h-4 w-4" /> Import Grade Card
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setShowAddSubject(true)}
-            className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
+            variant="primary"
+            className="gap-2"
           >
             <Plus className="h-4 w-4" /> Add Subject
-          </button>
+          </Button>
         </div>
       </div>
 
       {showAddSubject && (
-        <form onSubmit={handleAddSubject} className="rounded-lg bg-white p-4 border border-indigo-100 shadow-sm flex flex-wrap gap-4 items-end">
-          <label className="flex flex-col gap-1 text-sm"><span className="text-slate-600">Name</span>
+        <form onSubmit={handleAddSubject} className="rounded-lg bg-surface-base p-4 border border-brand-primary-subtle shadow-sm flex flex-wrap gap-4 items-end">
+          <label className="flex flex-col gap-1 text-sm"><span className="text-text-secondary">Name</span>
             <input required className="border p-2 rounded-md" value={newSubject.name} onChange={e=>setNewSubject({...newSubject, name: e.target.value})} />
           </label>
-          <label className="flex flex-col gap-1 text-sm"><span className="text-slate-600">Code</span>
+          <label className="flex flex-col gap-1 text-sm"><span className="text-text-secondary">Code</span>
             <input className="border p-2 rounded-md w-24" value={newSubject.code} onChange={e=>setNewSubject({...newSubject, code: e.target.value})} />
           </label>
-          <label className="flex flex-col gap-1 text-sm"><span className="text-slate-600">Professor</span>
+          <label className="flex flex-col gap-1 text-sm"><span className="text-text-secondary">Professor</span>
             <input className="border p-2 rounded-md w-32" value={newSubject.professor} onChange={e=>setNewSubject({...newSubject, professor: e.target.value})} />
           </label>
-          <label className="flex flex-col gap-1 text-sm"><span className="text-slate-600">Semester</span>
+          <label className="flex flex-col gap-1 text-sm"><span className="text-text-secondary">Semester</span>
             <input type="number" min="1" max="10" className="border p-2 rounded-md w-20" value={newSubject.semester} onChange={e=>setNewSubject({...newSubject, semester: Number(e.target.value)})} />
           </label>
-          <label className="flex flex-col gap-1 text-sm"><span className="text-slate-600">Credits</span>
+          <label className="flex flex-col gap-1 text-sm"><span className="text-text-secondary">Credits</span>
             <input type="number" min="0" max="10" className="border p-2 rounded-md w-20" value={newSubject.credits} onChange={e=>setNewSubject({...newSubject, credits: Number(e.target.value)})} />
           </label>
-          <button type="submit" className="rounded-md bg-indigo-600 px-4 py-2 text-white text-sm font-medium">Save</button>
-          <button type="button" onClick={() => setShowAddSubject(false)} className="rounded-md border border-slate-300 px-4 py-2 text-slate-600 text-sm font-medium">Cancel</button>
+          <Button type="submit" variant="primary">Save</Button>
+          <Button type="button" onClick={() => setShowAddSubject(false)} variant="outline">Cancel</Button>
         </form>
       )}
 
@@ -262,28 +267,28 @@ export default function AcademicTracker({ semesterId }) {
           const cgpaInfo = cgpaData.subjects.find(s => s.name === subject.name) || { grade: 'N/A', gradePoints: 0 };
           const isWarning = att.totalClasses > 0 && (att.attendedClasses / att.totalClasses * 100) < 75;
           const attPercent = att.totalClasses > 0 ? (att.attendedClasses / att.totalClasses * 100).toFixed(1) : 0;
-          const colorClass = cgpaInfo.gradePoints >= 8 ? 'text-emerald-600 bg-emerald-50 border-emerald-200' :
-                             cgpaInfo.gradePoints >= 6 ? 'text-amber-600 bg-amber-50 border-amber-200' :
-                             'text-red-600 bg-red-50 border-red-200';
+          const colorClass = cgpaInfo.gradePoints >= 8 ? 'text-status-success bg-status-success-subtle border-status-success-subtle' :
+                             cgpaInfo.gradePoints >= 6 ? 'text-status-warning bg-status-warning-subtle border-amber-200' :
+                             'text-status-danger bg-status-danger-subtle border-status-danger-subtle';
 
           return (
-            <div key={subject._id} className="rounded-lg bg-white shadow-sm border border-slate-200 overflow-hidden">
+            <Card key={subject._id} className="p-0 overflow-hidden shadow-sm">
               {/* Card Header */}
-              <div className="p-4 border-b border-slate-100 flex justify-between items-start">
+              <div className="p-4 border-b border-surface-border flex justify-between items-start">
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-800">{subject.name}</h3>
-                  <div className="flex items-center gap-3 mt-1 text-sm text-slate-500">
-                    {subject.code && <span className="px-2 py-0.5 rounded bg-slate-100">{subject.code}</span>}
-                    {subject.semester && <span className="px-2 py-0.5 rounded bg-slate-100">Sem {subject.semester}</span>}
-                    {subject.credits !== undefined && <span className="px-2 py-0.5 rounded bg-slate-100">{subject.credits} Credits</span>}
-                    {subject.professor && <span className="px-2 py-0.5 rounded bg-slate-100">{subject.professor}</span>}
+                  <h3 className="text-lg font-semibold text-text-primary">{subject.name}</h3>
+                  <div className="flex items-center gap-3 mt-1 text-sm text-text-secondary">
+                    {subject.code && <span className="px-2 py-0.5 rounded bg-surface-raised">{subject.code}</span>}
+                    {subject.semester && <span className="px-2 py-0.5 rounded bg-surface-raised">Sem {subject.semester}</span>}
+                    {subject.credits !== undefined && <span className="px-2 py-0.5 rounded bg-surface-raised">{subject.credits} Credits</span>}
+                    {subject.professor && <span className="px-2 py-0.5 rounded bg-surface-raised">{subject.professor}</span>}
                   </div>
                 </div>
                 <div className="flex gap-2 items-center">
                   <div className={`px-3 py-1 rounded-full border text-sm font-bold ${colorClass}`}>
                     Grade: {cgpaInfo.grade}
                   </div>
-                  <button onClick={() => handleDeleteSubject(subject._id)} className="text-slate-400 hover:text-red-500">
+                  <button onClick={() => handleDeleteSubject(subject._id)} className="text-text-tertiary hover:text-status-danger">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -292,15 +297,15 @@ export default function AcademicTracker({ semesterId }) {
 
 
               {/* Attendance Panel */}
-              <div className="p-4 border-b border-slate-100">
+              <div className="p-4 border-b border-surface-border">
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="font-medium text-slate-700">Attendance</span>
+                  <span className="font-medium text-text-primary">Attendance</span>
                   <span className="font-medium">{attPercent}%</span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                  <div className="flex-1 h-2 rounded-full bg-surface-raised overflow-hidden">
                     <div 
-                      className={`h-full rounded-full ${isWarning ? 'bg-red-500' : 'bg-emerald-500'}`} 
+                      className={`h-full rounded-full ${isWarning ? 'bg-status-danger' : 'bg-status-success'}`} 
                       style={{ width: `${Math.min(100, attPercent)}%` }}
                     />
                   </div>
@@ -319,32 +324,32 @@ export default function AcademicTracker({ semesterId }) {
                   </div>
                 </div>
                 {isWarning && (
-                  <div className="mt-2 text-xs text-red-600 flex items-center gap-1 bg-red-50 p-1.5 rounded">
+                  <div className="mt-2 text-xs text-status-danger flex items-center gap-1 bg-status-danger-subtle p-1.5 rounded">
                     <AlertTriangle className="w-3 h-3" /> Attendance below 75%
                   </div>
                 )}
               </div>
 
               {/* Marks Panel */}
-              <div className="p-4 bg-slate-50/50">
-                <h4 className="text-sm font-medium text-slate-700 mb-3">Marks</h4>
+              <div className="p-4 bg-surface-raised/50">
+                <h4 className="text-sm font-medium text-text-primary mb-3">Marks</h4>
                 
                 {subjectMarks.length > 0 && (
                   <table className="w-full text-xs text-left mb-4">
-                    <thead className="text-slate-500">
+                    <thead className="text-text-secondary">
                       <tr>
                         <th className="pb-2">Type</th>
                         <th className="pb-2">Score</th>
                         <th className="pb-2"></th>
                       </tr>
                     </thead>
-                    <tbody className="text-slate-700 divide-y divide-slate-100">
+                    <tbody className="text-text-primary divide-y divide-slate-100">
                       {subjectMarks.map(m => (
                         <tr key={m._id}>
                           <td className="py-1.5">{m.assessmentType}</td>
                           <td className="py-1.5 font-medium">{m.grade ? m.grade : `${m.marksObtained} / ${m.totalMarks}`}</td>
                           <td className="py-1.5 text-right">
-                            <button onClick={() => handleDeleteMark(m._id)} className="text-slate-400 hover:text-red-500">
+                            <button onClick={() => handleDeleteMark(m._id)} className="text-text-tertiary hover:text-status-danger">
                               <Trash2 className="w-3 h-3" />
                             </button>
                           </td>
@@ -356,7 +361,7 @@ export default function AcademicTracker({ semesterId }) {
 
                 <div className="flex gap-2 items-center text-xs">
                   <select 
-                    className="border rounded px-2 py-1 flex-1 bg-white"
+                    className="border rounded px-2 py-1 flex-1 bg-surface-base"
                     value={markForms[subject._id]?.assessmentType || ''}
                     onChange={(e) => setMarkForms({...markForms, [subject._id]: {...markForms[subject._id], assessmentType: e.target.value}})}
                   >
@@ -365,7 +370,7 @@ export default function AcademicTracker({ semesterId }) {
                   </select>
                   {markForms[subject._id]?.assessmentType === 'Final' ? (
                     <select
-                      className="border rounded px-2 py-1 flex-1 bg-white"
+                      className="border rounded px-2 py-1 flex-1 bg-surface-base"
                       value={markForms[subject._id]?.grade || ''}
                       onChange={(e) => setMarkForms({...markForms, [subject._id]: {...markForms[subject._id], grade: e.target.value}})}
                     >
@@ -375,27 +380,28 @@ export default function AcademicTracker({ semesterId }) {
                   ) : (
                     <>
                       <input 
-                        type="number" placeholder="Obtained" className="border rounded px-2 py-1 w-20 bg-white"
+                        type="number" placeholder="Obtained" className="border rounded px-2 py-1 w-20 bg-surface-base"
                         value={markForms[subject._id]?.marksObtained || ''}
                         onChange={(e) => setMarkForms({...markForms, [subject._id]: {...markForms[subject._id], marksObtained: e.target.value}})}
                       />
                       <span>/</span>
                       <input 
-                        type="number" placeholder="Total" className="border rounded px-2 py-1 w-16 bg-white"
+                        type="number" placeholder="Total" className="border rounded px-2 py-1 w-16 bg-surface-base"
                         value={markForms[subject._id]?.totalMarks || ''}
                         onChange={(e) => setMarkForms({...markForms, [subject._id]: {...markForms[subject._id], totalMarks: e.target.value}})}
                       />
                     </>
                   )}
-                  <button 
+                  <Button 
                     onClick={() => handleAddMark(subject._id)}
-                    className="bg-slate-800 text-white rounded px-2 py-1 font-medium hover:bg-slate-700"
+                    variant="secondary"
+                    className="px-3 py-1 h-auto text-xs"
                   >
                     Add
-                  </button>
+                  </Button>
                 </div>
               </div>
-            </div>
+            </Card>
           );
         })}
       </div>

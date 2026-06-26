@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import api from '../../services/api';
 import { Send, Loader2, Sparkles, Globe } from 'lucide-react';
 import MarkdownText from '../../components/MarkdownText';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { ChatBubble } from '../../components/ui/ChatBubble';
 
 export default function ExplorerChat({ sessionId, initialMessages = [], onNewResources }) {
   const [chats, setChats] = useState(initialMessages);
@@ -63,49 +66,33 @@ export default function ExplorerChat({ sessionId, initialMessages = [], onNewRes
   };
 
   return (
-    <div className="w-full flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden h-full">
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/50">
+    <div className="w-full flex flex-col bg-surface-raised rounded-2xl border border-surface-border shadow-sm overflow-hidden h-full">
+      <div className="flex-1 overflow-y-auto p-6 bg-surface-base">
         {chats.length === 0 && !isTyping ? (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
-            <Sparkles className="w-12 h-12 text-indigo-300 mb-4" />
-            <h3 className="text-lg font-bold text-gray-900">AI Tutor is Ready</h3>
-            <p className="text-gray-500 max-w-sm mt-2">Ask follow-up questions about this roadmap. I can find alternative courses, exercises, or clarify concepts.</p>
+            <Sparkles className="w-12 h-12 text-brand-primary-subtle mb-4" />
+            <h3 className="text-lg font-bold text-text-primary">AI Tutor is Ready</h3>
+            <p className="text-text-secondary max-w-sm mt-2">Ask follow-up questions about this roadmap. I can find alternative courses, exercises, or clarify concepts.</p>
           </div>
         ) : (
           chats.map((chat, idx) => (
-            <div key={chat._id || idx} className={`flex ${chat.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[85%] rounded-2xl px-5 py-4 ${
-                chat.role === 'user' 
-                  ? 'bg-indigo-600 text-white rounded-br-sm shadow-md' 
-                  : 'bg-white border border-gray-200 text-gray-800 rounded-bl-sm shadow-sm'
-              }`}>
-                {chat.role === 'assistant' && (
-                  <div className="flex items-center gap-2 mb-2 text-indigo-600">
-                    <Sparkles className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider">AI Assistant</span>
-                    {chat.searchPerformed && (
-                      <span className="ml-2 px-2 py-0.5 bg-blue-50 text-blue-600 border border-blue-100 rounded text-[10px] flex items-center gap-1">
-                        <Globe className="w-3 h-3" /> Searched the web
-                      </span>
-                    )}
-                  </div>
-                )}
-                
-                <div className={`leading-relaxed overflow-hidden ${chat.role === 'user' ? 'text-white' : 'text-gray-800'}`}>
-                  {chat.role === 'user' ? (
-                    <div className="whitespace-pre-wrap">{chat.content}</div>
-                  ) : (
-                    <MarkdownText text={chat.content} className="text-gray-700" />
-                  )}
-                </div>
-              </div>
-            </div>
+            <ChatBubble 
+              key={chat._id || idx} 
+              role={chat.role}
+              searchPerformed={chat.searchPerformed}
+            >
+              {chat.role === 'user' ? (
+                <div className="whitespace-pre-wrap">{chat.content}</div>
+              ) : (
+                <MarkdownText text={chat.content} className="text-text-primary" />
+              )}
+            </ChatBubble>
           ))
         )}
         
         {isTyping && (
-          <div className="flex justify-start">
-            <div className="bg-white border border-gray-200 rounded-2xl rounded-bl-sm px-5 py-4 shadow-sm flex items-center gap-2 text-indigo-600">
+          <div className="flex justify-start mb-6">
+            <div className="bg-surface-raised border border-surface-border rounded-2xl rounded-bl-sm px-5 py-4 shadow-sm flex items-center gap-2 text-ai-accent">
               <Loader2 className="w-4 h-4 animate-spin" />
               <span className="text-sm font-medium">AI is thinking...</span>
             </div>
@@ -114,25 +101,26 @@ export default function ExplorerChat({ sessionId, initialMessages = [], onNewRes
         <div ref={chatEndRef} />
       </div>
 
-      <div className="p-4 bg-white border-t border-gray-100">
-        <form onSubmit={handleSendMessage} className="relative flex items-center">
-          <input
+      <div className="p-4 bg-surface-raised border-t border-surface-border">
+        <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+          <Input
             type="text"
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
             placeholder="Ask a question about these resources..."
             disabled={isTyping}
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-4 pr-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all disabled:opacity-50"
+            className="flex-1"
           />
-          <button 
+          <Button 
             type="submit"
+            variant="primary"
             disabled={!inputValue.trim() || isTyping}
-            className="absolute right-2 p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:hover:bg-indigo-600 transition-colors"
+            className="px-3"
           >
             <Send className="w-4 h-4" />
-          </button>
+          </Button>
         </form>
-        <p className="text-center text-xs text-gray-400 mt-2">AI can search the web dynamically if needed.</p>
+        <p className="text-center text-xs text-text-tertiary mt-2">AI can search the web dynamically if needed.</p>
       </div>
     </div>
   );

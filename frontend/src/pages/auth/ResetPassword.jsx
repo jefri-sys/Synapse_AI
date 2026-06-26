@@ -55,16 +55,16 @@ function ResetPassword() {
       title="Reset password"
       subtitle="Use a strong password with at least one uppercase letter and one number."
       footer={
-        <Link className="font-medium text-indigo-600" to="/login">
+        <Link className="auth-forgot-link" to="/login">
           Back to login
         </Link>
       }
     >
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <label className="block text-sm font-medium text-slate-700">
+      <form className="auth-form" onSubmit={handleSubmit}>
+        <label className="auth-label">
           New password
           <input
-            className="mt-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+            className="auth-input"
             minLength={8}
             onChange={(event) => setPassword(event.target.value)}
             required
@@ -73,10 +73,10 @@ function ResetPassword() {
           />
         </label>
 
-        <label className="block text-sm font-medium text-slate-700">
+        <label className="auth-label">
           Confirm password
           <input
-            className="mt-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+            className="auth-input"
             minLength={8}
             onChange={(event) => setConfirmPassword(event.target.value)}
             required
@@ -86,19 +86,19 @@ function ResetPassword() {
         </label>
 
         {error ? (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+          <div className="auth-error-box">
             {error}
-          </p>
+          </div>
         ) : null}
 
         {success ? (
-          <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          <div className="auth-error-box !bg-[var(--marketing-success)]/10 !border-[var(--marketing-success)] !text-[var(--marketing-success)]">
             {success}
-          </p>
+          </div>
         ) : null}
 
         <button
-          className="w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="auth-btn"
           disabled={submitting}
           type="submit"
         >

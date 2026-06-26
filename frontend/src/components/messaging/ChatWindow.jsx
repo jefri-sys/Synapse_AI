@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import MessageBubble from './MessageBubble';
 import ChatInput from './ChatInput';
+import { Button } from '../ui/button';
 import api from '../../services/api';
 
 const ChatWindow = ({ conversation, initialMessages, socket, currentUserId, currentUser }) => {
@@ -318,27 +319,32 @@ const ChatWindow = ({ conversation, initialMessages, socket, currentUserId, curr
   const recentFiles = messages.filter(m => ['image', 'video', 'document'].includes(m.type)).slice(-10);
 
   return (
-    <div className="flex h-full bg-gray-50 border rounded-lg overflow-hidden relative">
-      <div className="flex flex-col flex-grow h-full min-w-0">
+    <div className="flex h-full w-full overflow-hidden relative bg-surface-sunken">
+      {/* Subtle Tinted Canvas Overlay */}
+      <div className="absolute inset-0 bg-brand-primary/[0.03] dark:bg-brand-primary/[0.05] pointer-events-none z-0" />
+      
+      <div className="flex flex-col flex-grow h-full min-w-0 relative z-10">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 z-10 shrink-0 shadow-sm cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => setShowProfile(!showProfile)}>
-          <div className="flex items-center">
-            <img src={getConvAvatar()} alt="" className="w-10 h-10 rounded-full object-cover shrink-0 border border-gray-100" />
-            <div className="ml-3 min-w-0">
-              <h2 className="text-sm font-bold text-gray-800 truncate">{getConvName()}</h2>
+        <div className="flex items-center justify-between px-5 py-3.5 bg-surface-base/80 dark:bg-black/60 backdrop-blur-xl border-b border-surface-border/50 z-30 shrink-0 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] cursor-pointer hover:bg-brand-primary/[0.02] transition-colors" onClick={() => setShowProfile(!showProfile)}>
+          <div className="flex items-center gap-3">
+            <img src={getConvAvatar()} alt="" className="w-10 h-10 rounded-full object-cover shrink-0 ring-2 ring-brand-primary/10" />
+            <div className="min-w-0 flex flex-col justify-center">
+              <h2 className="text-[15px] font-semibold text-text-primary truncate leading-tight tracking-tight">{getConvName()}</h2>
               {typingUsers.size > 0 ? (
-                <p className="text-xs text-indigo-500 font-medium italic animate-pulse">typing...</p>
+                <p className="text-xs text-brand-primary font-medium italic animate-pulse mt-0.5">typing...</p>
               ) : isOtherUserOnline ? (
-                <p className="text-xs text-green-500 font-medium">Online</p>
-              ) : null}
+                <p className="text-xs text-status-success font-medium mt-0.5">Online</p>
+              ) : (
+                <p className="text-xs text-text-tertiary mt-0.5">Offline</p>
+              )}
             </div>
           </div>
-          <div className="flex space-x-1 shrink-0">
-            <button onClick={(e) => { e.stopPropagation(); handleCall('voice'); }} className="p-2 text-indigo-500 hover:bg-indigo-50 rounded-full transition-colors" title="Voice Call">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button onClick={(e) => { e.stopPropagation(); handleCall('voice'); }} className="p-2.5 text-brand-primary hover:bg-brand-primary/[0.08] rounded-full transition-colors" title="Voice Call">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
             </button>
-            <button onClick={(e) => { e.stopPropagation(); handleCall('video'); }} className="p-2 text-indigo-500 hover:bg-indigo-50 rounded-full transition-colors" title="Video Call">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+            <button onClick={(e) => { e.stopPropagation(); handleCall('video'); }} className="p-2.5 text-brand-primary hover:bg-brand-primary/[0.08] rounded-full transition-colors" title="Video Call">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
             </button>
           </div>
         </div>
@@ -346,11 +352,21 @@ const ChatWindow = ({ conversation, initialMessages, socket, currentUserId, curr
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="flex-grow overflow-y-auto p-4 pt-12 space-y-4"
+          className="flex-grow overflow-y-auto p-4 pt-6 relative z-20"
         >
-          {messages.map(msg => {
+          <div className="relative z-10 flex flex-col min-h-full justify-end pb-4">
+          {messages.map((msg, index) => {
             const senderIdStr = typeof msg.senderId === 'object' && msg.senderId !== null ? msg.senderId._id : msg.senderId;
             const isOwn = String(senderIdStr) === String(currentUserId);
+            
+            const prevMsg = messages[index - 1];
+            const nextMsg = messages[index + 1];
+            const prevSenderIdStr = prevMsg ? (typeof prevMsg.senderId === 'object' && prevMsg.senderId !== null ? prevMsg.senderId._id : prevMsg.senderId) : null;
+            const nextSenderIdStr = nextMsg ? (typeof nextMsg.senderId === 'object' && nextMsg.senderId !== null ? nextMsg.senderId._id : nextMsg.senderId) : null;
+            
+            const isPrevSame = String(prevSenderIdStr) === String(senderIdStr);
+            const isNextSame = String(nextSenderIdStr) === String(senderIdStr);
+            
             return (
               <MessageBubble
                 key={msg._id}
@@ -360,16 +376,19 @@ const ChatWindow = ({ conversation, initialMessages, socket, currentUserId, curr
                 socket={socket}
                 onReply={handleReply}
                 onDelete={handleDeleteMessage}
+                isPrevSame={isPrevSame}
+                isNextSame={isNextSame}
               />
             );
           })}
-          <div ref={messagesEndRef} />
+          </div>
+          <div ref={messagesEndRef} className="h-1" />
         </div>
 
         {showNewMsgBadge && (
           <button
             onClick={scrollToBottom}
-            className="absolute bottom-24 left-1/2 transform -translate-x-1/2 bg-blue-500 hover:bg-blue-600 transition-colors text-white px-4 py-1.5 rounded-full shadow-lg flex items-center space-x-2 animate-bounce z-10 text-sm font-medium"
+            className="absolute bottom-24 left-1/2 transform -translate-x-1/2 bg-brand-primary hover:bg-brand-primary-hover transition-colors text-white px-4 py-1.5 rounded-full shadow-lg flex items-center space-x-2 animate-bounce z-10 text-sm font-medium"
           >
             <span>↓ New message</span>
           </button>
@@ -392,15 +411,15 @@ const ChatWindow = ({ conversation, initialMessages, socket, currentUserId, curr
       </div>
 
       {showProfile && (
-        <div className="w-80 bg-white border-l border-gray-200 flex flex-col shrink-0 overflow-y-auto z-20 shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)]">
-          <div className="p-6 flex flex-col items-center border-b border-gray-100">
-            <img src={getConvAvatar()} className="w-24 h-24 rounded-full object-cover mb-4 border border-gray-200 shadow-sm" alt="Profile" />
-            <h2 className="text-xl font-bold text-gray-800 text-center">{getConvName()}</h2>
-            <p className="text-sm text-gray-500 mt-1">{isOtherUserOnline ? 'Online' : 'Offline'}</p>
+        <div className="w-80 bg-surface-base border-l border-surface-border flex flex-col shrink-0 overflow-y-auto z-20 shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)]">
+          <div className="p-6 flex flex-col items-center border-b border-surface-border">
+            <img src={getConvAvatar()} className="w-24 h-24 rounded-full object-cover mb-4 border border-surface-border shadow-sm" alt="Profile" />
+            <h2 className="text-xl font-bold text-text-primary text-center">{getConvName()}</h2>
+            <p className="text-sm text-text-secondary mt-1">{isOtherUserOnline ? 'Online' : 'Offline'}</p>
           </div>
           
-          <div className="p-5 border-b border-gray-100">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Recent Files</h3>
+          <div className="p-5 border-b border-surface-border">
+            <h3 className="text-xs font-bold text-text-tertiary uppercase tracking-wider mb-4">Recent Files</h3>
             <div className="space-y-3">
               {recentFiles.length > 0 ? recentFiles.map(file => {
                 let downloadUrl = file.content;
@@ -414,38 +433,38 @@ const ChatWindow = ({ conversation, initialMessages, socket, currentUserId, curr
                 }
                 
                 return (
-                  <a key={file._id} href={downloadUrl} target="_blank" rel="noopener noreferrer" download={file.fileName} className="flex items-center text-sm group cursor-pointer hover:bg-gray-50 p-2 -mx-2 rounded-lg transition-colors no-underline">
-                    <div className="w-8 h-8 rounded bg-indigo-50 flex items-center justify-center mr-3 shrink-0">
+                  <a key={file._id} href={downloadUrl} target="_blank" rel="noopener noreferrer" download={file.fileName} className="flex items-center text-sm group cursor-pointer hover:bg-surface-sunken p-2 -mx-2 rounded-lg transition-colors no-underline">
+                    <div className="w-8 h-8 rounded bg-brand-primary-subtle flex items-center justify-center mr-3 shrink-0">
                       {file.type === 'image' || file.type === 'video' ? (
-                        <svg className="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-4 h-4 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                       ) : (
-                        <svg className="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-4 h-4 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                         </svg>
                       )}
                     </div>
-                    <span className="truncate flex-1 font-medium text-gray-700 group-hover:text-indigo-600 transition-colors">
+                    <span className="truncate flex-1 font-medium text-text-primary group-hover:text-brand-primary transition-colors">
                       {file.fileName || file.content.split('/').pop() || 'Attachment'}
                     </span>
                   </a>
                 );
-              }) : <p className="text-sm text-gray-500 text-center py-2">No recent files</p>}
+              }) : <p className="text-sm text-text-secondary text-center py-2">No recent files</p>}
             </div>
           </div>
 
           <div className="p-5 space-y-3">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Chat Actions</h3>
-            <button onClick={handleClearChat} className="w-full py-2.5 px-4 text-sm font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center">
+            <h3 className="text-xs font-bold text-text-tertiary uppercase tracking-wider mb-4">Chat Actions</h3>
+            <Button onClick={handleClearChat} variant="outline" tone="danger" className="w-full flex justify-center items-center h-10">
               <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
               Clear Chat
-            </button>
+            </Button>
             {conversation.type === 'dm' && (
-              <button onClick={handleBlockToggle} className="w-full py-2.5 px-4 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center">
+              <Button onClick={handleBlockToggle} variant="outline" tone="danger" className="w-full flex justify-center items-center h-10">
                 <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
                 {friendStatus === 'blocked' ? 'Unblock User' : 'Block User'}
-              </button>
+              </Button>
             )}
           </div>
         </div>

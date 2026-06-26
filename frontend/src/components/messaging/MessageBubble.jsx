@@ -4,7 +4,7 @@ import MediaViewer from './MediaViewer';
 
 const EMOJIS = ['❤️', '😂', '😮', '😢', '👍', '🔥'];
 
-const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, onDelete }) => {
+const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, onDelete, isPrevSame, isNextSame }) => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
   const [reactions, setReactions] = useState(message.reactions || {});
@@ -51,7 +51,7 @@ const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, 
 
   const renderContent = () => {
     if (message.isDeleted) {
-      return <p className="italic text-gray-500 flex items-center"><svg className="w-4 h-4 mr-1 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg> This message was deleted</p>;
+      return <p className="italic text-text-tertiary flex items-center"><svg className="w-4 h-4 mr-1 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg> This message was deleted</p>;
     }
     switch (message.type) {
       case 'audio':
@@ -122,22 +122,22 @@ const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, 
         const isOwn = isOwnMessage;
 
         return (
-          <a href={downloadUrl} target="_blank" rel="noopener noreferrer" download={fileName} className={`flex flex-col rounded-lg overflow-hidden transition-colors w-64 max-w-[80vw] no-underline shadow-sm ${isOwn ? 'bg-blue-700 hover:bg-blue-800' : 'bg-[#1E293B] hover:bg-[#334155]'}`}>
+          <a href={downloadUrl} target="_blank" rel="noopener noreferrer" download={fileName} className={`flex flex-col rounded-xl overflow-hidden transition-all duration-200 w-64 max-w-[80vw] no-underline shadow-sm ${isOwn ? 'bg-white/20 hover:bg-white/30 text-white border border-white/10' : 'bg-surface-raised hover:bg-surface-sunken text-text-primary border border-surface-border'}`}>
             {thumbnailUrl ? (
-              <div className="w-full h-36 bg-white relative border-b border-black/10">
+              <div className={`w-full h-36 relative border-b ${isOwn ? 'border-white/10 bg-white/5' : 'border-surface-border bg-surface-base'}`}>
                 <img src={thumbnailUrl} alt="Document Preview" className="w-full h-full object-cover" />
               </div>
             ) : (
-              <div className={`w-full h-24 flex items-center justify-center border-b ${isOwn ? 'bg-blue-600 border-blue-800/30' : 'bg-gray-800 border-gray-700'}`}>
-                <svg className={`w-12 h-12 ${isOwn ? 'text-blue-300' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
+              <div className={`w-full h-24 flex items-center justify-center border-b ${isOwn ? 'border-white/10 bg-white/5' : 'bg-surface-overlay-dark border-surface-border/20'}`}>
+                <svg className={`w-12 h-12 ${isOwn ? 'text-white/80' : 'text-text-tertiary'}`} fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
                 </svg>
               </div>
             )}
             
             <div className="p-3 flex flex-col">
-              <span className="font-semibold truncate block w-full mb-1 text-sm text-white">{fileName}</span>
-              <span className={`text-xs flex items-center ${isOwn ? 'text-blue-200' : 'text-gray-400'}`}>
+              <span className={`font-semibold truncate block w-full mb-1 text-sm ${isOwn ? 'text-white' : 'text-text-primary'}`}>{fileName}</span>
+              <span className={`text-xs flex items-center ${isOwn ? 'text-white/70' : 'text-text-tertiary'}`}>
                 {formattedSize ? `${formattedSize} • ` : ''}{fileExt}
               </span>
             </div>
@@ -165,11 +165,11 @@ const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, 
       <div id={`msg-${message._id}`} className="flex w-full justify-center my-4">
         <div className={`flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium shadow-sm border ${
           isMissed 
-            ? 'bg-red-50 text-red-600 border-red-100' 
-            : 'bg-slate-50 text-slate-600 border-slate-200'
+            ? 'bg-status-danger-subtle text-status-danger border-status-danger/20' 
+            : 'bg-surface-sunken text-text-secondary border-surface-border'
         }`}>
           <span>{message.content}</span>
-          <span className={`text-[10px] sm:text-xs ml-2 ${isMissed ? 'text-red-400' : 'text-slate-400'}`}>
+          <span className={`text-[10px] sm:text-xs ml-2 ${isMissed ? 'text-status-danger/70' : 'text-text-tertiary'}`}>
             {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </span>
         </div>
@@ -177,16 +177,25 @@ const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, 
     );
   }
 
+  const bubbleSpacing = isNextSame ? 'mb-1' : 'mb-4';
+  const bubbleRoundedClasses = isOwnMessage 
+    ? `rounded-2xl ${isPrevSame ? 'rounded-tr-md' : ''} ${isNextSame ? 'rounded-br-sm' : 'rounded-br-sm'}`
+    : `rounded-2xl ${isPrevSame ? 'rounded-tl-md' : ''} ${isNextSame ? 'rounded-bl-sm' : 'rounded-bl-[4px]'}`;
+
   return (
-    <div id={`msg-${message._id}`} className={`flex w-full ${isOwnMessage ? 'justify-end' : 'justify-start'} my-2`}>
+    <div id={`msg-${message._id}`} className={`flex w-full ${isOwnMessage ? 'justify-end' : 'justify-start'} ${bubbleSpacing}`}>
       {!isOwnMessage && (
-        <div className="flex-shrink-0 mr-2 mt-auto mb-5 hidden sm:block">
-           {message.senderId?.avatar ? (
-             <img src={message.senderId.avatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover shadow-sm" />
+        <div className="flex-shrink-0 mr-2.5 mt-auto mb-[18px] hidden sm:flex items-end">
+           {(!isNextSame) ? (
+             message.senderId?.avatar ? (
+               <img src={message.senderId.avatar} alt="Avatar" className="w-7 h-7 rounded-full object-cover shadow-sm ring-1 ring-surface-border/50" />
+             ) : (
+               <div className="w-7 h-7 rounded-full bg-brand-primary flex items-center justify-center text-xs font-semibold text-white shadow-sm ring-1 ring-brand-primary/20">
+                 {message.senderId?.name?.charAt(0).toUpperCase() || 'U'}
+               </div>
+             )
            ) : (
-             <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-sm font-semibold text-white shadow-sm">
-               {message.senderId?.name?.charAt(0).toUpperCase() || 'U'}
-             </div>
+             <div className="w-7 h-7" /> /* Empty spacer for grouped messages */
            )}
         </div>
       )}
@@ -194,7 +203,7 @@ const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, 
       {message.replyTo && (
         <div 
           onClick={scrollToOriginal}
-          className="mb-1 text-xs bg-gray-100 p-2 rounded cursor-pointer border-l-2 border-blue-400 opacity-80 max-w-[70%] truncate hover:opacity-100"
+          className="mb-1 text-xs bg-surface-sunken p-2 rounded cursor-pointer border-l-2 border-brand-primary opacity-80 max-w-[70%] truncate hover:opacity-100"
         >
           <span className="font-semibold">{message.replyTo.senderId?.name || 'User'}</span>
           <br/>
@@ -208,7 +217,7 @@ const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, 
         onMouseLeave={() => setShowPicker(false)}
       >
         {showPicker && !message.isDeleted && (
-          <div className={`absolute z-50 bottom-full mb-1 bg-white border shadow-lg rounded-full px-2 py-1 flex space-x-1 items-center w-max ${isOwnMessage ? 'right-0' : 'left-0'}`}>
+          <div className={`absolute z-50 bottom-full mb-1 bg-surface-base border border-surface-border shadow-lg rounded-full px-2 py-1 flex space-x-1 items-center w-max ${isOwnMessage ? 'right-0' : 'left-0'}`}>
             {EMOJIS.map(emoji => (
               <button 
                 key={emoji} 
@@ -218,11 +227,11 @@ const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, 
                 {emoji}
               </button>
             ))}
-            <button onClick={handleReplyClick} className="ml-2 text-gray-500 hover:text-blue-500 p-1" title="Reply">
+            <button onClick={handleReplyClick} className="ml-2 text-text-tertiary hover:text-brand-primary p-1" title="Reply">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
             </button>
             {isOwnMessage && onDelete && (
-              <button onClick={() => { setShowPicker(false); onDelete(message._id); }} className="ml-1 text-gray-400 hover:text-red-500 p-1" title="Delete for everyone">
+              <button onClick={() => { setShowPicker(false); onDelete(message._id); }} className="ml-1 text-text-tertiary hover:text-status-danger p-1" title="Delete for everyone">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
               </button>
             )}
@@ -232,12 +241,12 @@ const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, 
         <div 
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          className={`rounded-lg p-3 relative ${
-            message.isDeleted ? 'bg-gray-100 border border-gray-200 text-gray-500' :
+          className={`${bubbleRoundedClasses} py-2 px-3.5 relative max-w-full overflow-hidden leading-relaxed text-[15px] shadow-sm ${
+            message.isDeleted ? 'bg-surface-sunken border border-surface-border text-text-tertiary' :
             isOwnMessage 
-              ? 'bg-blue-600 text-white rounded-br-none' 
-              : 'bg-white text-gray-800 border shadow-sm rounded-bl-none'
-          } ${message.type !== 'text' && !message.isDeleted ? 'p-1 bg-transparent border-none shadow-none' : ''}`}
+              ? 'bg-brand-primary/[0.92] text-white backdrop-blur-sm' 
+              : 'bg-surface-base text-text-primary border border-surface-border/60 backdrop-blur-md'
+          } ${message.type !== 'text' && !message.isDeleted ? '!p-1 bg-transparent border-none shadow-none' : ''}`}
         >
           {renderContent()}
         </div>
@@ -252,36 +261,36 @@ const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, 
               <button 
                 key={emoji}
                 onClick={() => handleReaction(emoji)}
-                className={`text-xs px-1.5 py-0.5 rounded-full border shadow-sm flex items-center space-x-1 bg-white
-                  ${userReacted ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}
+                className={`text-xs px-1.5 py-0.5 rounded-full border shadow-sm flex items-center space-x-1 bg-surface-base
+                  ${userReacted ? 'border-brand-primary bg-brand-primary-subtle' : 'border-surface-border'}
                 `}
               >
                 <span>{emoji}</span>
-                <span className="text-gray-500 font-medium">{users.length}</span>
+                <span className="text-text-secondary font-medium">{users.length}</span>
               </button>
             );
           })}
         </div>
       )}
 
-      <div className={`flex items-center space-x-1 justify-end ${reactionEntries.length > 0 ? '-mt-2' : 'mt-1'}`}>
-        <span className="text-xs text-gray-400">
+      <div className={`flex items-center space-x-1 justify-end mt-0.5 px-1 ${reactionEntries.length > 0 ? '-mt-1' : ''}`}>
+        <span className={`text-[10px] font-medium tracking-wide text-text-tertiary`}>
           {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </span>
         {isOwnMessage && (
           <span className="ml-1 flex items-center">
             {message.seenBy && message.seenBy.length > 0 ? (
-              <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12l5 5L20 7" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2 12l5 5M15 7l-5 5" />
               </svg>
             ) : message._id ? (
-              <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 text-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12l5 5L20 7" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2 12l5 5M15 7l-5 5" />
               </svg>
             ) : (
-              <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 text-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             )}

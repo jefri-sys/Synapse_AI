@@ -8,6 +8,11 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.js';
 import MarkdownText from '../../components/MarkdownText';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { ChatBubble } from '../../components/ui/ChatBubble';
+import { Card } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
 
 export default function NotebookView() {
   const { user, updateUser } = useAuth();
@@ -253,7 +258,7 @@ export default function NotebookView() {
     return (
       <ProtectedPage>
         <div className="flex h-[80vh] items-center justify-center">
-          <Loader2 className="w-10 h-10 animate-spin text-indigo-500" />
+          <Loader2 className="w-10 h-10 animate-spin text-brand-primary" />
         </div>
       </ProtectedPage>
     );
@@ -269,19 +274,19 @@ export default function NotebookView() {
         <div className="w-full lg:w-1/3 flex flex-col gap-6">
           <button 
             onClick={() => navigate('/notebook')}
-            className="flex items-center gap-2 text-gray-500 hover:text-indigo-600 transition-colors w-fit font-medium text-sm"
+            className="flex items-center gap-2 text-text-secondary hover:text-brand-primary transition-colors w-fit font-medium text-sm"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Notebooks
           </button>
           
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col">
+          <div className="bg-surface-raised rounded-2xl p-6 border border-surface-border shadow-sm flex flex-col">
             <div className="flex items-start gap-4 mb-4">
-              <div className={`p-3 rounded-xl shrink-0 ${notebook.fileType === 'pdf' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
+              <div className={`p-3 rounded-xl shrink-0 ${notebook.fileType === 'pdf' ? 'bg-status-danger-subtle text-status-danger' : 'bg-brand-primary-subtle text-brand-primary'}`}>
                 {notebook.fileType === 'pdf' ? <FileType2 className="w-8 h-8" /> : <File className="w-8 h-8" />}
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900 leading-tight mb-1">{notebook.title}</h2>
-                <p className="text-sm text-gray-500 font-medium">{subjectName || 'General Notes'}</p>
+                <h2 className="text-xl font-display font-bold text-text-primary leading-tight mb-1">{notebook.title}</h2>
+                <p className="text-sm text-text-secondary font-medium">{subjectName || 'General Notes'}</p>
               </div>
             </div>
 
@@ -289,41 +294,43 @@ export default function NotebookView() {
               href={notebook.fileUrl} 
               target="_blank" 
               rel="noreferrer"
-              className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 hover:bg-gray-100 p-3 rounded-xl border border-gray-200 transition-colors mb-8"
+              className="flex items-center gap-2 text-sm text-text-secondary bg-surface-sunken hover:bg-surface-border p-3 rounded-xl border border-surface-border transition-colors mb-8"
             >
-              <Download className="w-4 h-4 shrink-0 text-gray-400" />
+              <Download className="w-4 h-4 shrink-0 text-text-tertiary" />
               <span className="truncate flex-1 font-medium">{notebook.fileName}</span>
             </a>
 
             <div className="mt-auto space-y-3">
-              <button 
+              <Button 
+                variant="secondary"
                 onClick={handleGenerateSummary}
                 disabled={generatingSummary || isTyping}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-50 to-indigo-100 hover:from-indigo-100 hover:to-indigo-200 text-indigo-700 py-3 px-4 rounded-xl font-semibold transition-all border border-indigo-200 disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl"
               >
                 {generatingSummary ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
                 Generate Summary
-              </button>
+              </Button>
               
-              <button 
+              <Button 
+                variant="secondary"
                 onClick={handleGenerateQuiz}
                 disabled={generatingQuiz || isTyping}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-50 to-violet-100 hover:from-violet-100 hover:to-violet-200 text-violet-700 py-3 px-4 rounded-xl font-semibold transition-all border border-violet-200 disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl"
               >
                 {generatingQuiz ? <Loader2 className="w-5 h-5 animate-spin" /> : <BrainCircuit className="w-5 h-5" />}
                 Generate Quiz
-              </button>
+              </Button>
               
-              <div className="pt-4 mt-2 border-t border-gray-100">
+              <div className="pt-4 mt-2 border-t border-surface-border">
                 <div className="flex justify-between items-center mb-1.5">
-                  <span className="text-xs font-semibold text-gray-500 flex items-center gap-1"><Sparkles className="w-3 h-3 text-indigo-500" /> AI Usage</span>
-                  <span className="text-xs font-medium text-gray-500">
+                  <span className="text-xs font-semibold text-text-secondary flex items-center gap-1"><Sparkles className="w-3 h-3 text-ai-accent" /> AI Usage</span>
+                  <span className="text-xs font-medium text-text-secondary">
                     {((user?.aiTokensUsed || 0) / 1000).toFixed(1)}k / {((user?.aiTokenLimit || 500000) / 1000).toFixed(0)}k
                   </span>
                 </div>
-                <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                <div className="w-full bg-surface-sunken rounded-full h-1.5 overflow-hidden">
                   <div 
-                    className={`h-full rounded-full transition-all duration-500 ${((user?.aiTokensUsed || 0) / (user?.aiTokenLimit || 500000)) > 0.8 ? 'bg-red-500' : 'bg-indigo-500'}`} 
+                    className={`h-full rounded-full transition-all duration-500 ${((user?.aiTokensUsed || 0) / (user?.aiTokenLimit || 500000)) > 0.8 ? 'bg-status-danger' : 'bg-brand-primary'}`} 
                     style={{ width: `${Math.min(100, ((user?.aiTokensUsed || 0) / (user?.aiTokenLimit || 500000)) * 100)}%` }}
                   ></div>
                 </div>
@@ -333,17 +340,17 @@ export default function NotebookView() {
         </div>
 
         {/* RIGHT PANEL - TABS & CONTENT */}
-        <div className="w-full lg:w-2/3 flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden h-full">
-          <div className="flex items-center border-b border-gray-100 px-4 pt-2 bg-gray-50/50">
+        <div className="w-full lg:w-2/3 flex flex-col bg-surface-raised rounded-2xl border border-surface-border shadow-sm overflow-hidden h-full">
+          <div className="flex items-center border-b border-surface-border px-4 pt-2 bg-surface-base">
             <button
               onClick={() => setActiveTab('chat')}
-              className={`px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'chat' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+              className={`px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'chat' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-text-secondary hover:text-text-primary hover:border-surface-border'}`}
             >
               AI Tutor & Chat
             </button>
             <button
               onClick={() => setActiveTab('summaries')}
-              className={`px-4 py-3 text-sm font-semibold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'summaries' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+              className={`px-4 py-3 text-sm font-semibold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'summaries' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-text-secondary hover:text-text-primary hover:border-surface-border'}`}
             >
               <Archive className="w-4 h-4" /> Saved Summaries
             </button>
@@ -351,139 +358,126 @@ export default function NotebookView() {
 
           {activeTab === 'chat' ? (
             <>
-              <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/50">
+              <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-surface-base">
             {chats.length === 0 && !isTyping ? (
               <div className="h-full flex flex-col items-center justify-center text-center px-4">
-                <Sparkles className="w-12 h-12 text-indigo-300 mb-4" />
-                <h3 className="text-lg font-bold text-gray-900">AI Tutor is Ready</h3>
-                <p className="text-gray-500 max-w-sm mt-2">Ask questions about your document, or use the panel on the left to generate summaries and quizzes.</p>
+                <Sparkles className="w-12 h-12 text-brand-primary-subtle mb-4" />
+                <h3 className="text-lg font-bold text-text-primary">AI Tutor is Ready</h3>
+                <p className="text-text-secondary max-w-sm mt-2">Ask questions about your document, or use the panel on the left to generate summaries and quizzes.</p>
               </div>
             ) : (
               chats.map((chat) => (
-                <div key={chat._id} className={`flex ${chat.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] rounded-2xl px-5 py-4 ${
-                    chat.role === 'user' 
-                      ? 'bg-indigo-600 text-white rounded-br-sm shadow-md' 
-                      : 'bg-white border border-gray-200 text-gray-800 rounded-bl-sm shadow-sm'
-                  }`}>
-                    {chat.role === 'assistant' && !chat.quizData && (
-                      <div className="flex items-center justify-between gap-4 mb-2 text-indigo-600">
-                        <div className="flex items-center gap-2">
-                          <Sparkles className="w-4 h-4" />
-                          <span className="text-xs font-bold uppercase tracking-wider">AI Assistant</span>
+                <ChatBubble 
+                  key={chat._id} 
+                  role={chat.role}
+                  headerRight={chat.role === 'assistant' && !chat.quizData && chat.message.length > 250 && !chat.message.includes('{"question"') ? (
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openSaveDialog(chat.message)} 
+                      className="h-8 px-3 text-xs"
+                    >
+                      <Download className="w-3.5 h-3.5 mr-1.5" /> Save as PDF
+                    </Button>
+                  ) : null}
+                >
+                  {chat.role === 'user' ? (
+                    <div className="whitespace-pre-wrap">{chat.message}</div>
+                  ) : (
+                    <MarkdownText text={chat.message} className="text-text-primary" />
+                  )}
+
+                  {/* QUIZ RENDERING */}
+                  {chat.quizData && (
+                    <div className="mt-6 space-y-6">
+                      {quizResults[chat._id] && (
+                        <div className="bg-brand-primary-subtle border border-brand-primary/20 rounded-xl p-4 flex items-center justify-between mb-6">
+                          <span className="font-bold text-brand-primary">Quiz Completed!</span>
+                          <div className="flex items-center gap-1.5 px-3 py-1 bg-surface-raised rounded-lg font-bold text-brand-primary shadow-sm border border-brand-primary/10">
+                            <span>Score:</span>
+                            <span className="text-lg">{quizResults[chat._id].score}/{quizResults[chat._id].total}</span>
+                          </div>
                         </div>
-                        {chat.message.length > 250 && !chat.message.includes('{"question"') && (
-                          <button 
-                            onClick={() => openSaveDialog(chat.message)} 
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300 rounded-lg text-xs font-bold transition-colors"
+                      )}
+
+                      {chat.quizData.map((q, idx) => {
+                        const result = quizResults[chat._id]?.breakdown?.[idx];
+                        const selectedAnswer = quizAnswers[chat._id]?.[idx];
+                        const isSubmitted = !!quizResults[chat._id];
+
+                        let boxClass = "border border-surface-border rounded-xl p-5 bg-surface-sunken";
+                        if (isSubmitted) {
+                          if (result.isCorrect) boxClass = "border-2 border-status-success rounded-xl p-5 bg-status-success-subtle/50";
+                          else boxClass = "border-2 border-status-danger rounded-xl p-5 bg-status-danger-subtle/50";
+                        }
+
+                        return (
+                          <div key={idx} className={boxClass}>
+                            <div className="flex items-start gap-3 mb-4">
+                              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-brand-primary-subtle text-brand-primary font-bold text-xs shrink-0 mt-0.5">{idx + 1}</span>
+                              <p className="font-semibold text-text-primary">{q.question}</p>
+                            </div>
+
+                            <div className="space-y-2.5 ml-9">
+                              {q.options.map((opt, oIdx) => {
+                                const isSelected = selectedAnswer === opt;
+                                
+                                let optClass = "flex items-center w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ";
+                                if (!isSubmitted) {
+                                  optClass += isSelected ? "bg-brand-primary-subtle border-brand-primary text-brand-primary font-medium shadow-sm" : "bg-surface-raised border-surface-border hover:border-brand-primary/30 hover:bg-surface-sunken text-text-secondary";
+                                } else {
+                                  if (opt === q.correct) optClass += "bg-status-success-subtle border-status-success text-status-success font-bold shadow-sm";
+                                  else if (isSelected && !result.isCorrect) optClass += "bg-status-danger-subtle border-status-danger text-status-danger font-medium";
+                                  else optClass += "bg-surface-raised border-surface-border text-text-tertiary opacity-60";
+                                }
+
+                                return (
+                                  <button 
+                                    key={oIdx}
+                                    disabled={isSubmitted}
+                                    onClick={() => handleQuizOptionSelect(chat._id, idx, opt)}
+                                    className={optClass}
+                                  >
+                                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center mr-3 shrink-0 ${isSelected ? (isSubmitted && !result?.isCorrect ? 'border-status-danger bg-status-danger' : 'border-brand-primary bg-brand-primary') : 'border-surface-border'}`}>
+                                      {isSelected && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                                    </div>
+                                    {opt}
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            {isSubmitted && (
+                              <div className={`mt-4 ml-9 p-4 rounded-lg text-sm ${result.isCorrect ? 'bg-status-success-subtle text-status-success' : 'bg-status-danger-subtle text-status-danger'}`}>
+                                <div className="flex items-center gap-2 font-bold mb-1">
+                                  {result.isCorrect ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                                  {result.isCorrect ? "Correct!" : "Incorrect"}
+                                </div>
+                                <p>{result.explanation}</p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+
+                      {!quizResults[chat._id] && (
+                        <div className="flex justify-end pt-2">
+                          <Button 
+                            onClick={() => handleSubmitQuiz(chat._id, chat.quizData)}
                           >
-                            <Download className="w-3.5 h-3.5" /> Save as PDF
-                          </button>
-                        )}
-                      </div>
-                    )}
-                    
-                    <div className={`leading-relaxed overflow-hidden ${chat.role === 'user' ? 'text-white' : 'text-gray-800'}`}>
-                      {chat.role === 'user' ? (
-                        <div className="whitespace-pre-wrap">{chat.message}</div>
-                      ) : (
-                        <MarkdownText text={chat.message} className="text-gray-700" />
+                            Submit Answers
+                          </Button>
+                        </div>
                       )}
                     </div>
-
-                    {/* QUIZ RENDERING */}
-                    {chat.quizData && (
-                      <div className="mt-6 space-y-6">
-                        {quizResults[chat._id] && (
-                          <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 flex items-center justify-between mb-6">
-                            <span className="font-bold text-indigo-900">Quiz Completed!</span>
-                            <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg font-bold text-indigo-700 shadow-sm border border-indigo-100">
-                              <span>Score:</span>
-                              <span className="text-lg">{quizResults[chat._id].score}/{quizResults[chat._id].total}</span>
-                            </div>
-                          </div>
-                        )}
-
-                        {chat.quizData.map((q, idx) => {
-                          const result = quizResults[chat._id]?.breakdown?.[idx];
-                          const selectedAnswer = quizAnswers[chat._id]?.[idx];
-                          const isSubmitted = !!quizResults[chat._id];
-
-                          let boxClass = "border border-gray-200 rounded-xl p-5 bg-gray-50";
-                          if (isSubmitted) {
-                            if (result.isCorrect) boxClass = "border-2 border-green-400 rounded-xl p-5 bg-green-50/50";
-                            else boxClass = "border-2 border-red-400 rounded-xl p-5 bg-red-50/50";
-                          }
-
-                          return (
-                            <div key={idx} className={boxClass}>
-                              <div className="flex items-start gap-3 mb-4">
-                                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs shrink-0 mt-0.5">{idx + 1}</span>
-                                <p className="font-semibold text-gray-900">{q.question}</p>
-                              </div>
-
-                              <div className="space-y-2.5 ml-9">
-                                {q.options.map((opt, oIdx) => {
-                                  const isSelected = selectedAnswer === opt;
-                                  
-                                  let optClass = "flex items-center w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ";
-                                  if (!isSubmitted) {
-                                    optClass += isSelected ? "bg-indigo-50 border-indigo-500 text-indigo-900 font-medium shadow-sm" : "bg-white border-gray-200 hover:border-indigo-300 hover:bg-gray-50 text-gray-700";
-                                  } else {
-                                    if (opt === q.correct) optClass += "bg-green-100 border-green-500 text-green-900 font-bold shadow-sm";
-                                    else if (isSelected && !result.isCorrect) optClass += "bg-red-100 border-red-500 text-red-900 font-medium";
-                                    else optClass += "bg-white border-gray-200 text-gray-400 opacity-60";
-                                  }
-
-                                  return (
-                                    <button 
-                                      key={oIdx}
-                                      disabled={isSubmitted}
-                                      onClick={() => handleQuizOptionSelect(chat._id, idx, opt)}
-                                      className={optClass}
-                                    >
-                                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center mr-3 shrink-0 ${isSelected ? (isSubmitted && !result?.isCorrect ? 'border-red-500 bg-red-500' : 'border-indigo-600 bg-indigo-600') : 'border-gray-300'}`}>
-                                        {isSelected && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
-                                      </div>
-                                      {opt}
-                                    </button>
-                                  );
-                                })}
-                              </div>
-
-                              {isSubmitted && (
-                                <div className={`mt-4 ml-9 p-4 rounded-lg text-sm ${result.isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                  <div className="flex items-center gap-2 font-bold mb-1">
-                                    {result.isCorrect ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-                                    {result.isCorrect ? "Correct!" : "Incorrect"}
-                                  </div>
-                                  <p>{result.explanation}</p>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-
-                        {!quizResults[chat._id] && (
-                          <div className="flex justify-end pt-2">
-                            <button 
-                              onClick={() => handleSubmitQuiz(chat._id, chat.quizData)}
-                              className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-md transition-colors"
-                            >
-                              Submit Answers
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
+                  )}
+                </ChatBubble>
               ))
             )}
             
             {isTyping && (
               <div className="flex justify-start">
-                <div className="bg-white border border-gray-200 rounded-2xl rounded-bl-sm px-5 py-4 shadow-sm flex items-center gap-2 text-indigo-600">
+                <div className="bg-surface-raised border border-surface-border rounded-2xl rounded-bl-sm px-5 py-4 shadow-sm flex items-center gap-2 text-ai-accent">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span className="text-sm font-medium">AI is thinking...</span>
                 </div>
@@ -492,54 +486,55 @@ export default function NotebookView() {
             <div ref={chatEndRef} />
           </div>
 
-          <div className="p-4 bg-white border-t border-gray-100">
-            <form onSubmit={handleSendMessage} className="relative flex items-center">
-              <input
+          <div className="p-4 bg-surface-raised border-t border-surface-border">
+            <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+              <Input
                 type="text"
                 value={inputValue}
                 onChange={e => setInputValue(e.target.value)}
                 placeholder="Ask a question about your notes..."
                 disabled={isTyping}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-4 pr-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all disabled:opacity-50"
+                className="flex-1"
               />
-              <button 
+              <Button 
                 type="submit"
+                variant="primary"
                 disabled={!inputValue.trim() || isTyping}
-                className="absolute right-2 p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:hover:bg-indigo-600 transition-colors"
+                className="px-3"
               >
                 <Send className="w-4 h-4" />
-              </button>
+              </Button>
             </form>
-            <p className="text-center text-xs text-gray-400 mt-2">AI can make mistakes. Verify important information.</p>
+            <p className="text-center text-xs text-text-tertiary mt-2">AI can make mistakes. Verify important information.</p>
           </div>
             </>
           ) : (
-            <div className="flex-1 overflow-y-auto p-6 bg-gray-50/50">
+            <div className="flex-1 overflow-y-auto p-6 bg-surface-base">
               {savedSummaries.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                  <Archive className="w-12 h-12 mb-4 text-indigo-200" />
+                <div className="flex flex-col items-center justify-center h-full text-text-tertiary">
+                  <Archive className="w-12 h-12 mb-4 text-surface-border" />
                   <p>No saved summaries yet.</p>
-                  <p className="text-sm">Generate a summary in the chat and click "Save as PDF" to save it here.</p>
+                  <p className="text-sm text-text-secondary">Generate a summary in the chat and click "Save as PDF" to save it here.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {savedSummaries.map(s => (
-                    <div key={s._id} className="bg-white p-4 border border-gray-200 rounded-xl shadow-sm flex flex-col group hover:border-indigo-300 transition-colors">
+                    <Card key={s._id} className="p-4 flex flex-col group hover:border-brand-primary transition-colors">
                       <div className="flex items-start justify-between mb-3">
-                        <h4 className="font-bold text-gray-900 leading-tight">{s.title}</h4>
-                        <button onClick={() => handleDeleteSummary(s._id)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" title="Delete">
+                        <h4 className="font-bold text-text-primary leading-tight">{s.title}</h4>
+                        <button onClick={() => handleDeleteSummary(s._id)} className="p-1.5 text-text-tertiary hover:text-status-danger hover:bg-status-danger-subtle rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" title="Delete">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                      <div className="flex items-center gap-2 text-xs font-medium text-gray-500 mb-4">
-                        <span className="bg-gray-100 px-2 py-1 rounded-md">{s.subject?.name || 'Unknown Subject'}</span>
+                      <div className="flex items-center gap-2 text-xs font-medium text-text-secondary mb-4">
+                        <Badge status="info">{s.subject?.name || 'Unknown Subject'}</Badge>
                         <span>•</span>
                         <span>{new Date(s.createdAt).toLocaleDateString()}</span>
                       </div>
-                      <a href={s.pdfUrl} target="_blank" rel="noreferrer" className="mt-auto flex items-center justify-center gap-2 w-full py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg font-semibold text-sm transition-colors">
+                      <a href={s.pdfUrl} target="_blank" rel="noreferrer" className="mt-auto flex items-center justify-center gap-2 w-full py-2 bg-brand-primary-subtle text-brand-primary hover:bg-brand-primary/20 rounded-lg font-semibold text-sm transition-colors">
                         <Download className="w-4 h-4" /> Download PDF
                       </a>
-                    </div>
+                    </Card>
                   ))}
                 </div>
               )}
@@ -552,29 +547,28 @@ export default function NotebookView() {
       {/* Save Summary Dialog */}
       {showSaveDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-              <h3 className="font-bold text-gray-900 text-lg">Save Summary as PDF</h3>
-              <button onClick={() => setShowSaveDialog(false)} className="text-gray-400 hover:text-gray-600">
+          <div className="bg-surface-raised rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col border border-surface-border">
+            <div className="px-6 py-4 border-b border-surface-border flex justify-between items-center bg-surface-base">
+              <h3 className="font-bold text-text-primary text-lg">Save Summary as PDF</h3>
+              <button onClick={() => setShowSaveDialog(false)} className="text-text-tertiary hover:text-text-primary">
                 <XCircle className="w-5 h-5" />
               </button>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">PDF Title</label>
-                <input 
+                <label className="block text-sm font-semibold text-text-primary mb-1">PDF Title</label>
+                <Input 
                   type="text" 
                   value={saveTitle} 
                   onChange={e => setSaveTitle(e.target.value)} 
-                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">File under Subject</label>
+                <label className="block text-sm font-semibold text-text-primary mb-1">File under Subject</label>
                 <select 
                   value={saveSubjectId} 
                   onChange={e => setSaveSubjectId(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"
+                  className="flex w-full rounded-sm border border-surface-border bg-surface-base px-3 py-3 text-sm text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                 >
                   <option value="" disabled>Select a subject...</option>
                   {subjects.map(s => (
@@ -583,21 +577,20 @@ export default function NotebookView() {
                 </select>
               </div>
             </div>
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
-              <button 
+            <div className="px-6 py-4 bg-surface-base border-t border-surface-border flex justify-end gap-3">
+              <Button 
+                variant="ghost"
                 onClick={() => setShowSaveDialog(false)}
-                className="px-4 py-2 font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
               >
                 Cancel
-              </button>
-              <button 
+              </Button>
+              <Button 
                 onClick={handleSavePdf}
                 disabled={savingPdf || !saveSubjectId || !saveTitle}
-                className="px-6 py-2 font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
               >
-                {savingPdf && <Loader2 className="w-4 h-4 animate-spin" />}
+                {savingPdf && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                 {savingPdf ? 'Generating PDF...' : 'Save & Download'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

@@ -51,6 +51,7 @@ function compareKeywordsToResume(jobDescription, resume) {
 async function generateRecruiterAnalysis(resume, jobDescription) {
   let rawResponse = '';
   try {
+    console.log("DEBUG [generateRecruiterAnalysis]: resume.content is:", JSON.stringify(resume.content, null, 2));
     const resumeText = JSON.stringify(resume.content || {}, null, 2);
     const jdText = jobDescription.rawText || '';
 
@@ -90,7 +91,7 @@ Return ONLY valid JSON matching this exact shape, with no markdown, no preamble:
   "comparisonToStrongCandidate": "string" // 3-5 sentences comparing this resume to a typical strong candidate for this role
 }`;
 
-    rawResponse = await routeRequest("recruiter-analysis", { prompt, files: [] });
+    rawResponse = await routeRequest("recruiter-analysis", { prompt, files: [], responseMimeType: "application/json" });
 
     // formatGuard-style safe JSON parser
     let jsonStr = rawResponse;
@@ -99,6 +100,7 @@ Return ONLY valid JSON matching this exact shape, with no markdown, no preamble:
     
     if (jsonStart !== -1 && jsonEnd !== -1) {
       jsonStr = jsonStr.substring(jsonStart, jsonEnd + 1);
+      jsonStr = jsonStr.replace(/,\s*([}\]])/g, '$1');
     }
 
     let analysis;
@@ -116,10 +118,10 @@ Return ONLY valid JSON matching this exact shape, with no markdown, no preamble:
       analysis = {
         matchScore: 0,
         missingKeywords: [],
-        redFlags: ["AI could not fully analyze this resume. Ensure your uploaded document has standard readable text."],
+        redFlags: ["Our AI service encountered a temporary processing error. Please try running the analysis again."],
         strongSections: [],
         weakSections: [],
-        comparisonToStrongCandidate: "Analysis failed due to sparse or unreadable content. Please try a different document or manually update your details."
+        comparisonToStrongCandidate: "We hit a temporary issue generating this analysis. This is not a reflection of your resume's quality — please click Run Analysis again."
       };
     }
 

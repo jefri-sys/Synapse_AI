@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ProtectedPage from '../../components/ProtectedPage.jsx';
 import MessagingLayout from '../../components/messaging/MessagingLayout.jsx';
 import ChatWindow from '../../components/messaging/ChatWindow.jsx';
+import { Card } from '../../components/ui/card';
 import { useAuth } from '../../hooks/useAuth.js';
 import api from '../../services/api.js';
 import { io } from 'socket.io-client';
@@ -164,13 +165,13 @@ function Messages({ isPopupMode }) {
       currentUser={user}
     />
   ) : (
-    <div className="flex-1 flex items-center justify-center text-slate-400 bg-slate-50">
+    <div className="flex-1 flex items-center justify-center text-text-tertiary bg-surface-base">
       <p>Select a conversation to start chatting</p>
     </div>
   );
 
   const content = (
-    <div className="h-[70vh] border rounded-xl overflow-hidden shadow-sm">
+    <Card className="h-[calc(100vh-2.5rem)] sm:h-[calc(100vh-4rem)] p-0 overflow-hidden shadow-sm border-surface-border flex flex-col">
       <MessagingLayout 
         conversations={conversations}
         activeConversationId={activeConversation?._id}
@@ -188,7 +189,7 @@ function Messages({ isPopupMode }) {
         currentUserId={user?._id || user?.id}
         centerContent={centerContent}
       />
-    </div>
+    </Card>
   );
 
   if (isPopupMode) {
@@ -196,10 +197,7 @@ function Messages({ isPopupMode }) {
   }
 
   return (
-    <ProtectedPage
-      title="Messages"
-      description="Connect with peers and groups in real-time."
-    >
+    <ProtectedPage>
       {content}
     </ProtectedPage>
   );

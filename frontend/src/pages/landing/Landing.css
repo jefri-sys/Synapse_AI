@@ -3,8 +3,8 @@
 .landing-container {
   min-height: 100vh;
   /* Dark space background */
-  background: #030712;
-  color: #f8fafc;
+  background: var(--marketing-bg-base);
+  color: var(--marketing-text-primary);
   font-family: 'Plus Jakarta Sans', sans-serif;
   overflow-x: hidden;
   position: relative;
@@ -93,7 +93,7 @@
 }
 
 .logo-icon {
-  color: #0EA5E9;
+  color: var(--marketing-accent-primary);
 }
 
 @keyframes spinSlow {
@@ -109,7 +109,7 @@
 }
 
 .nav-link {
-  color: #94a3b8;
+  color: var(--marketing-text-tertiary);
   text-decoration: none;
   font-weight: 600;
   transition: all 0.3s ease;
@@ -117,7 +117,7 @@
 }
 
 .nav-link:hover {
-  color: #fff;
+  color: var(--marketing-white);
 }
 
 .nav-link::after {
@@ -127,7 +127,7 @@
   height: 2px;
   bottom: -4px;
   left: 0;
-  background: #0EA5E9;
+  background: var(--marketing-accent-primary);
   transition: width 0.3s ease;
 }
 
@@ -136,7 +136,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #0EA5E9, #38BDF8);
+  background: linear-gradient(135deg, var(--marketing-accent-primary), var(--marketing-accent-secondary));
   color: white;
   padding: 0.875rem 2rem;
   border-radius: 9999px;
@@ -212,7 +212,7 @@
   background: rgba(14, 165, 233, 0.1);
   border: 1px solid rgba(14, 165, 233, 0.2);
   border-radius: 9999px;
-  color: #38BDF8;
+  color: var(--marketing-accent-secondary);
   font-weight: 700;
   font-size: 0.875rem;
   margin-bottom: 2rem;
@@ -245,13 +245,13 @@
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #fff 0%, #cbd5e1 50%, #94a3b8 100%);
+  background: linear-gradient(135deg, var(--marketing-white) 0%, var(--marketing-text-secondary) 50%, var(--marketing-text-tertiary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .text-gradient-accent {
-  background: linear-gradient(135deg, #0EA5E9, #38BDF8);
+  background: linear-gradient(135deg, var(--marketing-accent-primary), var(--marketing-accent-secondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
@@ -272,7 +272,7 @@
 
 .hero-subtitle {
   font-size: 1.25rem;
-  color: #94a3b8;
+  color: var(--marketing-text-tertiary);
   margin-bottom: 3rem;
   line-height: 1.6;
   max-width: 650px;
@@ -414,8 +414,8 @@
   left: -100%;
   width: 80px;
   height: 100%;
-  background: #fff;
-  box-shadow: 0 0 10px #fff, 0 0 20px #0EA5E9;
+  background: var(--marketing-white);
+  box-shadow: 0 0 10px var(--marketing-white), 0 0 20px var(--marketing-accent-primary);
   animation: linePulse 3s linear infinite;
 }
 
@@ -444,7 +444,7 @@
 .zg-node:hover {
   transform: scale(1.15) !important;
   box-shadow: 0 0 50px rgba(14, 165, 233, 0.6);
-  border-color: #fff;
+  border-color: var(--marketing-white);
 }
 
 @keyframes armWave {
@@ -614,7 +614,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #38BDF8;
+  color: var(--marketing-accent-secondary);
   margin-bottom: 2rem;
   position: relative;
 }
@@ -624,7 +624,7 @@
   position: absolute;
   inset: -2px;
   border-radius: 18px;
-  background: linear-gradient(135deg, #0EA5E9, #F97316);
+  background: linear-gradient(135deg, var(--marketing-accent-primary), var(--marketing-warning));
   z-index: -1;
   opacity: 0;
   transition: opacity 0.5s ease;
@@ -639,11 +639,11 @@
   font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  color: #f8fafc;
+  color: var(--marketing-text-primary);
 }
 
 .feature-desc {
-  color: #94a3b8;
+  color: var(--marketing-text-tertiary);
   line-height: 1.7;
   font-size: 1.1rem;
 }
@@ -670,7 +670,7 @@
 }
 
 .cta-title span {
-  color: #F97316;
+  color: var(--marketing-warning);
   /* Warm CTA accent */
 }
 

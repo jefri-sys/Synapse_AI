@@ -21,7 +21,7 @@
 .auth-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #D1D5DB; /* neutral-300 */
+  color: var(--marketing-auth-text-primary); /* neutral-300 */
 }
 
 .auth-input-wrapper {
@@ -33,7 +33,7 @@
 .auth-input-icon {
   position: absolute;
   left: 1rem;
-  color: #6B7280; /* neutral-500 */
+  color: var(--marketing-auth-text-tertiary); /* neutral-500 */
   pointer-events: none;
   transition: color 0.3s ease;
 }
@@ -44,7 +44,7 @@
   border-radius: 0.5rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
+  color: var(--marketing-white);
   font-size: 0.95rem;
   font-weight: 500;
   font-family: inherit;
@@ -53,7 +53,7 @@
 }
 
 .auth-input::placeholder {
-  color: #6B7280; /* neutral-500 */
+  color: var(--marketing-auth-text-tertiary); /* neutral-500 */
 }
 
 .auth-input.with-icon {
@@ -61,14 +61,14 @@
 }
 
 .auth-input:focus {
-  border-color: #ffffff;
-  box-shadow: 0 0 0 1px #ffffff;
+  border-color: var(--marketing-white);
+  box-shadow: 0 0 0 1px var(--marketing-white);
   background: rgba(255, 255, 255, 0.1);
 }
 
 .auth-input:focus + .auth-input-icon,
 .auth-input-wrapper:focus-within .auth-input-icon {
-  color: #ffffff;
+  color: var(--marketing-white);
 }
 
 .auth-options {
@@ -84,13 +84,13 @@
   gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #9CA3AF; /* neutral-400 */
+  color: var(--marketing-auth-text-secondary); /* neutral-400 */
   cursor: pointer;
   transition: color 0.2s ease;
 }
 
 .auth-checkbox-label:hover {
-  color: #ffffff;
+  color: var(--marketing-white);
 }
 
 .auth-checkbox {
@@ -99,26 +99,26 @@
   border-radius: 0.25rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.05);
-  accent-color: #ffffff;
+  accent-color: var(--marketing-white);
   cursor: pointer;
 }
 
 .auth-forgot-link {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #9CA3AF; /* neutral-400 */
+  color: var(--marketing-auth-text-secondary); /* neutral-400 */
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .auth-forgot-link:hover {
-  color: #ffffff;
+  color: var(--marketing-white);
 }
 
 .auth-error-box {
   background: rgba(239, 68, 68, 0.1);
-  border-left: 2px solid #EF4444;
-  color: #FCA5A5;
+  border-left: 2px solid var(--marketing-danger);
+  color: var(--marketing-danger-light);
   padding: 0.75rem 1rem;
   border-radius: 0.25rem;
   font-size: 0.875rem;
@@ -135,8 +135,8 @@
 
 .auth-btn {
   width: 100%;
-  background: #ffffff;
-  color: #000000;
+  background: var(--marketing-white);
+  color: var(--marketing-text-inverted);
   font-weight: 600;
   font-family: inherit;
   font-size: 0.95rem;
@@ -153,7 +153,7 @@
 }
 
 .auth-btn:hover:not(:disabled) {
-  background: #e5e5e5;
+  background: var(--marketing-white-hover);
   transform: translateY(-1px);
 }
 

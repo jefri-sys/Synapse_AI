@@ -101,21 +101,20 @@ const buildUserResponse = (user) => ({
   monthlyBudget: user.monthlyBudget,
   onboardingDone: user.onboardingDone,
   theme: user.theme,
+  avatar: user.avatar,
   emailVerified: user.emailVerified,
   aiTokensUsed: user.aiTokensUsed || 0,
   aiTokenLimit: user.aiTokenLimit || 500000,
 });
 
+
 const validateRegisterInput = ({
   name,
   email,
   password,
-  college,
-  course,
-  semester,
 }) => {
-  if (!name || !email || !password || !college || !course || !semester) {
-    return 'Name, email, password, college, course, and semester are required';
+  if (!name || !email || !password) {
+    return 'Name, email, and password are required';
   }
 
   if (String(name).trim().length < 2 || String(name).trim().length > 50) {
@@ -128,10 +127,6 @@ const validateRegisterInput = ({
 
   if (String(password).length < 8) {
     return 'Password must be at least 8 characters';
-  }
-
-  if (Number.isNaN(Number(semester))) {
-    return 'Semester must be a number';
   }
 
   return null;
@@ -147,21 +142,7 @@ const validateResetPassword = (password) => {
 
 const register = async (req, res) => {
   try {
-    const {
-      name,
-      email,
-      password,
-      college,
-      course,
-      semester,
-      year,
-      targetCGPA,
-      monthlyBudget,
-      universityType,
-      avatar,
-      theme,
-      notificationPreferences,
-    } = req.body;
+    const { name, email, password } = req.body;
 
     const validationError = validateRegisterInput(req.body);
     if (validationError) {
@@ -193,16 +174,6 @@ const register = async (req, res) => {
       email: normalizedEmail,
       passwordHash,
       emailVerified: false,
-      college,
-      course,
-      semester,
-      year,
-      targetCGPA,
-      monthlyBudget,
-      universityType,
-      avatar,
-      theme,
-      notificationPreferences,
       verificationToken,
       verificationTokenExpiry,
     });
@@ -210,8 +181,8 @@ const register = async (req, res) => {
     const Semester = require('../models/Semester');
     await Semester.create({
       userId: user._id,
-      semesterNumber: semester,
-      academicYear: year || `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
+      semesterNumber: 1,
+      academicYear: `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
       isActive: true
     });
 

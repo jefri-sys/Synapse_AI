@@ -30,16 +30,16 @@ function ForgotPassword() {
       title="Forgot password"
       subtitle="Enter your email and we will send a reset link if the account exists."
       footer={
-        <Link className="font-medium text-indigo-600" to="/login">
+        <Link className="auth-forgot-link" to="/login">
           Back to login
         </Link>
       }
     >
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <label className="block text-sm font-medium text-slate-700">
+      <form className="auth-form" onSubmit={handleSubmit}>
+        <label className="auth-label">
           Email
           <input
-            className="mt-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+            className="auth-input"
             onChange={(event) => setEmail(event.target.value)}
             required
             type="email"
@@ -48,13 +48,13 @@ function ForgotPassword() {
         </label>
 
         {message ? (
-          <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          <div className="auth-error-box !bg-[var(--marketing-success)]/10 !border-[var(--marketing-success)] !text-[var(--marketing-success)]">
             {message}
-          </p>
+          </div>
         ) : null}
 
         <button
-          className="w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="auth-btn"
           disabled={submitting}
           type="submit"
         >

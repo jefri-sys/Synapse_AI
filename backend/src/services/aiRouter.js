@@ -5,7 +5,7 @@ const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
 const User = require('../models/User');
 
-async function routeRequest(feature, { prompt, systemPrompt, userMessage, maxTokens = 1024, userId, files = [] }, retries = 3) {
+async function routeRequest(feature, { prompt, systemPrompt, userMessage, maxTokens = 1024, userId, files = [], responseMimeType }, retries = 3) {
   const fullPromptText = systemPrompt
     ? `${systemPrompt}\n\n${userMessage || prompt}`
     : (prompt || userMessage)
@@ -26,7 +26,11 @@ async function routeRequest(feature, { prompt, systemPrompt, userMessage, maxTok
 
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      const result = await model.generateContent(parts);
+      const requestPayload = { contents: [{ role: 'user', parts }] };
+      if (responseMimeType) {
+        requestPayload.generationConfig = { responseMimeType };
+      }
+      const result = await model.generateContent(requestPayload);
       const response = await result.response;
       
       if (userId && response.usageMetadata) {

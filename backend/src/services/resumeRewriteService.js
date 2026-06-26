@@ -4,7 +4,15 @@ async function generateRewriteSuggestions(resume, jobDescription, recruiterAnaly
   let rawResponse = '';
   try {
     const jdText = jobDescription.rawText || '';
-    const missingKeywords = recruiterAnalysis.missingKeywords || [];
+    const allKeywords = recruiterAnalysis.missingKeywords || [];
+    
+    // Filter out company-specific jargon so it doesn't get awkwardly inserted into rewrites
+    const actionableKeywords = allKeywords.filter(kw => {
+      if (typeof kw === 'object' && kw !== null) {
+        return kw.category !== 'role_specific_term';
+      }
+      return true;
+    });
     
     // Only pass the relevant sections for rewriting
     const targetSections = {
@@ -21,11 +29,11 @@ ${JSON.stringify(targetSections, null, 2)}
 Here is the Job Description they are targeting:
 ${jdText}
 
-Here are the missing keywords identified in their previous recruiter analysis:
-${JSON.stringify(missingKeywords)}
+Here are the missing technical and soft skills identified in their previous recruiter analysis (company-specific jargon has been intentionally excluded):
+${JSON.stringify(actionableKeywords)}
 
 Your task is to rewrite the "description" field for every entry in these sections based on these EXACT rules:
-1. Naturally include the missing keywords where genuinely relevant — never forced.
+1. Naturally include the missing keywords where genuinely relevant — never forced. Do not invent or insert any company-specific jargon, internal terminology, or unusual phrases not provided in this filtered list — only use real, standard technical/professional terms.
 2. Use the XYZ formula: "Accomplished [X] as measured by [Y] by doing [Z]" for every bullet/description.
 3. Start every bullet with a strong action verb — never use weak phrases like "Responsible for" or "Helped with".
 4. Add specific numbers wherever the original implies a measurable outcome; if no real number exists in the original text, insert a placeholder marked EXACTLY as "[FILL IN]" rather than inventing a fake number.

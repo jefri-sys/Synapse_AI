@@ -19,7 +19,7 @@ If a field cannot be confidently determined from the document, return null for t
     const files = [{ data: base64, mimeType: mimetype }];
     
     // Call Gemini via the existing routeRequest dispatcher pattern
-    rawResponse = await routeRequest("career-doc-extraction", { prompt, files });
+    rawResponse = await routeRequest("career-doc-extraction", { prompt, files, responseMimeType: "application/json" });
     
     // formatGuard-style safe JSON parser: strip markdown by extracting substring between first { and last }
     let jsonStr = rawResponse;
@@ -28,6 +28,8 @@ If a field cannot be confidently determined from the document, return null for t
     
     if (jsonStart !== -1 && jsonEnd !== -1) {
       jsonStr = jsonStr.substring(jsonStart, jsonEnd + 1);
+      // Clean up trailing commas which cause "Expected double-quoted property name" errors
+      jsonStr = jsonStr.replace(/,\s*([}\]])/g, '$1');
     }
     
     const fields = JSON.parse(jsonStr);

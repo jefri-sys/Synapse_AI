@@ -17,15 +17,15 @@ export default function MarkdownText({ text, className = "" }) {
         // Headers
         if (content.startsWith('### ')) {
           Tag = 'h3';
-          lineClass = 'text-base font-bold mt-4 mb-2 text-indigo-900';
+          lineClass = 'text-base font-bold mt-4 mb-2 text-text-primary';
           content = content.substring(4);
         } else if (content.startsWith('## ')) {
           Tag = 'h2';
-          lineClass = 'text-lg font-bold mt-5 mb-2 text-indigo-950';
+          lineClass = 'text-lg font-bold mt-5 mb-2 text-text-primary';
           content = content.substring(3);
         } else if (content.startsWith('# ')) {
           Tag = 'h1';
-          lineClass = 'text-xl font-bold mt-6 mb-3 text-indigo-950';
+          lineClass = 'text-xl font-bold mt-6 mb-3 text-text-primary';
           content = content.substring(2);
         }
 
@@ -47,7 +47,7 @@ export default function MarkdownText({ text, className = "" }) {
           <Tag key={i} className={lineClass}>
             {parts.map((part, j) => {
               if ((part.startsWith('**') && part.endsWith('**')) || (part.startsWith('__') && part.endsWith('__'))) {
-                return <strong key={j} className="font-bold text-gray-900">{part.slice(2, -2)}</strong>;
+                return <strong key={j} className="font-bold text-text-primary">{part.slice(2, -2)}</strong>;
               }
               if ((part.startsWith('*') && part.endsWith('*')) || (part.startsWith('_') && part.endsWith('_'))) {
                 return <em key={j}>{part.slice(1, -1)}</em>;

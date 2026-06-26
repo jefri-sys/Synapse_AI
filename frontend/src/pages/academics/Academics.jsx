@@ -34,17 +34,14 @@ function Academics() {
     return (
       <ProtectedPage title="Academics" description="Loading your academic history...">
         <div className="flex justify-center p-12">
-          <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-8 h-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
         </div>
       </ProtectedPage>
     );
   }
 
   return (
-    <ProtectedPage
-      title="Academics"
-      description="Manage your semesters, timetable, and exams."
-    >
+    <ProtectedPage>
       {needsMigration && (
         <MigrationModal 
           onComplete={() => setNeedsMigration(false)} 

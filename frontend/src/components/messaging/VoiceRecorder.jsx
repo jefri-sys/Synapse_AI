@@ -112,8 +112,8 @@ const VoiceRecorder = ({ conversationId, replyTo, onUploadSuccess, uploadUrl }) 
   return (
     <div className="flex items-center space-x-2">
       {isRecording && (
-        <div className="flex items-center text-red-500 animate-pulse text-sm">
-          <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+        <div className="flex items-center text-status-danger animate-pulse text-sm">
+          <div className="w-2 h-2 bg-status-danger rounded-full mr-2"></div>
           {formatTime(recordingTime)}
         </div>
       )}
@@ -126,7 +126,7 @@ const VoiceRecorder = ({ conversationId, replyTo, onUploadSuccess, uploadUrl }) 
         onTouchEnd={stopRecording}
         disabled={isUploading}
         className={`p-2 rounded-full transition-colors ${
-          isRecording ? 'bg-red-500 text-white shadow-lg scale-110' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+          isRecording ? 'bg-status-danger text-white shadow-lg scale-110' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
         } ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
         title="Hold to record"
       >

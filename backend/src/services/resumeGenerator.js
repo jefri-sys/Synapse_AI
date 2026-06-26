@@ -83,17 +83,19 @@ Required JSON shape:
 }`;
 
     // Note: AI dispatcher handles mapping this request to a standard context format. No files this time.
-    rawResponse = await routeRequest("resume-generation", { prompt, files: [] });
+    rawResponse = await routeRequest("resume-generation", { prompt, files: [], responseMimeType: "application/json" });
 
     // formatGuard-style safe JSON parser: strip markdown by extracting substring between first { and last }
     let jsonStr = rawResponse;
     let jsonStart = jsonStr.indexOf('{');
     let jsonEnd = jsonStr.lastIndexOf('}');
-    
+
     if (jsonStart !== -1 && jsonEnd !== -1) {
       jsonStr = jsonStr.substring(jsonStart, jsonEnd + 1);
+      // Clean up trailing commas which cause "Expected double-quoted property name" errors
+      jsonStr = jsonStr.replace(/,\s*([}\]])/g, '$1');
     }
-    
+
     const content = JSON.parse(jsonStr);
 
     return { success: true, content, sourceSnapshot, rawResponse };

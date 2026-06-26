@@ -4,6 +4,10 @@ import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import { BookText, Plus, UploadCloud, X, File, FileType2, Loader2, Trash2, Sparkles } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.js';
+import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
+import { Input } from '../../components/ui/input';
 
 export default function NotebookList() {
   const { user } = useAuth();
@@ -98,103 +102,100 @@ export default function NotebookList() {
       description="Upload your study materials to interact with them via AI."
     >
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="w-full sm:max-w-xs bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+        <div className="w-full sm:max-w-xs bg-surface-raised p-3 rounded-xl border border-surface-border shadow-sm">
           <div className="flex justify-between items-center mb-1">
-            <span className="text-xs font-semibold text-gray-500 flex items-center gap-1"><Sparkles className="w-3 h-3 text-indigo-500" /> AI Usage</span>
-            <span className="text-xs font-medium text-gray-500">
+            <span className="text-xs font-semibold text-text-secondary flex items-center gap-1"><Sparkles className="w-3 h-3 text-ai-accent" /> AI Usage</span>
+            <span className="text-xs font-medium text-text-secondary">
               {((user?.aiTokensUsed || 0) / 1000).toFixed(1)}k / {((user?.aiTokenLimit || 500000) / 1000).toFixed(0)}k tokens
             </span>
           </div>
-          <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+          <div className="w-full bg-surface-sunken rounded-full h-1.5 overflow-hidden">
             <div 
-              className={`h-full rounded-full transition-all duration-500 ${((user?.aiTokensUsed || 0) / (user?.aiTokenLimit || 500000)) > 0.8 ? 'bg-red-500' : 'bg-indigo-500'}`} 
+              className={`h-full rounded-full transition-all duration-500 ${((user?.aiTokensUsed || 0) / (user?.aiTokenLimit || 500000)) > 0.8 ? 'bg-status-danger' : 'bg-brand-primary'}`} 
               style={{ width: `${Math.min(100, ((user?.aiTokensUsed || 0) / (user?.aiTokenLimit || 500000)) * 100)}%` }}
             ></div>
           </div>
         </div>
 
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-sm transition-all whitespace-nowrap"
-        >
-          <Plus className="w-5 h-5" />
+        <Button onClick={() => setShowModal(true)}>
+          <Plus className="w-5 h-5 mr-2" />
           Create Notebook
-        </button>
+        </Button>
       </div>
 
       {loading ? (
         <div className="flex justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+          <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
         </div>
       ) : notebooks.length === 0 ? (
-        <div className="text-center py-24 bg-white rounded-2xl border border-gray-100 shadow-sm">
-          <BookText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-1">No Notebooks Found</h3>
-          <p className="text-gray-500 mb-6">Upload your first document to start chatting with your notes.</p>
-          <button onClick={() => setShowModal(true)} className="text-indigo-600 font-medium hover:text-indigo-700">
+        <div className="text-center py-24 bg-surface-raised rounded-2xl border border-surface-border shadow-sm">
+          <BookText className="w-16 h-16 text-text-tertiary mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-text-primary mb-1">No Notebooks Found</h3>
+          <p className="text-text-secondary mb-6">Upload your first document to start chatting with your notes.</p>
+          <Button variant="ghost" onClick={() => setShowModal(true)} className="text-brand-primary font-medium">
             Upload Document &rarr;
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {notebooks.map(nb => (
-            <div 
+            <Card 
               key={nb._id} 
               onClick={() => navigate(`/notebook/${nb._id}`)}
-              className="group bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all cursor-pointer relative"
+              className="group hover:border-brand-primary hover:shadow-md transition-all cursor-pointer relative flex flex-col"
             >
               <div className="flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-xl ${nb.fileType === 'pdf' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
+                <div className={`p-3 rounded-xl ${nb.fileType === 'pdf' ? 'bg-status-danger-subtle text-status-danger' : 'bg-brand-primary-subtle text-brand-primary'}`}>
                   {nb.fileType === 'pdf' ? <FileType2 className="w-6 h-6" /> : <File className="w-6 h-6" />}
                 </div>
                 <button 
                   onClick={(e) => handleDelete(e, nb._id)}
-                  className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                  className="opacity-0 group-hover:opacity-100 p-2 text-text-tertiary hover:text-status-danger hover:bg-status-danger-subtle rounded-lg transition-all"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
-              <h3 className="font-bold text-gray-900 text-lg line-clamp-1 mb-1">{nb.title}</h3>
-              <p className="text-sm text-gray-500 line-clamp-1 mb-4">
-                {subjects.find(s => s._id === nb.subjectId)?.name || 'General Notes'}
-              </p>
-              <div className="pt-4 border-t border-gray-50 flex justify-between items-center text-xs text-gray-400 font-medium">
+              <h3 className="font-display font-bold text-text-primary text-lg line-clamp-1 mb-1">{nb.title}</h3>
+              <div className="mb-4">
+                <Badge status="info">
+                  {subjects.find(s => s._id === nb.subjectId)?.name || 'General Notes'}
+                </Badge>
+              </div>
+              <div className="pt-4 border-t border-surface-border flex justify-between items-center text-xs text-text-secondary font-medium mt-auto">
                 <span>{new Date(nb.uploadedAt).toLocaleDateString()}</span>
                 <span>{nb.pageCount || 1} Pages</span>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       )}
 
-      {/* Upload Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-900">Upload Notebook</h2>
-              <button onClick={() => !uploading && setShowModal(false)} className="text-gray-400 hover:text-gray-600 p-1">
+          <div className="bg-surface-raised rounded-3xl w-full max-w-md overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            <div className="px-6 py-4 border-b border-surface-border flex items-center justify-between">
+              <h2 className="text-lg font-bold text-text-primary">Upload Notebook</h2>
+              <button onClick={() => !uploading && setShowModal(false)} className="text-text-tertiary hover:text-text-primary p-1">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleUpload} className="p-6">
               <div className="space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Notebook Title</label>
-                  <input
+                  <label className="block text-sm font-medium text-text-primary mb-1.5">Notebook Title</label>
+                  <Input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="E.g. Physics Chapter 3 Notes"
-                    className="w-full border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-indigo-500 focus:border-indigo-500 border bg-gray-50"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Subject (Optional)</label>
+                  <label className="block text-sm font-medium text-text-primary mb-1.5">Subject (Optional)</label>
                   <select
                     value={subjectId}
                     onChange={(e) => setSubjectId(e.target.value)}
-                    className="w-full border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-indigo-500 focus:border-indigo-500 border bg-gray-50"
+                    className="flex w-full rounded-sm border border-surface-border bg-surface-base px-3 py-3 text-sm text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                   >
                     <option value="">General (No Subject)</option>
                     {subjects.map(s => (
@@ -203,8 +204,8 @@ export default function NotebookList() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Document (PDF or DOCX)</label>
-                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:bg-gray-50 transition-colors relative cursor-pointer group">
+                  <label className="block text-sm font-medium text-text-primary mb-1.5">Document (PDF or DOCX)</label>
+                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-surface-border border-dashed rounded-xl hover:bg-surface-sunken transition-colors relative cursor-pointer group">
                     <input
                       type="file"
                       accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -212,41 +213,40 @@ export default function NotebookList() {
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     />
                     <div className="space-y-1 text-center">
-                      <UploadCloud className={`mx-auto h-10 w-10 ${file ? 'text-indigo-500' : 'text-gray-400 group-hover:text-indigo-500'} transition-colors`} />
-                      <div className="text-sm text-gray-600 font-medium">
-                        {file ? <span className="text-indigo-600">{file.name}</span> : <span>Click to upload or drag and drop</span>}
+                      <UploadCloud className={`mx-auto h-10 w-10 ${file ? 'text-brand-primary' : 'text-text-tertiary group-hover:text-brand-primary'} transition-colors`} />
+                      <div className="text-sm text-text-secondary font-medium">
+                        {file ? <span className="text-brand-primary">{file.name}</span> : <span>Click to upload or drag and drop</span>}
                       </div>
-                      <p className="text-xs text-gray-500">PDF or DOCX up to 10MB</p>
+                      <p className="text-xs text-text-tertiary">PDF or DOCX up to 10MB</p>
                     </div>
                   </div>
                 </div>
                 
                 {uploading && (
-                  <div className="w-full bg-gray-100 rounded-full h-2.5 mt-4 overflow-hidden">
-                    <div className="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
+                  <div className="w-full bg-surface-sunken rounded-full h-2.5 mt-4 overflow-hidden">
+                    <div className="bg-brand-primary h-2.5 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
                   </div>
                 )}
               </div>
               <div className="mt-8 flex justify-end gap-3">
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => setShowModal(false)}
                   disabled={uploading}
-                  className="px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-xl transition-colors disabled:opacity-50"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={!file || uploading}
-                  className="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
                 >
                   {uploading ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
+                    <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Uploading...</>
                   ) : (
                     'Upload & Process'
                   )}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

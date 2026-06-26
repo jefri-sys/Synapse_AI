@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import api from '../../services/api';
 import { formatDistanceToNow } from 'date-fns';
+import { Button } from '../../components/ui/Button';
 
 export default function NotificationsList() {
   const navigate = useNavigate();
@@ -79,69 +80,70 @@ export default function NotificationsList() {
 
   const getIcon = (type) => {
     switch (type) {
-      case 'EXAM_ALERT': return <AlertCircle className="w-5 h-5 text-red-500" />;
-      case 'ASSIGNMENT_DUE': return <BookOpen className="w-5 h-5 text-orange-500" />;
-      case 'BUDGET_WARNING': return <TrendingDown className="w-5 h-5 text-yellow-500" />;
-      case 'HABIT_REMINDER': return <CheckCircle className="w-5 h-5 text-emerald-500" />;
-      case 'GROUP_MESSAGE': return <Users className="w-5 h-5 text-indigo-500" />;
-      case 'NEW_MESSAGE': return <MessageSquare className="w-5 h-5 text-blue-500" />;
-      case 'MISSED_CALL': return <PhoneMissed className="w-5 h-5 text-rose-500" />;
-      case 'CALENDAR_REMINDER': return <CalendarIcon className="w-5 h-5 text-indigo-500" />;
-      case 'AI_BRIEFING': return <Clock className="w-5 h-5 text-purple-500" />;
-      case 'FRIEND_REQUEST': return <UserPlus className="w-5 h-5 text-pink-500" />;
-      default: return <Bell className="w-5 h-5 text-slate-400 dark:text-slate-500" />;
+      case 'EXAM_ALERT': return <AlertCircle className="w-5 h-5 text-status-danger" />;
+      case 'ASSIGNMENT_DUE': return <BookOpen className="w-5 h-5 text-status-warning" />;
+      case 'BUDGET_WARNING': return <TrendingDown className="w-5 h-5 text-status-warning" />;
+      case 'HABIT_REMINDER': return <CheckCircle className="w-5 h-5 text-status-success" />;
+      case 'GROUP_MESSAGE': return <Users className="w-5 h-5 text-brand-primary" />;
+      case 'NEW_MESSAGE': return <MessageSquare className="w-5 h-5 text-brand-primary" />;
+      case 'MISSED_CALL': return <PhoneMissed className="w-5 h-5 text-brand-primary" />;
+      case 'CALENDAR_REMINDER': return <CalendarIcon className="w-5 h-5 text-brand-primary" />;
+      case 'AI_BRIEFING': return <Clock className="w-5 h-5 text-brand-primary" />;
+      case 'FRIEND_REQUEST': return <UserPlus className="w-5 h-5 text-brand-primary" />;
+      default: return <Bell className="w-5 h-5 text-text-tertiary" />;
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex justify-center items-center">
-        <div className="animate-spin w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+      <div className="min-h-screen bg-surface-base flex justify-center items-center">
+        <div className="animate-spin w-10 h-10 border-4 border-brand-primary border-t-transparent rounded-full"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
+    <div className="min-h-screen bg-surface-base p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => navigate(-1)} 
-              className="p-2 bg-white dark:bg-gray-800 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition shadow-sm border border-gray-200 dark:border-gray-700"
+              className="p-2 bg-surface-base hover:bg-surface-sunken transition rounded-full shadow-sm border border-surface-border text-text-primary"
             >
-              <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-              <Bell className="w-8 h-8 text-blue-500" /> 
+            <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
+              <Bell className="w-8 h-8 text-brand-primary" /> 
               Notification History
             </h1>
           </div>
           
           {notifications.some(n => !n.read) && (
-            <button 
+            <Button 
               onClick={markAllAsRead}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition border border-blue-200 dark:border-blue-800"
+              variant="ghost"
+              className="gap-2"
             >
               <CheckCircle2 className="w-5 h-5" />
               Mark all as read
-            </button>
+            </Button>
           )}
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-surface-base rounded-2xl shadow-sm border border-surface-border overflow-hidden">
           {notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
-              <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                <Bell className="w-10 h-10 text-gray-400 dark:text-gray-500" />
+              <div className="w-20 h-20 bg-surface-sunken rounded-full flex items-center justify-center mb-4">
+                <Bell className="w-10 h-10 text-text-tertiary" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No notifications yet</h3>
-              <p className="text-gray-500 dark:text-gray-400 max-w-sm">
+              <h3 className="text-xl font-bold text-text-primary mb-2">No notifications yet</h3>
+              <p className="text-text-secondary max-w-sm">
                 When you get notifications for messages, calls, or study reminders, they'll show up here.
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100 dark:divide-gray-700">
+            <div className="divide-y divide-surface-border">
               {notifications.map((notif) => (
                 <div 
                   key={notif._id} 
@@ -151,12 +153,12 @@ export default function NotificationsList() {
                       navigate('/messages');
                     }
                   }}
-                  className={`p-5 flex gap-4 transition-all hover:bg-gray-50 dark:hover:bg-gray-700/50 ${notif.type === 'FRIEND_REQUEST' ? 'cursor-pointer' : ''} ${
-                    !notif.read ? 'bg-blue-50/30 dark:bg-blue-900/10' : ''
+                  className={`p-5 flex gap-4 transition-all hover:bg-surface-sunken ${notif.type === 'FRIEND_REQUEST' ? 'cursor-pointer' : ''} ${
+                    !notif.read ? 'bg-brand-primary-subtle' : ''
                   }`}
                 >
                   <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
-                    !notif.read ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-gray-100 dark:bg-gray-700'
+                    !notif.read ? 'bg-brand-primary/20' : 'bg-surface-sunken'
                   }`}>
                     {getIcon(notif.type)}
                   </div>
@@ -164,28 +166,28 @@ export default function NotificationsList() {
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start gap-4">
                       <div className="flex items-center gap-2">
-                        <p className={`text-base font-semibold ${!notif.read ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300'}`}>
+                        <p className={`text-base font-semibold ${!notif.read ? 'text-text-primary' : 'text-text-secondary'}`}>
                           {notif.title}
                         </p>
                         {!notif.read && (
-                          <span className="w-2.5 h-2.5 rounded-full bg-blue-500 flex-shrink-0"></span>
+                          <span className="w-2.5 h-2.5 rounded-full bg-brand-primary flex-shrink-0"></span>
                         )}
                       </div>
                       
                       <button
                         onClick={(e) => deleteNotification(notif._id, e)}
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
+                        className="p-2 text-text-tertiary hover:text-status-danger hover:bg-status-danger-subtle rounded-lg transition"
                         title="Delete notification"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                     
-                    <p className="text-gray-600 dark:text-gray-400 mt-1 mr-8">
+                    <p className="text-text-secondary mt-1 mr-8">
                       {notif.message}
                     </p>
                     
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-3 font-medium">
+                    <p className="text-xs text-text-tertiary mt-3 font-medium">
                       {notif.createdAt ? formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true }) : ''}
                     </p>
                   </div>
@@ -195,15 +197,16 @@ export default function NotificationsList() {
           )}
 
           {page < totalPages && (
-            <div className="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-center">
-              <button
+            <div className="p-4 border-t border-surface-border bg-surface-sunken flex justify-center">
+              <Button
                 onClick={handleLoadMore}
                 disabled={loadingMore}
-                className="px-6 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition disabled:opacity-50 flex items-center gap-2"
+                variant="outline"
+                className="gap-2"
               >
-                {loadingMore && <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>}
+                {loadingMore && <div className="w-4 h-4 border-2 border-text-tertiary border-t-transparent rounded-full animate-spin"></div>}
                 Load More
-              </button>
+              </Button>
             </div>
           )}
         </div>

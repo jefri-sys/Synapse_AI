@@ -195,7 +195,7 @@ const VoiceNotePlayer = ({ audioUrl }) => {
       <button 
         onClick={togglePlayPause} 
         disabled={!audioBuffer}
-        className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-blue-500 text-white rounded-full hover:bg-blue-600 disabled:opacity-50 transition-colors"
+        className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-brand-primary text-white rounded-full hover:bg-brand-primary/90 disabled:opacity-50 transition-colors"
       >
         {isPlaying ? (
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -210,7 +210,7 @@ const VoiceNotePlayer = ({ audioUrl }) => {
       
       {isLoading ? (
         <div className="flex-grow flex items-center h-[30px] w-[150px]">
-          <div className="w-full h-3 bg-gray-200 rounded animate-pulse"></div>
+          <div className="w-full h-3 bg-surface-sunken rounded animate-pulse"></div>
         </div>
       ) : (
         <div className="flex-grow flex flex-col justify-center cursor-pointer" onClick={handleSeek}>
@@ -223,7 +223,7 @@ const VoiceNotePlayer = ({ audioUrl }) => {
         </div>
       )}
 
-      <div className="text-xs text-gray-500 font-medium min-w-[75px] text-right">
+      <div className="text-xs text-text-tertiary font-medium min-w-[75px] text-right">
         {isPlaying || progress > 0 ? `${formatTime(progress * duration)} / ${formatTime(duration)}` : formatTime(duration)}
       </div>
     </div>
