@@ -106,26 +106,13 @@ const VoiceNotePlayer = ({ audioUrl, sender, isOwnMessage }) => {
     }
   }, [audioData, progress, isOwnMessage]);
 
-  const updateProgress = () => {
-    if (!audioRef.current) return;
-    const currentProgress = audioRef.current.currentTime / (audioRef.current.duration || 1);
-    setProgress(currentProgress);
-    if (isPlaying) {
-      animationRef.current = requestAnimationFrame(updateProgress);
-    }
-  };
-
   const handlePlayPause = () => {
     if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-      cancelAnimationFrame(animationRef.current);
-    } else {
+    if (audioRef.current.paused) {
       setHasPlayed(true);
-      audioRef.current.play();
-      setIsPlaying(true);
-      animationRef.current = requestAnimationFrame(updateProgress);
+      audioRef.current.play().catch(console.error);
+    } else {
+      audioRef.current.pause();
     }
   };
 
@@ -169,6 +156,21 @@ const VoiceNotePlayer = ({ audioUrl, sender, isOwnMessage }) => {
       <audio 
         ref={audioRef} 
         src={audioUrl} 
+        onPlay={() => {
+          setIsPlaying(true);
+          cancelAnimationFrame(animationRef.current);
+          const tick = () => {
+            if (audioRef.current && !audioRef.current.paused) {
+              setProgress(audioRef.current.currentTime / (audioRef.current.duration || duration || 1));
+              animationRef.current = requestAnimationFrame(tick);
+            }
+          };
+          animationRef.current = requestAnimationFrame(tick);
+        }}
+        onPause={() => {
+          setIsPlaying(false);
+          cancelAnimationFrame(animationRef.current);
+        }}
         onEnded={() => {
           setIsPlaying(false);
           setProgress(0);
