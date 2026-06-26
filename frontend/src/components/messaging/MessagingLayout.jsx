@@ -38,9 +38,40 @@ const MessagingLayout = ({
   };
 
   const getConvAvatar = (conv) => {
-    if (conv.type === 'group') return conv.groupAvatar || `https://ui-avatars.com/api/?name=${conv.groupName || 'G'}`;
+    if (conv.type === 'group') {
+      const name = conv.groupName || 'Group';
+      return conv.groupAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&bold=true`;
+    }
     const other = conv.participants?.find(p => p._id !== currentUserId);
-    return other?.avatar || `https://ui-avatars.com/api/?name=${other?.name || 'U'}`;
+    const name = other?.name || 'U';
+    return other?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&bold=true`;
+  };
+
+  const renderMessagePreview = (message) => {
+    if (!message || !message.content) return 'No messages yet';
+    
+    if (message.isDeleted) return '🚫 This message was deleted';
+    
+    switch (message.type) {
+      case 'audio':
+        return '🎤 Voice message';
+      case 'image':
+        return '📷 Photo';
+      case 'video':
+        return '🎥 Video';
+      case 'document':
+        return '📎 Attachment';
+      default:
+        // Fallback for older messages that might not have a clean type set
+        if (message.content.includes('http') && (message.content.includes('cloudinary.com') || message.content.includes('/upload/'))) {
+          const lower = message.content.toLowerCase();
+          if (lower.match(/\.(jpeg|jpg|gif|png)$/)) return '📷 Photo';
+          if (lower.match(/\.(mp4|webm|mov)$/)) return '🎥 Video';
+          if (lower.match(/\.(webm|mp3|wav)$/)) return '🎤 Voice message';
+          return '📎 Attachment';
+        }
+        return message.content;
+    }
   };
 
   return (
@@ -61,13 +92,13 @@ const MessagingLayout = ({
         <div className="flex px-4 pt-6 pb-2 space-x-4 border-b border-surface-border">
           <button 
             onClick={() => setActiveTab('chats')} 
-            className={`font-semibold pb-2 border-b-2 transition-colors ${activeTab === 'chats' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
+            className={`font-bold pb-2 border-b-2 transition-all duration-200 ${activeTab === 'chats' ? 'border-brand-primary text-text-primary drop-shadow-sm' : 'border-transparent text-text-tertiary opacity-60 hover:opacity-100 hover:text-text-primary'}`}
           >
             Chats
           </button>
           <button 
             onClick={() => setActiveTab('people')} 
-            className={`font-semibold pb-2 border-b-2 transition-colors ${activeTab === 'people' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
+            className={`font-bold pb-2 border-b-2 transition-all duration-200 ${activeTab === 'people' ? 'border-brand-primary text-text-primary drop-shadow-sm' : 'border-transparent text-text-tertiary opacity-60 hover:opacity-100 hover:text-text-primary'}`}
           >
             People
           </button>
@@ -82,7 +113,7 @@ const MessagingLayout = ({
               placeholder="Search..." 
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="pl-10 h-9"
+              className="pl-10 h-9 bg-black/5 dark:bg-white/5 border-transparent focus:bg-transparent focus:border-brand-primary transition-colors rounded-lg"
             />
           </div>
         </div>
@@ -101,25 +132,29 @@ const MessagingLayout = ({
                       onSelectConversation(conv);
                       setIsSidebarOpen(false);
                     }}
-                    className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors ${isActive ? 'bg-brand-primary-subtle' : 'hover:bg-surface-sunken'}`}
+                    className={`flex items-center py-3 px-2 rounded-xl cursor-pointer transition-colors ${isActive ? 'bg-brand-primary-subtle' : 'hover:bg-surface-sunken'}`}
                   >
-                    <img src={getConvAvatar(conv)} alt="Avatar" className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                    <img src={getConvAvatar(conv)} alt="Avatar" className="w-12 h-12 rounded-full object-cover object-center flex-shrink-0 border border-surface-border" />
                     <div className="ml-3 flex-1 min-w-0">
-                      <div className="flex justify-between items-baseline">
-                        <h4 className={`text-sm truncate ${isActive ? 'font-semibold text-brand-primary' : 'font-medium text-text-primary'}`}>{getConvName(conv)}</h4>
-                        <span className="text-[10px] text-text-tertiary">
-                          {new Date(conv.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1 min-w-0 pr-2">
+                          <h4 className={`text-[15px] truncate ${isActive ? 'font-bold text-brand-primary' : 'font-bold text-text-primary'}`}>{getConvName(conv)}</h4>
+                          <p className="text-[12px] font-medium text-text-tertiary opacity-80 truncate mt-0.5">
+                            {renderMessagePreview(conv.lastMessage)}
+                          </p>
+                        </div>
+                        <div className="flex flex-col items-end flex-shrink-0 space-y-1.5 mt-0.5">
+                          <span className="text-[10px] font-medium text-text-tertiary opacity-70 tracking-tight">
+                            {new Date(conv.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                          {unread > 0 && (
+                            <div className="bg-blue-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full shadow-sm">
+                              {unread}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-xs text-text-secondary truncate mt-0.5">
-                        {conv.lastMessage?.content || 'No messages yet'}
-                      </p>
                     </div>
-                    {unread > 0 && (
-                      <div className="ml-2 bg-brand-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 min-w-[20px] text-center">
-                        {unread}
-                      </div>
-                    )}
                   </div>
                 );
               })}
@@ -151,7 +186,7 @@ const MessagingLayout = ({
                     ) : searchResults.map(user => (
                       <div key={user._id} className="flex items-center justify-between p-2 hover:bg-surface-sunken rounded-lg border border-transparent hover:border-surface-border transition-colors">
                         <div className="flex items-center min-w-0">
-                          <img src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}`} alt="" className="w-9 h-9 rounded-full shrink-0 object-cover" />
+                          <img src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random&color=fff&bold=true`} alt="" className="w-9 h-9 rounded-full shrink-0 object-cover object-center border border-surface-border" />
                           <div className="ml-3 min-w-0">
                             <p className="text-sm font-semibold text-text-primary truncate">{user.name}</p>
                             <p className="text-xs text-text-secondary truncate">@{user.username || user.name.toLowerCase().replace(' ', '')}</p>
@@ -171,7 +206,7 @@ const MessagingLayout = ({
                       return (
                         <div key={friendship._id} className="flex items-center justify-between p-2 hover:bg-surface-sunken rounded-lg group">
                           <div className="flex items-center min-w-0">
-                            <img src={friend.avatar || `https://ui-avatars.com/api/?name=${friend.name}`} alt="" className="w-9 h-9 rounded-full shrink-0 object-cover" />
+                            <img src={friend.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(friend.name)}&background=random&color=fff&bold=true`} alt="" className="w-9 h-9 rounded-full shrink-0 object-cover object-center border border-surface-border" />
                             <div className="ml-3 min-w-0">
                               <p className="text-sm font-semibold text-text-primary truncate">{friend.name}</p>
                             </div>
@@ -195,7 +230,7 @@ const MessagingLayout = ({
                       return (
                       <div key={req._id} className="flex flex-col p-3 bg-surface-base border border-surface-border shadow-sm rounded-lg mb-2">
                         <div className="flex items-center min-w-0 mb-3">
-                          <img src={req.requester.avatar || `https://ui-avatars.com/api/?name=${req.requester.name}`} alt="" className="w-9 h-9 rounded-full shrink-0 object-cover" />
+                          <img src={req.requester.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(req.requester.name)}&background=random&color=fff&bold=true`} alt="" className="w-9 h-9 rounded-full shrink-0 object-cover object-center border border-surface-border" />
                           <div className="ml-3 min-w-0">
                             <p className="text-sm font-semibold text-text-primary truncate">{req.requester.name}</p>
                             <p className="text-xs text-text-secondary">Sent you a request</p>

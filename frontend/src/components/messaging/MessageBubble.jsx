@@ -55,7 +55,7 @@ const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, 
     }
     switch (message.type) {
       case 'audio':
-        return <VoiceNotePlayer audioUrl={message.content} />;
+        return <VoiceNotePlayer audioUrl={message.content} sender={message.senderId} isOwnMessage={isOwnMessage} />;
       case 'image': {
         let thumbnailUrl = message.content;
         if (thumbnailUrl.includes('/upload/')) {
@@ -182,7 +182,7 @@ const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, 
       {!isOwnMessage && (
         <div className="flex-shrink-0 mr-2 mt-auto mb-5 hidden sm:block">
            {message.senderId?.avatar ? (
-             <img src={message.senderId.avatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover shadow-sm" />
+             <img src={message.senderId.avatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover object-center shadow-sm" />
            ) : (
              <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-sm font-semibold text-white shadow-sm">
                {message.senderId?.name?.charAt(0).toUpperCase() || 'U'}
@@ -237,7 +237,7 @@ const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, 
             isOwnMessage 
               ? 'bg-gradient-to-tr from-brand-primary to-blue-500 text-white rounded-br-[4px] shadow-[0_4px_14px_0_rgba(139,92,246,0.25)]' 
               : 'bg-white/80 dark:bg-[#1c1e26]/95 text-text-primary border border-surface-border/40 shadow-sm rounded-bl-[4px] backdrop-blur-md'
-          } ${message.type !== 'text' && !message.isDeleted ? '!p-1 bg-transparent border-none shadow-none' : ''}`}
+          } ${['image', 'video'].includes(message.type) && !message.isDeleted ? '!p-1 bg-transparent border-none shadow-none' : ''}`}
         >
           {renderContent()}
         </div>

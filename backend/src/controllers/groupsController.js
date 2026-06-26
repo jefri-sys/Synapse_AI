@@ -103,6 +103,29 @@ exports.leaveGroup = async (req, res) => {
   }
 };
 
+exports.deleteGroup = async (req, res) => {
+  try {
+    const group = await StudyGroup.findById(req.params.id);
+    if (!group) return res.status(404).json({ error: 'Group not found' });
+
+    if (group.createdBy.toString() !== req.user.id.toString()) {
+      return res.status(403).json({ error: 'Only the creator can delete the group' });
+    }
+
+    const io = getIO();
+    // Notify connected clients that the group is being destroyed
+    io.to("group:" + group._id).emit("group:deleted", { message: "This group has been permanently deleted by the creator." });
+
+    await StudyGroup.findByIdAndDelete(req.params.id);
+    await GroupMessage.deleteMany({ groupId: req.params.id });
+    
+    res.json({ message: 'Group permanently deleted' });
+  } catch (error) {
+    console.error('Delete group error:', error);
+    res.status(500).json({ error: 'Server error deleting group' });
+  }
+};
+
 exports.getMyGroups = async (req, res) => {
   try {
     const groups = await StudyGroup.find({
@@ -118,6 +141,10 @@ exports.getMyGroups = async (req, res) => {
         senderId: { $ne: req.user.id },
         readBy: { $ne: req.user.id }
       });
+      group.lastMessage = await GroupMessage.findOne({ groupId: group._id })
+        .sort({ createdAt: -1 })
+        .populate('senderId', 'name')
+        .lean();
     }
 
     res.json(groups);
@@ -241,6 +268,87 @@ exports.shareSummary = async (req, res) => {
 
 const { getMember, hasPermission, canManageRole, isMuted } = require('../utils/groupPermissions');
 
+exports.deleteMessage = async (req, res) => {
+  try {
+    const { id, messageId } = req.params;
+    const group = await StudyGroup.findById(id);
+    if (!group) return res.status(404).json({ error: 'Group not found' });
+
+    const msg = await GroupMessage.findById(messageId);
+    if (!msg) return res.status(404).json({ error: 'Message not found' });
+
+    const requester = getMember(group, req.user.id);
+    if (!requester) return res.status(403).json({ error: 'Not in group' });
+
+    const isOwnMessage = msg.senderId.toString() === req.user.id.toString();
+    const canDeleteAny = hasPermission(group, requester.role, 'deleteAnyMessage');
+
+    if (!isOwnMessage && !canDeleteAny) {
+      return res.status(403).json({ error: 'Not authorized to delete this message' });
+    }
+
+    msg.isDeleted = true;
+    msg.message = 'This message was deleted';
+    msg.messageType = 'text'; // Fallback to text so it renders cleanly
+    msg.fileUrl = null;
+    msg.fileName = null;
+    await msg.save();
+
+    const io = getIO();
+    io.to("group:" + id).emit("messageDeleted", { messageId: msg._id, groupId: id });
+    
+    res.json(msg);
+  } catch (err) {
+    console.error('Delete message error:', err);
+    res.status(500).json({ error: 'Server error deleting message' });
+  }
+};
+
+exports.reactToMessage = async (req, res) => {
+  try {
+    const { id, messageId } = req.params;
+    const { emoji } = req.body;
+    
+    const group = await StudyGroup.findById(id);
+    if (!group) return res.status(404).json({ error: 'Group not found' });
+    
+    const requester = getMember(group, req.user.id);
+    if (!requester) return res.status(403).json({ error: 'Not in group' });
+    
+    // Any member of the group can react
+
+    const msg = await GroupMessage.findById(messageId);
+    if (!msg || msg.isDeleted) return res.status(404).json({ error: 'Message not found or deleted' });
+
+    if (!msg.reactions) msg.reactions = new Map();
+    
+    const existingReacts = msg.reactions.get(emoji) || [];
+    const userIndex = existingReacts.findIndex(u => u.toString() === req.user.id.toString());
+    
+    if (userIndex !== -1) {
+      existingReacts.splice(userIndex, 1);
+    } else {
+      existingReacts.push(req.user.id);
+    }
+    
+    if (existingReacts.length === 0) {
+      msg.reactions.delete(emoji);
+    } else {
+      msg.reactions.set(emoji, existingReacts);
+    }
+    
+    await msg.save();
+    
+    const io = getIO();
+    io.to("group:" + id).emit("messageReacted", { messageId: msg._id, groupId: id, reactions: msg.reactions });
+    
+    res.json(msg);
+  } catch (err) {
+    console.error('React to message error:', err);
+    res.status(500).json({ error: 'Server error reacting to message' });
+  }
+};
+
 exports.updateRole = async (req, res) => {
   try {
     const { role } = req.body;
@@ -309,7 +417,22 @@ exports.updatePermissions = async (req, res) => {
     
     await group.save();
 
+    const requesterUser = group.members.find(m => m.userId._id.toString() === req.user.id)?.userId;
+    const sysMsg = new GroupMessage({
+      groupId: group._id,
+      message: `${requesterUser?.name || 'An admin'} updated the group settings`,
+      messageType: 'system'
+    });
+    await sysMsg.save();
+
     const io = getIO();
+    io.to("group:" + group._id).emit("newMessage", {
+      _id: sysMsg._id,
+      groupId: group._id,
+      message: sysMsg.message,
+      messageType: 'system',
+      createdAt: sysMsg.createdAt
+    });
     io.to("group:" + group._id).emit("group:permissionsUpdated", group.permissions);
 
     res.json(group);

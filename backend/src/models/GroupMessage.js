@@ -42,6 +42,15 @@ const groupMessageSchema = new mongoose.Schema({
   fileSize: {
     type: Number
   },
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+  reactions: {
+    type: Map,
+    of: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    default: {}
+  },
   createdAt: {
     type: Date,
     default: Date.now

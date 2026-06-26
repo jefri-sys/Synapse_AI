@@ -3,6 +3,7 @@ import MessageBubble from './MessageBubble';
 import ChatInput from './ChatInput';
 import { Button } from '../ui/button';
 import api from '../../services/api';
+import doodleBg from '../../../images/chatapplication doodle.png';
 
 const ChatWindow = ({ conversation, initialMessages, socket, currentUserId, currentUser }) => {
   const [messages, setMessages] = useState(initialMessages || []);
@@ -324,7 +325,7 @@ const ChatWindow = ({ conversation, initialMessages, socket, currentUserId, curr
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 bg-white/70 dark:bg-black/70 backdrop-blur-xl border-b border-surface-border z-30 shrink-0 shadow-sm cursor-pointer hover:bg-surface-sunken transition-colors" onClick={() => setShowProfile(!showProfile)}>
           <div className="flex items-center">
-            <img src={getConvAvatar()} alt="" className="w-10 h-10 rounded-full object-cover shrink-0 border border-surface-border" />
+            <img src={getConvAvatar()} alt="" className="w-10 h-10 rounded-full object-cover object-center shrink-0 border border-surface-border" />
             <div className="ml-3 min-w-0">
               <h2 className="text-sm font-bold text-text-primary truncate">{getConvName()}</h2>
               {typingUsers.size > 0 ? (
@@ -344,6 +345,16 @@ const ChatWindow = ({ conversation, initialMessages, socket, currentUserId, curr
           </div>
         </div>
 
+          {/* WhatsApp style Doodle Background */}
+          <div 
+            className="absolute inset-0 pointer-events-none z-0 opacity-[0.15] dark:opacity-[0.08]"
+            style={{
+              backgroundImage: `url('${doodleBg}')`,
+              backgroundRepeat: 'repeat',
+              backgroundSize: '400px',
+            }}
+          />
+          
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
@@ -403,7 +414,7 @@ const ChatWindow = ({ conversation, initialMessages, socket, currentUserId, curr
       {showProfile && (
         <div className="w-80 bg-surface-base border-l border-surface-border flex flex-col shrink-0 overflow-y-auto z-20 shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)]">
           <div className="p-6 flex flex-col items-center border-b border-surface-border">
-            <img src={getConvAvatar()} className="w-24 h-24 rounded-full object-cover mb-4 border border-surface-border shadow-sm" alt="Profile" />
+            <img src={getConvAvatar()} className="w-24 h-24 rounded-full object-cover object-center mb-4 border border-surface-border shadow-sm" alt="Profile" />
             <h2 className="text-xl font-bold text-text-primary text-center">{getConvName()}</h2>
             <p className="text-sm text-text-secondary mt-1">{isOtherUserOnline ? 'Online' : 'Offline'}</p>
           </div>

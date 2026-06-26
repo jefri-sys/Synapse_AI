@@ -133,15 +133,15 @@ const ChatInput = ({ conversationId, socket, replyTo, setReplyTo, onSendText, on
   };
 
   return (
-    <div className="flex flex-col bg-surface-base border-t relative">
+    <div className="flex flex-col bg-surface-base border-t border-surface-border relative z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
       {replyTo && (
-        <div className="flex items-center justify-between p-2 bg-surface-sunken border-b border-surface-border">
-          <div className="flex flex-col pl-2 border-l-4 border-brand-primary">
-            <span className="text-xs font-semibold text-brand-primary">{replyTo.senderName}</span>
-            <span className="text-sm text-text-secondary truncate max-w-xs">{replyTo.contentPreview}</span>
+        <div className="flex items-center justify-between p-3 bg-surface-sunken border-b border-surface-border">
+          <div className="flex flex-col pl-3 border-l-4 border-brand-primary">
+            <span className="text-xs font-bold text-brand-primary">{replyTo.senderName}</span>
+            <span className="text-sm text-text-secondary truncate max-w-xs mt-0.5">{replyTo.contentPreview}</span>
           </div>
-          <button type="button" onClick={() => setReplyTo(null)} className="p-1 text-text-tertiary hover:text-text-primary">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <button type="button" onClick={() => setReplyTo(null)} className="p-2 text-text-tertiary hover:text-text-primary bg-surface-base hover:bg-surface-raised rounded-xl transition-all shadow-sm">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -225,8 +225,8 @@ const ChatInput = ({ conversationId, socket, replyTo, setReplyTo, onSendText, on
             </form>
           )}
 
-        <form onSubmit={handleSend} className="p-3 flex items-center space-x-2 z-10 relative">
-          <label className={`p-2 shrink-0 rounded-full transition-colors ${allowMedia ? 'text-text-tertiary hover:text-text-primary cursor-pointer hover:bg-surface-raised' : 'text-gray-300 cursor-not-allowed'}`} title={allowMedia ? "Attach File" : "Media restricted"}>
+        <form onSubmit={handleSend} className="p-4 flex items-center space-x-3 z-10 relative bg-surface-base">
+          <label className={`p-2 shrink-0 rounded-xl transition-all ${allowMedia ? 'text-text-tertiary hover:text-brand-primary cursor-pointer hover:bg-surface-sunken' : 'text-gray-300 cursor-not-allowed'}`} title={allowMedia ? "Attach File" : "Media restricted"}>
             <input type="file" className="hidden" onChange={handleFileSelect} disabled={!allowMedia} />
             <svg className="w-5 h-5 transform -rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -238,14 +238,14 @@ const ChatInput = ({ conversationId, socket, replyTo, setReplyTo, onSendText, on
             onChange={handleInputChange}
             onFocus={handleFocus}
             disabled={!allowText}
-            className={`flex-grow p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-brand-primary bg-surface-sunken ${!allowText ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`flex-grow px-4 py-3 border border-surface-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary bg-surface-sunken text-text-primary placeholder:text-text-tertiary text-sm transition-all shadow-inner ${!allowText ? 'opacity-50 cursor-not-allowed' : ''}`}
             placeholder={allowText ? "Type a message..." : "Text messages are restricted"}
           />
           {(inputText.trim() || isGeneratingAI) ? (
             <button 
               type="submit" 
               disabled={isGeneratingAI}
-              className={`p-2 rounded-full transition-colors shrink-0 ${isGeneratingAI ? 'bg-surface-border text-text-tertiary cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-primary/90'}`}
+              className={`p-3 rounded-xl transition-all shrink-0 shadow-sm ${isGeneratingAI ? 'bg-surface-raised text-text-tertiary cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-primary-hover shadow-brand-primary/20'}`}
             >
               <svg className={`w-5 h-5 transform rotate-90 ${isGeneratingAI ? 'animate-pulse' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
