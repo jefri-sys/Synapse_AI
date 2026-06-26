@@ -319,32 +319,27 @@ const ChatWindow = ({ conversation, initialMessages, socket, currentUserId, curr
   const recentFiles = messages.filter(m => ['image', 'video', 'document'].includes(m.type)).slice(-10);
 
   return (
-    <div className="flex h-full w-full overflow-hidden relative bg-surface-sunken">
-      {/* Subtle Tinted Canvas Overlay */}
-      <div className="absolute inset-0 bg-brand-primary/[0.03] dark:bg-brand-primary/[0.05] pointer-events-none z-0" />
-      
+    <div className="flex h-full w-full overflow-hidden relative bg-[#fafafa] dark:bg-[#000000]">
       <div className="flex flex-col flex-grow h-full min-w-0 relative z-10">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 bg-surface-base/80 dark:bg-black/60 backdrop-blur-xl border-b border-surface-border/50 z-30 shrink-0 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] cursor-pointer hover:bg-brand-primary/[0.02] transition-colors" onClick={() => setShowProfile(!showProfile)}>
-          <div className="flex items-center gap-3">
-            <img src={getConvAvatar()} alt="" className="w-10 h-10 rounded-full object-cover shrink-0 ring-2 ring-brand-primary/10" />
-            <div className="min-w-0 flex flex-col justify-center">
-              <h2 className="text-[15px] font-semibold text-text-primary truncate leading-tight tracking-tight">{getConvName()}</h2>
+        <div className="flex items-center justify-between px-4 py-3 bg-white/70 dark:bg-black/70 backdrop-blur-xl border-b border-surface-border z-30 shrink-0 shadow-sm cursor-pointer hover:bg-surface-sunken transition-colors" onClick={() => setShowProfile(!showProfile)}>
+          <div className="flex items-center">
+            <img src={getConvAvatar()} alt="" className="w-10 h-10 rounded-full object-cover shrink-0 border border-surface-border" />
+            <div className="ml-3 min-w-0">
+              <h2 className="text-sm font-bold text-text-primary truncate">{getConvName()}</h2>
               {typingUsers.size > 0 ? (
-                <p className="text-xs text-brand-primary font-medium italic animate-pulse mt-0.5">typing...</p>
+                <p className="text-xs text-brand-primary font-medium italic animate-pulse">typing...</p>
               ) : isOtherUserOnline ? (
-                <p className="text-xs text-status-success font-medium mt-0.5">Online</p>
-              ) : (
-                <p className="text-xs text-text-tertiary mt-0.5">Offline</p>
-              )}
+                <p className="text-xs text-status-success font-medium">Online</p>
+              ) : null}
             </div>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button onClick={(e) => { e.stopPropagation(); handleCall('voice'); }} className="p-2.5 text-brand-primary hover:bg-brand-primary/[0.08] rounded-full transition-colors" title="Voice Call">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+          <div className="flex space-x-1 shrink-0">
+            <button onClick={(e) => { e.stopPropagation(); handleCall('voice'); }} className="p-2 text-brand-primary hover:bg-brand-primary-subtle rounded-full transition-colors" title="Voice Call">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
             </button>
-            <button onClick={(e) => { e.stopPropagation(); handleCall('video'); }} className="p-2.5 text-brand-primary hover:bg-brand-primary/[0.08] rounded-full transition-colors" title="Video Call">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+            <button onClick={(e) => { e.stopPropagation(); handleCall('video'); }} className="p-2 text-brand-primary hover:bg-brand-primary-subtle rounded-full transition-colors" title="Video Call">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
             </button>
           </div>
         </div>
@@ -352,21 +347,18 @@ const ChatWindow = ({ conversation, initialMessages, socket, currentUserId, curr
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="flex-grow overflow-y-auto p-4 pt-6 relative z-20"
+          className="flex-grow overflow-y-auto p-4 pt-6 space-y-4 relative z-20"
         >
-          <div className="relative z-10 flex flex-col min-h-full justify-end pb-4">
-          {messages.map((msg, index) => {
+          {/* Subtle Ambient Background Glow */}
+          <div className="fixed inset-0 pointer-events-none opacity-[0.04] dark:opacity-[0.15] z-0 overflow-hidden">
+            <div className="absolute top-1/4 right-[-10%] w-[600px] h-[600px] bg-brand-primary blur-[120px] rounded-full mix-blend-screen" />
+            <div className="absolute bottom-1/4 left-[-10%] w-[600px] h-[600px] bg-blue-500 blur-[120px] rounded-full mix-blend-screen" />
+          </div>
+          
+          <div className="relative z-10 flex flex-col space-y-4 min-h-full justify-end pb-4">
+          {messages.map(msg => {
             const senderIdStr = typeof msg.senderId === 'object' && msg.senderId !== null ? msg.senderId._id : msg.senderId;
             const isOwn = String(senderIdStr) === String(currentUserId);
-            
-            const prevMsg = messages[index - 1];
-            const nextMsg = messages[index + 1];
-            const prevSenderIdStr = prevMsg ? (typeof prevMsg.senderId === 'object' && prevMsg.senderId !== null ? prevMsg.senderId._id : prevMsg.senderId) : null;
-            const nextSenderIdStr = nextMsg ? (typeof nextMsg.senderId === 'object' && nextMsg.senderId !== null ? nextMsg.senderId._id : nextMsg.senderId) : null;
-            
-            const isPrevSame = String(prevSenderIdStr) === String(senderIdStr);
-            const isNextSame = String(nextSenderIdStr) === String(senderIdStr);
-            
             return (
               <MessageBubble
                 key={msg._id}
@@ -376,8 +368,6 @@ const ChatWindow = ({ conversation, initialMessages, socket, currentUserId, curr
                 socket={socket}
                 onReply={handleReply}
                 onDelete={handleDeleteMessage}
-                isPrevSame={isPrevSame}
-                isNextSame={isNextSame}
               />
             );
           })}

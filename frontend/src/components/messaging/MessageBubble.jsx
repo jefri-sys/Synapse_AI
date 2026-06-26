@@ -4,7 +4,7 @@ import MediaViewer from './MediaViewer';
 
 const EMOJIS = ['❤️', '😂', '😮', '😢', '👍', '🔥'];
 
-const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, onDelete, isPrevSame, isNextSame }) => {
+const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, onDelete }) => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
   const [reactions, setReactions] = useState(message.reactions || {});
@@ -177,25 +177,16 @@ const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, 
     );
   }
 
-  const bubbleSpacing = isNextSame ? 'mb-1' : 'mb-4';
-  const bubbleRoundedClasses = isOwnMessage 
-    ? `rounded-2xl ${isPrevSame ? 'rounded-tr-md' : ''} ${isNextSame ? 'rounded-br-sm' : 'rounded-br-sm'}`
-    : `rounded-2xl ${isPrevSame ? 'rounded-tl-md' : ''} ${isNextSame ? 'rounded-bl-sm' : 'rounded-bl-[4px]'}`;
-
   return (
-    <div id={`msg-${message._id}`} className={`flex w-full ${isOwnMessage ? 'justify-end' : 'justify-start'} ${bubbleSpacing}`}>
+    <div id={`msg-${message._id}`} className={`flex w-full ${isOwnMessage ? 'justify-end' : 'justify-start'} my-2`}>
       {!isOwnMessage && (
-        <div className="flex-shrink-0 mr-2.5 mt-auto mb-[18px] hidden sm:flex items-end">
-           {(!isNextSame) ? (
-             message.senderId?.avatar ? (
-               <img src={message.senderId.avatar} alt="Avatar" className="w-7 h-7 rounded-full object-cover shadow-sm ring-1 ring-surface-border/50" />
-             ) : (
-               <div className="w-7 h-7 rounded-full bg-brand-primary flex items-center justify-center text-xs font-semibold text-white shadow-sm ring-1 ring-brand-primary/20">
-                 {message.senderId?.name?.charAt(0).toUpperCase() || 'U'}
-               </div>
-             )
+        <div className="flex-shrink-0 mr-2 mt-auto mb-5 hidden sm:block">
+           {message.senderId?.avatar ? (
+             <img src={message.senderId.avatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover shadow-sm" />
            ) : (
-             <div className="w-7 h-7" /> /* Empty spacer for grouped messages */
+             <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-sm font-semibold text-white shadow-sm">
+               {message.senderId?.name?.charAt(0).toUpperCase() || 'U'}
+             </div>
            )}
         </div>
       )}
@@ -241,11 +232,11 @@ const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, 
         <div 
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          className={`${bubbleRoundedClasses} py-2 px-3.5 relative max-w-full overflow-hidden leading-relaxed text-[15px] shadow-sm ${
+          className={`rounded-2xl p-3 px-4 relative max-w-full overflow-hidden leading-relaxed ${
             message.isDeleted ? 'bg-surface-sunken border border-surface-border text-text-tertiary' :
             isOwnMessage 
-              ? 'bg-brand-primary/[0.92] text-white backdrop-blur-sm' 
-              : 'bg-surface-base text-text-primary border border-surface-border/60 backdrop-blur-md'
+              ? 'bg-gradient-to-tr from-brand-primary to-blue-500 text-white rounded-br-[4px] shadow-[0_4px_14px_0_rgba(139,92,246,0.25)]' 
+              : 'bg-white/80 dark:bg-[#1c1e26]/95 text-text-primary border border-surface-border/40 shadow-sm rounded-bl-[4px] backdrop-blur-md'
           } ${message.type !== 'text' && !message.isDeleted ? '!p-1 bg-transparent border-none shadow-none' : ''}`}
         >
           {renderContent()}
@@ -273,8 +264,8 @@ const MessageBubble = ({ message, isOwnMessage, currentUserId, socket, onReply, 
         </div>
       )}
 
-      <div className={`flex items-center space-x-1 justify-end mt-0.5 px-1 ${reactionEntries.length > 0 ? '-mt-1' : ''}`}>
-        <span className={`text-[10px] font-medium tracking-wide text-text-tertiary`}>
+      <div className={`flex items-center space-x-1 justify-end ${reactionEntries.length > 0 ? '-mt-2' : 'mt-1'}`}>
+        <span className="text-xs text-text-tertiary">
           {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </span>
         {isOwnMessage && (
