@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import api from '../../services/api';
-import { Users, Search, Plus, MessageSquare, X, ShieldAlert } from 'lucide-react';
+import { Users, Search, Plus, MessageSquare, X, ShieldAlert, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -46,6 +46,7 @@ const StudyGroups = () => {
   const [discoverGroups, setDiscoverGroups] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
   const [newGroup, setNewGroup] = useState({ name: '', description: '', isPublic: true });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -158,61 +159,102 @@ const StudyGroups = () => {
   return (
     <div className="flex h-[80vh] min-h-[600px] w-full overflow-hidden border border-surface-border shadow-2xl bg-surface-base/80 backdrop-blur-xl rounded-2xl relative">
       {/* Groups Sidebar */}
-      <div className="w-1/3 bg-surface-sunken/50 border-r border-surface-border flex flex-col h-full z-10">
-        <div className="p-5 border-b border-surface-border flex justify-between items-center bg-surface-base shrink-0 shadow-sm">
-          <h2 className="text-xl font-bold text-text-primary flex items-center tracking-tight">
-            <Users className="w-5 h-5 mr-2 text-brand-primary" /> Groups
-          </h2>
-          <div className="flex space-x-2">
-            <button 
-              onClick={handleDiscover}
-              className="p-2 bg-surface-sunken text-text-secondary rounded-xl hover:bg-surface-raised hover:text-text-primary transition-all border border-surface-border"
-              title="Discover Groups"
-            >
-              <Search className="w-4 h-4" />
-            </button>
-            <button 
-              onClick={() => setShowCreate(true)}
-              className="p-2 bg-brand-primary text-white rounded-xl hover:bg-brand-primary-hover transition-all shadow-md shadow-brand-primary/20"
-              title="Create Group"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
-          </div>
+      <div className={`${isSidebarOpen ? 'w-1/3 min-w-[280px] max-w-[350px]' : 'w-20'} transition-all duration-300 ease-in-out bg-surface-sunken/50 border-r border-surface-border flex flex-col h-full z-10 relative group/sidebar`}>
+        <div className="p-4 border-b border-surface-border flex justify-between items-center bg-surface-base shrink-0 shadow-sm h-[73px]">
+          {isSidebarOpen ? (
+            <>
+              <h2 className="text-lg font-bold text-text-primary flex items-center tracking-tight truncate mr-2">
+                <Users className="w-5 h-5 mr-2 text-brand-primary shrink-0" /> Groups
+              </h2>
+              <div className="flex space-x-1 shrink-0">
+                <button 
+                  onClick={handleDiscover}
+                  className="p-2 bg-surface-sunken text-text-secondary rounded-xl hover:bg-surface-raised hover:text-text-primary transition-all border border-surface-border"
+                  title="Discover Groups"
+                >
+                  <Search className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => setShowCreate(true)}
+                  className="p-2 bg-brand-primary text-white rounded-xl hover:bg-brand-primary-hover transition-all shadow-md shadow-brand-primary/20"
+                  title="Create Group"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="p-2 bg-surface-sunken text-text-secondary rounded-xl hover:bg-surface-raised hover:text-text-primary transition-all border border-surface-border ml-1"
+                  title="Collapse Sidebar"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="w-full flex justify-center">
+              <button 
+                onClick={() => setIsSidebarOpen(true)}
+                className="p-2 bg-surface-sunken text-text-secondary rounded-xl hover:bg-surface-raised hover:text-text-primary transition-all border border-surface-border"
+                title="Expand Sidebar"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
           {myGroups.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-8 h-full text-center">
-              <Users className="w-12 h-12 text-text-tertiary mb-4" />
-              <p className="text-sm text-text-secondary mb-4">No study groups joined yet.</p>
-              <Button onClick={handleDiscover} className="bg-brand-primary hover:bg-brand-primary-hover text-white rounded-xl shadow-md">
-                Find a Group
-              </Button>
+            <div className="flex flex-col items-center justify-center p-4 h-full text-center">
+              <Users className="w-10 h-10 text-text-tertiary mb-4" />
+              {isSidebarOpen && (
+                <>
+                  <p className="text-sm text-text-secondary mb-4">No study groups joined yet.</p>
+                  <Button onClick={handleDiscover} className="bg-brand-primary hover:bg-brand-primary-hover text-white rounded-xl shadow-md text-xs py-2">
+                    Find a Group
+                  </Button>
+                </>
+              )}
             </div>
           ) : (
             myGroups.map(group => (
               <div 
                 key={group._id} 
                 onClick={() => setActiveGroupId(group._id)}
-                className={`p-4 mb-2 rounded-xl cursor-pointer transition-all ${activeGroupId === group._id ? 'bg-brand-primary-subtle border border-brand-primary/20 shadow-sm' : 'bg-surface-base hover:bg-surface-raised border border-transparent'}`}
+                className={`mb-2 rounded-xl cursor-pointer transition-all ${isSidebarOpen ? 'p-4' : 'p-3 flex justify-center'} ${activeGroupId === group._id ? 'bg-brand-primary-subtle border border-brand-primary/20 shadow-sm' : 'bg-surface-base hover:bg-surface-raised border border-transparent'}`}
+                title={!isSidebarOpen ? group.name : undefined}
               >
-                <div className="flex justify-between items-start">
-                  <h3 className={`font-semibold text-sm truncate ${activeGroupId === group._id ? 'text-brand-primary-dark' : 'text-text-primary'}`}>{group.name}</h3>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap ml-2 flex items-center gap-1 border ${activeGroupId === group._id ? 'bg-white/50 border-brand-primary/20 text-brand-primary' : 'bg-surface-sunken border-surface-border text-text-secondary'}`}>
-                    {group.members?.length || 1}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center mt-1">
-                  <div className={`text-xs truncate max-w-[85%] flex items-center ${activeGroupId === group._id ? 'text-brand-primary/80' : 'text-text-secondary'}`}>
-                    {group.lastMessage ? renderLastMessagePreview(group.lastMessage) : group.course}
-                  </div>
-                  {group.unreadCount > 0 && (
-                    <div className="ml-2 bg-brand-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 min-w-[20px] text-center shadow-sm shadow-brand-primary/30">
-                      {group.unreadCount}
+                {isSidebarOpen ? (
+                  <>
+                    <div className="flex justify-between items-start">
+                      <h3 className={`font-semibold text-sm truncate ${activeGroupId === group._id ? 'text-brand-primary-dark' : 'text-text-primary'}`}>{group.name}</h3>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap ml-2 flex items-center gap-1 border ${activeGroupId === group._id ? 'bg-white/50 border-brand-primary/20 text-brand-primary' : 'bg-surface-sunken border-surface-border text-text-secondary'}`}>
+                        {group.members?.length || 1}
+                      </span>
                     </div>
-                  )}
-                </div>
+                    <div className="flex justify-between items-center mt-1">
+                      <div className={`text-xs truncate max-w-[85%] flex items-center ${activeGroupId === group._id ? 'text-brand-primary/80' : 'text-text-secondary'}`}>
+                        {group.lastMessage ? renderLastMessagePreview(group.lastMessage) : group.course}
+                      </div>
+                      {group.unreadCount > 0 && (
+                        <div className="ml-2 bg-brand-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 min-w-[20px] text-center shadow-sm shadow-brand-primary/30">
+                          {group.unreadCount}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="relative">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg ${activeGroupId === group._id ? 'bg-brand-primary text-white shadow-md' : 'bg-surface-sunken text-text-secondary border border-surface-border'}`}>
+                      {group.name.substring(0, 1).toUpperCase()}
+                    </div>
+                    {group.unreadCount > 0 && (
+                      <div className="absolute -top-1 -right-1 bg-brand-primary text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-sm shadow-brand-primary/30 border border-white">
+                        {group.unreadCount > 9 ? '9+' : group.unreadCount}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))
           )}

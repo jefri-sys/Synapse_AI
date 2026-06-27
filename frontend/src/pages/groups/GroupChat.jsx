@@ -410,6 +410,7 @@ const GroupChat = ({ group, onLeave }) => {
 
  {/* Messages Area */}
  <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 bg-surface-sunken/30 flex flex-col relative z-0">
+ <div className="flex-1 min-h-0 shrink-0 pointer-events-none"></div>
  {messages.length === 0 ? (
  <div className="m-auto text-center text-text-tertiary">
  <p className="text-sm">No messages yet. Say hello!</p>
@@ -538,7 +539,7 @@ const GroupChat = ({ group, onLeave }) => {
  </div>
  )}
  <div 
- className={`w-fit min-w-[60px] px-4 py-2.5 transition-all ${
+ className={`w-fit min-w-[60px] px-5 py-3 transition-all ${
  isSummary 
  ? 'bg-yellow-50 text-[#854D0E] rounded-[22px] rounded-tl-[4px] font-serif relative overflow-hidden border border-yellow-200/50' 
  : isMine 
