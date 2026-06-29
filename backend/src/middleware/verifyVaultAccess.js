@@ -1,5 +1,6 @@
 const verifyVaultAccess = (req, res, next) => {
-  if (req.cookies && req.cookies.vaultUnlocked === 'true') {
+  const isUnlocked = (req.cookies && req.cookies.vaultUnlocked === 'true') || req.headers['x-vault-unlocked'] === 'true';
+  if (isUnlocked) {
     return next();
   }
   return res.status(403).json({

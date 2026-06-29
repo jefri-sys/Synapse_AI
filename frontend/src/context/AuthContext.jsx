@@ -63,6 +63,7 @@ export function AuthProvider({ children }) {
     } catch {
       setUser(null);
     } finally {
+      localStorage.removeItem('synapse_token');
       setUser(null);
       navigate('/login', { replace: true });
     }

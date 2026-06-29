@@ -46,6 +46,7 @@ export default function CareerVaultGate({ onUnlock }) {
       } else {
         await api.post('/career-vault/verify-access', { password });
       }
+      localStorage.setItem('vaultUnlocked', 'true');
       onUnlock();
     } catch (err) {
       setError(err.response?.data?.message || 'Verification failed');

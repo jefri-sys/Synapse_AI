@@ -33,6 +33,9 @@ function Login() {
     try {
       setSubmitting(true);
       const { data } = await api.post('/auth/login', form);
+      if (data.token) {
+        localStorage.setItem('synapse_token', data.token);
+      }
       window.dispatchEvent(new CustomEvent('auth-success'));
       login(data.user);
       // Slight delay to allow the success animation to play

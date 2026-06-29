@@ -386,6 +386,7 @@ const login = async (req, res) => {
     return res.status(200).json({
       success: true,
       user: buildUserResponse(user),
+      token,
     });
   } catch (error) {
     console.error('Login error:', error);

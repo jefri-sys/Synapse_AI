@@ -86,6 +86,7 @@ export default function MobileCareerVault() {
       } else {
         await api.post('/career-vault/verify-access', { password });
       }
+      localStorage.setItem('vaultUnlocked', 'true');
       setIsUnlocked(true);
       setPassword('');
       setConfirmPassword('');
