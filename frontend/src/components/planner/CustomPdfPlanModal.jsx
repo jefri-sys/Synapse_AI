@@ -4,8 +4,8 @@ import {
  Settings, CheckCircle, Clock, Calendar, BookOpen
 } from 'lucide-react';
 import api from '../../services/api';
-import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
+import { Card } from '../ui/card';
+import { Button } from '../ui/button';
 
 const CustomPdfPlanModal = ({ open, onClose, onPlanCreated }) => {
  const [step, setStep] = useState(1);
