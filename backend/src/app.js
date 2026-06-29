@@ -37,22 +37,22 @@ app.use(helmet({
 }));
 const configuredOrigins = process.env.FRONTEND_URL 
   ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
-  : ['http://localhost:5173'];
+  : ['https://synapsecloud.vercel.app', 'http://localhost:5173'];
 
 const localOrigins = [
-  'http://localhost:5173', 
-  'http://localhost:4173', 
-  'http://127.0.0.1:5173', 
+  'http://localhost:5173',
+  'http://localhost:4173',
+  'http://127.0.0.1:5173',
   'http://127.0.0.1:4173'
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
-    
+
     const isProduction = process.env.NODE_ENV === 'production';
     const allowedOrigins = isProduction ? configuredOrigins : [...configuredOrigins, ...localOrigins];
-    
+
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
