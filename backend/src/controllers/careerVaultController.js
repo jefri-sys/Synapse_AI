@@ -101,7 +101,7 @@ const setupPassword = async (req, res) => {
     res.cookie('vaultUnlocked', 'true', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
     });
 
     res.status(201).json({ success: true, unlocked: true });
@@ -135,7 +135,7 @@ const verifyAccess = async (req, res) => {
     res.cookie('vaultUnlocked', 'true', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
     });
 
     res.status(200).json({ success: true, unlocked: true });
