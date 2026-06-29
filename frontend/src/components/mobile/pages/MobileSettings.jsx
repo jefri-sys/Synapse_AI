@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, Key, Bell, Palette, Sparkles, ChevronRight, LogOut, AlertTriangle, Trash2 } from 'lucide-react';
 import { useAuth } from '../../../hooks/useAuth';
-import axios from 'axios';
+import api from '../../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://synapse-ai-4dcd.onrender.com';
-axios.defaults.withCredentials = true;
 
 export default function MobileSettings() {
   const navigate = useNavigate();
@@ -25,7 +23,7 @@ export default function MobileSettings() {
     e.preventDefault();
     try {
       setLoading(true);
-      await axios.post(`${API_URL}/api/users/reset-data`, { password: confirmPassword });
+      await api.post(`/users/reset-data`, { password: confirmPassword });
       alert('All Synapse data reset successfully.');
       setShowResetModal(false);
       setConfirmPassword('');
@@ -40,7 +38,7 @@ export default function MobileSettings() {
     e.preventDefault();
     try {
       setLoading(true);
-      await axios.delete(`${API_URL}/api/users/account`, { data: { password: confirmPassword } });
+      await api.delete(`/users/account`, { data: { password: confirmPassword } });
       window.location.href = '/login';
     } catch (err) {
       alert(err.response?.data?.message || 'Error deleting account');

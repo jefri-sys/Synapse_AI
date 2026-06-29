@@ -59,7 +59,8 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'X-Vault-Unlocked']
 }));
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell, BookOpen, AlertCircle, Calendar, MessageSquare, CheckCircle, TrendingDown, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api';
 import { formatDistanceToNow } from 'date-fns';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
@@ -14,10 +14,7 @@ const NotificationBell = () => {
 
  const fetchNotifications = async () => {
  try {
- // Assuming frontend proxy handles /api/ requests or axios interceptor sets base URL
- const response = await axios.get(`${import.meta.env.VITE_API_URL || 'https://synapse-ai-4dcd.onrender.com'}/api/notifications?limit=5`, {
- withCredentials: true,
- });
+ const response = await api.get(`/notifications?limit=5`);
  if (response.data.success) {
  setNotifications(response.data.notifications);
  setUnreadCount(response.data.unreadCount);
@@ -45,7 +42,7 @@ const NotificationBell = () => {
 
  const markAllAsRead = async () => {
  try {
- await axios.patch(`${import.meta.env.VITE_API_URL || 'https://synapse-ai-4dcd.onrender.com'}/api/notifications/read-all`, {}, { withCredentials: true });
+ await api.patch(`/notifications/read-all`);
  setUnreadCount(0);
  setNotifications(notifications.map(n => ({ ...n, read: true })));
  } catch (error) {

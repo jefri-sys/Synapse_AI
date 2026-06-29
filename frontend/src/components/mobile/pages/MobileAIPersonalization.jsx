@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../../services/api';
 import { ArrowLeft, Save, AlertTriangle, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -26,7 +26,7 @@ export default function MobileAIPersonalization() {
   const fetchPreferences = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API_URL}/api/settings/ai-preferences`);
+      const res = await api.get(`/settings/ai-preferences`);
       
       const initialPrefs = {};
       const dates = {};
@@ -55,7 +55,7 @@ export default function MobileAIPersonalization() {
     try {
       setSavingStatus(prev => ({ ...prev, [scopeId]: 'saving' }));
       
-      const res = await axios.put(`${API_URL}/api/settings/ai-preferences/${scopeId}`, {
+      const res = await api.put(`/settings/ai-preferences/${scopeId}`, {
         text: preferences[scopeId]
       });
 
@@ -84,7 +84,7 @@ export default function MobileAIPersonalization() {
     
     try {
       setSavingStatus(prev => ({ ...prev, [scopeId]: 'saving' }));
-      await axios.delete(`${API_URL}/api/settings/ai-preferences/${scopeId}`);
+      await api.delete(`/settings/ai-preferences/${scopeId}`);
 
       setPreferences(prev => ({ ...prev, [scopeId]: '' }));
       setUpdatedDates(prev => ({ ...prev, [scopeId]: null }));

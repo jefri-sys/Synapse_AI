@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   User, Lock, Bell, Moon, Sun, 
@@ -12,12 +12,6 @@ import { Switch } from '../../components/ui/switch';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
-
-const API_URL = import.meta.env.VITE_API_URL || 'https://synapse-ai-4dcd.onrender.com';
-axios.defaults.withCredentials = true;
-
-const Settings = () => {
-  const navigate = useNavigate();
   const { user, updateUser } = useAuth();
   
   const location = useLocation();
@@ -47,7 +41,7 @@ const Settings = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const profileRes = await axios.get(`${API_URL}/api/users/profile`);
+      const profileRes = await api.get(`/users/profile`);
       if (profileRes.data.success) {
         const u = profileRes.data.user;
         setProfile(prev => ({ ...prev, ...u }));
@@ -75,7 +69,7 @@ const Settings = () => {
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     try {
-      await axios.patch(`${API_URL}/api/users/profile`, profile);
+      await api.patch(`/users/profile`, profile);
       if (user) updateUser({ ...user, ...profile });
       showMessage('success', 'Profile updated successfully.');
     } catch (err) {
@@ -86,7 +80,7 @@ const Settings = () => {
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
     try {
-      await axios.patch(`${API_URL}/api/users/password`, passwords);
+      await api.patch(`/users/password`, passwords);
       showMessage('success', 'Password updated successfully.');
       setPasswords({ currentPassword: '', newPassword: '' });
     } catch (err) {
@@ -98,7 +92,7 @@ const Settings = () => {
     const newPrefs = { ...notifications, [key]: val };
     setNotifications(newPrefs);
     try {
-      await axios.patch(`${API_URL}/api/users/notification-preferences`, { preferences: newPrefs });
+      await api.patch(`/users/notification-preferences`, { preferences: newPrefs });
     } catch (err) {
       showMessage('error', 'Error saving notification preference');
     }
@@ -113,7 +107,7 @@ const Settings = () => {
     else document.documentElement.removeAttribute('data-theme');
 
     try {
-      await axios.patch(`${API_URL}/api/users/profile`, { theme: newTheme });
+      await api.patch(`/users/profile`, { theme: newTheme });
     } catch (err) {
       console.error('Failed to save theme', err);
     }
@@ -137,7 +131,7 @@ const Settings = () => {
   const handleResetData = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_URL}/api/users/reset-data`, { password: confirmPassword });
+      await api.post(`/users/reset-data`, { password: confirmPassword });
       showMessage('success', 'All Synapse data reset successfully.');
       setShowResetModal(false);
       setConfirmPassword('');
@@ -151,7 +145,7 @@ const Settings = () => {
   const handleDeleteAccount = async (e) => {
     e.preventDefault();
     try {
-      await axios.delete(`${API_URL}/api/users/account`, { data: { password: confirmPassword } });
+      await api.delete(`/users/account`, { data: { password: confirmPassword } });
       window.location.href = '/login'; // hard reload and redirect
     } catch (err) {
       showMessage('error', err.response?.data?.message || 'Error deleting account');
