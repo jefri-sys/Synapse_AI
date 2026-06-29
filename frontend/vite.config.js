@@ -145,6 +145,8 @@ export default defineConfig({
     include: ['react-dropzone', 'tslib']
   },
   build: {
+    outDir: process.env.VERCEL ? '../dist' : 'dist',
+    emptyOutDir: true,
     rollupOptions: {
       output: {
         manualChunks(id) {
