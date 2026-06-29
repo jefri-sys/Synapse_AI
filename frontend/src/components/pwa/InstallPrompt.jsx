@@ -75,26 +75,38 @@ export default function InstallPrompt() {
   if (!showPrompt) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 flex justify-center pointer-events-none md:bottom-8">
-      <Card className="flex items-center gap-4 p-4 shadow-xl max-w-sm w-full bg-surface-raised border border-surface-border pointer-events-auto rounded-lg">
+    <div className="fixed bottom-6 left-0 right-0 z-[100] flex justify-center pointer-events-none px-4">
+      <div className="relative flex items-center gap-4 p-4 max-w-md w-full rounded-2xl border border-white/10 bg-[#050505]/80 backdrop-blur-xl shadow-2xl pointer-events-auto group">
+        {/* Electric Violet Subtle Glow */}
+        <div className="absolute inset-0 rounded-2xl pointer-events-none ring-1 ring-inset ring-[#8B5CF6]/20 transition-all duration-500"></div>
+
         {isIOS ? (
-          <div className="flex-1 text-sm text-text-primary">
-            To install: tap the <Share className="inline w-4 h-4 mx-1" /> icon, then <strong>Add to Home Screen</strong>
+          <div className="flex-1 text-[15px] font-medium text-slate-200 leading-snug z-10">
+            To install: tap the <Share className="inline w-4 h-4 mx-1 text-slate-400" /> icon, then <strong className="text-white">Add to Home Screen</strong>
           </div>
         ) : (
           <>
-            <div className="flex-1 text-sm text-text-primary">
-              Install <strong>Synapse</strong> for the full experience
+            <div className="flex-1 text-[15px] font-medium text-slate-200 leading-snug z-10">
+              Install <strong className="text-white">Synapse</strong> for the full experience
             </div>
-            <Button size="sm" onClick={handleInstallClick} className="bg-brand-primary hover:bg-brand-primary-hover text-white border-0">
-              Install
-            </Button>
+            <button 
+              onClick={handleInstallClick} 
+              className="relative px-5 py-2 text-sm font-semibold text-white bg-[#8B5CF6] hover:bg-[#7c4dff] rounded-lg shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] transition-all duration-200 active:scale-95 flex-shrink-0 z-10 overflow-hidden group/btn"
+            >
+              <span className="relative z-10">Install</span>
+              <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
+              <div className="absolute inset-0 shadow-[0_0_15px_rgba(139,92,246,0.6)] opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+            </button>
           </>
         )}
-        <button onClick={handleDismiss} className="p-1 text-text-tertiary hover:text-text-primary transition-colors flex-shrink-0 border-0 bg-transparent cursor-pointer">
-          <X className="w-5 h-5" />
+        <button 
+          onClick={handleDismiss} 
+          className="p-1.5 text-slate-400 hover:text-white transition-colors flex-shrink-0 rounded-full hover:bg-white/10 active:scale-95 z-10"
+          aria-label="Dismiss"
+        >
+          <X className="w-4 h-4 stroke-[2.5]" />
         </button>
-      </Card>
+      </div>
     </div>
   );
 }
