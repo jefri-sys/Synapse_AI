@@ -26,7 +26,9 @@ export default function BottomNavBar() {
   }, [location.pathname]);
 
   useEffect(() => {
+    const token = localStorage.getItem('synapse_token');
     const socket = io(import.meta.env.VITE_API_URL || 'https://synapse-ai-4dcd.onrender.com', {
+      auth: { token },
       withCredentials: true
     });
 

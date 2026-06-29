@@ -33,19 +33,10 @@ const createNotification = async (userId, type, title, message) => {
     
     // Add Web Push notification logic
     try {
-      let shouldPush = true;
-      if (SOCKET_SUPPRESSED_TYPES.includes(type)) {
-        if (userSockets.has(userId.toString())) {
-          shouldPush = false;
-        }
-      }
-      
-      if (shouldPush) {
-        const url = DEEP_LINK_MAP[type] || '/dashboard';
-        sendPushToUser(userId, { title, body: message, url, type }).catch(err => {
-          console.error("Non-fatal push send error:", err);
-        });
-      }
+      const url = DEEP_LINK_MAP[type] || '/dashboard';
+      sendPushToUser(userId, { title, body: message, url, type }).catch(err => {
+        console.error("Non-fatal push send error:", err);
+      });
     } catch (e) {
       console.error("Non-fatal push evaluation error:", e.message);
     }

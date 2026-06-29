@@ -290,7 +290,8 @@ const CallOverlay = () => {
  { name: e.detail.recipientName, avatar: e.detail.recipientAvatar }, 
  { name: user.name, avatar: user.avatar },
  e.detail.type,
- e.detail.conversationId
+ e.detail.conversationId,
+ e.detail.stream
  );
  }
  };

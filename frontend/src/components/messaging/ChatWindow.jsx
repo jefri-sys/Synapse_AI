@@ -243,7 +243,7 @@ const ChatWindow = ({ conversation, initialMessages, socket, currentUserId, curr
     setReplyTo(replyData);
   };
 
-  const handleCall = (type) => {
+  const handleCall = async (type) => {
     if (conversation.type === 'group') {
       alert("Group calls coming soon!");
       return;
@@ -251,15 +251,22 @@ const ChatWindow = ({ conversation, initialMessages, socket, currentUserId, curr
     const otherUser = conversation.participants?.find(p => String(p._id || p) !== String(currentUserId));
     if (!otherUser) return;
 
-    window.dispatchEvent(new CustomEvent('synapse:call', {
-      detail: {
-        conversationId: conversation._id,
-        recipientId: String(otherUser._id || otherUser),
-        recipientName: otherUser.name || 'User',
-        recipientAvatar: otherUser.avatar,
-        type
-      }
-    }));
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: type === 'video' });
+      window.dispatchEvent(new CustomEvent('synapse:call', {
+        detail: {
+          conversationId: conversation._id,
+          recipientId: String(otherUser._id || otherUser),
+          recipientName: otherUser.name || 'User',
+          recipientAvatar: otherUser.avatar,
+          type,
+          stream
+        }
+      }));
+    } catch (err) {
+      console.error('Failed to get media devices:', err);
+      alert('Could not access microphone or camera. Please check your permissions.');
+    }
   };
 
 

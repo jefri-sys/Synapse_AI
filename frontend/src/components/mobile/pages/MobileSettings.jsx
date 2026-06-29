@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, Key, Bell, Palette, Sparkles, ChevronRight, LogOut, AlertTriangle, Trash2 } from 'lucide-react';
 import { useAuth } from '../../../hooks/useAuth';
 import api from '../../../services/api';
+import { subscribeToPush, unsubscribeFromPush } from '../../../services/pushNotifications';
 
 
 export default function MobileSettings() {
@@ -13,6 +14,38 @@ export default function MobileSettings() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(Notification.permission === 'granted');
+
+  React.useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg) {
+          reg.pushManager.getSubscription().then(sub => {
+            setPushEnabled(!!sub);
+          });
+        }
+      });
+    }
+  }, []);
+
+  const handleTogglePush = async () => {
+    try {
+      if (pushEnabled) {
+        await unsubscribeFromPush();
+        setPushEnabled(false);
+      } else {
+        const res = await subscribeToPush();
+        if (res.success) {
+          setPushEnabled(true);
+        } else {
+          alert('Failed to enable push notifications: ' + res.error);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error toggling push notifications');
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -112,14 +145,16 @@ export default function MobileSettings() {
           <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--mobile-text-tertiary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px', marginLeft: '12px' }}>Preferences</h2>
           <div style={{ background: 'var(--mobile-surface)', borderRadius: '24px', padding: '8px', boxShadow: 'var(--mobile-shadow-card)' }}>
             
-            <div onClick={() => handleNavigation('Notifications')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderBottom: '1px solid var(--mobile-border)', cursor: 'pointer' }}>
+            <div onClick={handleTogglePush} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderBottom: '1px solid var(--mobile-border)', cursor: 'pointer' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--mobile-warning-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Bell size={18} color="var(--mobile-warning)" />
                 </div>
-                <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--mobile-text-primary)' }}>Notifications</span>
+                <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--mobile-text-primary)' }}>Push Notifications</span>
               </div>
-              <ChevronRight size={20} color="var(--mobile-text-tertiary)" />
+              <div style={{ width: '40px', height: '24px', borderRadius: '12px', background: pushEnabled ? 'var(--mobile-primary)' : 'var(--mobile-border)', position: 'relative', transition: '0.3s' }}>
+                <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#fff', position: 'absolute', top: '2px', left: pushEnabled ? '18px' : '2px', transition: '0.3s' }} />
+              </div>
             </div>
 
             <div onClick={() => handleNavigation('Appearance')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderBottom: '1px solid var(--mobile-border)', cursor: 'pointer' }}>

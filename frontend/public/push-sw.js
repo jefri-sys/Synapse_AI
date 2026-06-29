@@ -3,11 +3,16 @@ self.addEventListener('push', (event) => {
     try {
       const payload = event.data.json();
       event.waitUntil(
-        self.registration.showNotification(payload.title, {
-          body: payload.body,
-          icon: '/pwa-192x192.png',
-          badge: '/pwa-192x192.png',
-          data: { url: payload.url }
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+          for (const client of clientList) {
+            if (client.focused) return;
+          }
+          return self.registration.showNotification(payload.title, {
+            body: payload.body,
+            icon: '/pwa-192x192.png',
+            badge: '/pwa-192x192.png',
+            data: { url: payload.url }
+          });
         })
       );
     } catch (err) {

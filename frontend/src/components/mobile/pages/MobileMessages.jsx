@@ -102,15 +102,64 @@ export default function MobileMessages({
       }));
     };
 
+    const handleUserOnline = (uid) => {
+      setLocalConversations(prev => prev.map(c => {
+        if (c.type === 'dm') {
+          const newParts = c.participants?.map(p => {
+            if (String(p._id || p) === String(uid)) return { ...p, status: 'online' };
+            return p;
+          });
+          return { ...c, participants: newParts };
+        }
+        return c;
+      }));
+    };
+
+    const handleUserOffline = (uid) => {
+      setLocalConversations(prev => prev.map(c => {
+        if (c.type === 'dm') {
+          const newParts = c.participants?.map(p => {
+            if (String(p._id || p) === String(uid)) return { ...p, status: 'offline' };
+            return p;
+          });
+          return { ...c, participants: newParts };
+        }
+        return c;
+      }));
+    };
+
+    const handleOnlineUsers = (users) => {
+      const uids = users.map(String);
+      setLocalConversations(prev => prev.map(c => {
+        if (c.type === 'dm') {
+          const newParts = c.participants?.map(p => {
+            if (uids.includes(String(p._id || p))) return { ...p, status: 'online' };
+            return p;
+          });
+          return { ...c, participants: newParts };
+        }
+        return c;
+      }));
+    };
+
     socket.on('receive_message', handleReceive);
     socket.on('message:receive', handleReceive);
     socket.on('user_typing', handleTyping);
     socket.on('message:deleted', handleMessageDeleted);
+    socket.on('user:online', handleUserOnline);
+    socket.on('user:offline', handleUserOffline);
+    socket.on('online_users', handleOnlineUsers);
+    
+    socket.emit('get:online_users');
+
     return () => {
       socket.off('receive_message', handleReceive);
       socket.off('message:receive', handleReceive);
       socket.off('user_typing', handleTyping);
       socket.off('message:deleted', handleMessageDeleted);
+      socket.off('user:online', handleUserOnline);
+      socket.off('user:offline', handleUserOffline);
+      socket.off('online_users', handleOnlineUsers);
     };
   }, [socket, user, activeConversation]);
 
@@ -156,7 +205,7 @@ export default function MobileMessages({
     }
   };
 
-  const handleCall = (type) => {
+  const handleCall = async (type) => {
     if (!activeConversation) return;
     if (activeConversation.type === 'group') {
       alert("Group calls coming soon!");
@@ -166,15 +215,22 @@ export default function MobileMessages({
     const otherUser = activeConversation.participants?.find(p => String(p._id || p) !== String(currentUserId));
     if (!otherUser) return;
 
-    window.dispatchEvent(new CustomEvent('synapse:call', {
-      detail: {
-        conversationId: activeConversation._id,
-        recipientId: String(otherUser._id || otherUser),
-        recipientName: otherUser.name || 'User',
-        recipientAvatar: otherUser.avatar,
-        type
-      }
-    }));
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: type === 'video' });
+      window.dispatchEvent(new CustomEvent('synapse:call', {
+        detail: {
+          conversationId: activeConversation._id,
+          recipientId: String(otherUser._id || otherUser),
+          recipientName: otherUser.name || 'User',
+          recipientAvatar: otherUser.avatar,
+          type,
+          stream
+        }
+      }));
+    } catch (err) {
+      console.error('Failed to get media devices:', err);
+      alert('Could not access microphone or camera. Please check your permissions.');
+    }
   };
 
   const handleClearChat = async () => {

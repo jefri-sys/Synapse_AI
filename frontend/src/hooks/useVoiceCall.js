@@ -161,7 +161,7 @@ const useVoiceCall = (socket, currentUserId) => {
     return pc;
   };
 
-  const initiateCall = async (recipientId, recipientData, callerData, type = 'voice', conversationId = null) => {
+  const initiateCall = async (recipientId, recipientData, callerData, type = 'voice', conversationId = null, preFetchedStream = null) => {
     try {
       setCallType(type);
       setActiveConvId(conversationId);
@@ -169,7 +169,7 @@ const useVoiceCall = (socket, currentUserId) => {
       setCallerInfo(recipientData); // So the local UI shows who we are calling
       setMicError(false);
       const turnConfig = await fetchTurnCredentials();
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: type === 'video' });
+      const stream = preFetchedStream || await navigator.mediaDevices.getUserMedia({ audio: true, video: type === 'video' });
       streamRef.current = stream;
       setCallStatus('calling');
       setRemoteUserId(recipientId);
