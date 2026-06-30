@@ -195,7 +195,7 @@ export default function MobileAcademics({
                   <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
                      <div style={{ flex: 1, border: '1px solid var(--mobile-border)', borderRadius: '12px', padding: '12px' }}>
                        <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--mobile-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Status</div>
-                       <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--mobile-text-primary)' }}>{sem.isActive ? 'In Progress' : 'Completed'}</div>
+                       <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--mobile-text-primary)' }}>{sem.isCompleted ? 'Completed' : 'In Progress'}</div>
                      </div>
                      <div style={{ flex: 1, border: '1px solid var(--mobile-border)', borderRadius: '12px', padding: '12px' }}>
                        <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--mobile-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>SGPA</div>

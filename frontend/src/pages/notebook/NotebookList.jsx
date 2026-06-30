@@ -101,10 +101,10 @@ export default function NotebookList() {
       title="AI Notebooks"
       description="Upload your study materials to interact with them via AI."
     >
-      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="w-full sm:max-w-xs bg-surface-raised p-3 rounded-xl border border-surface-border shadow-sm">
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-xs font-semibold text-text-secondary flex items-center gap-1"><Sparkles className="w-3 h-3 text-ai-accent" /> AI Usage</span>
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-stretch gap-4">
+        <div className="w-full sm:max-w-xs bg-surface-raised p-3 rounded-xl border border-surface-border shadow-sm flex flex-col justify-center">
+          <div className="flex justify-between items-center mb-1.5">
+            <span className="text-xs font-semibold text-text-secondary flex items-center gap-1.5"><Sparkles className="w-3 h-3 text-ai-accent" /> AI Usage</span>
             <span className="text-xs font-medium text-text-secondary">
               {((user?.aiTokensUsed || 0) / 1000).toFixed(1)}k / {((user?.aiTokenLimit || 500000) / 1000).toFixed(0)}k tokens
             </span>
@@ -117,7 +117,7 @@ export default function NotebookList() {
           </div>
         </div>
 
-        <Button onClick={() => setShowModal(true)}>
+        <Button onClick={() => setShowModal(true)} className="h-auto py-3 px-6 shadow-sm">
           <Plus className="w-5 h-5 mr-2" />
           Create Notebook
         </Button>

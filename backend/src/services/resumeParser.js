@@ -17,7 +17,7 @@ Extract and map its content into EXACTLY this JSON shape:
 
 Map whatever section headings/structure the original resume uses onto this schema as sensibly as possible (e.g. a resume with "Work History" instead of "Experience" should still map into the experience array).
 If a section doesn't exist in the original resume, return an empty array/object for it rather than omitting the key.
-Return ONLY valid JSON, no markdown formatting, no preamble.`;
+CRITICAL: Return ONLY valid JSON. You MUST properly escape all double quotes (\") and newlines (\\n) inside string values. No markdown formatting, no preamble.`;
 
 async function parseUploadedResume(fileBuffer, mimetype) {
   let rawResponse = '';
@@ -32,57 +32,62 @@ async function parseUploadedResume(fileBuffer, mimetype) {
 
     if (isDocx) {
       console.log(`[parseUploadedResume] PATH: DOCX text-extraction path taken`);
-      // DOCX goes through text extraction -> Gemini Case A (text only)
       const extractResult = await extractText(fileBuffer, mimetype);
       if (!extractResult || !extractResult.text || extractResult.text.trim() === '') {
         console.error(`[parseUploadedResume] FAILURE: extractText returned empty or no text`);
         throw new Error('Could not extract text from this document');
       }
-      
       prompt = `Read the following plain text extracted from a resume document.\n\nText:\n${extractResult.text}\n\n${RESUME_SCHEMA_PROMPT}`;
-      // No files needed for Case A
     } else {
       console.log(`[parseUploadedResume] PATH: Vision path taken for PDF/image`);
-      // PDF/Images go through Gemini Case B (vision)
       const base64 = fileBuffer.toString('base64');
       prompt = `Read the attached resume document (PDF or image).\n\n${RESUME_SCHEMA_PROMPT}`;
       files = [{ data: base64, mimeType: mimetype }];
     }
     
-    console.log(`[parseUploadedResume] Calling routeRequest("resume-parsing")...`);
-    rawResponse = await routeRequest("resume-parsing", { prompt, files, responseMimeType: "application/json" });
-    
-    console.log(`[parseUploadedResume] FULL rawResponse from Gemini:\n`, rawResponse);
-    console.log(`--------------------------------------------------\n`);
-
-    if (!rawResponse || rawResponse.trim() === '') {
-      console.error(`[parseUploadedResume] FAILURE: rawResponse is completely empty`);
-      return { success: false, content: null, rawResponse: 'Empty response from AI' };
-    }
-
-    // formatGuard-style safe JSON parser
-    let jsonStr = rawResponse;
-    let jsonStart = jsonStr.indexOf('{');
-    let jsonEnd = jsonStr.lastIndexOf('}');
-    
-    console.log(`[parseUploadedResume] formatGuard: jsonStart=${jsonStart}, jsonEnd=${jsonEnd}`);
-
-    if (jsonStart !== -1 && jsonEnd !== -1) {
-      jsonStr = jsonStr.substring(jsonStart, jsonEnd + 1);
-      // Clean up trailing commas which cause "Expected double-quoted property name" errors
-      jsonStr = jsonStr.replace(/,\s*([}\]])/g, '$1');
-    } else {
-      console.error(`[parseUploadedResume] FAILURE: No JSON boundaries found in rawResponse!`);
-      return { success: false, content: null, rawResponse: 'No JSON boundaries found' };
-    }
-    
     let content;
-    try {
-      content = JSON.parse(jsonStr);
-      console.log(`[parseUploadedResume] SUCCESS: Parsed JSON content:`, JSON.stringify(content, null, 2).substring(0, 400) + (JSON.stringify(content).length > 400 ? '...' : ''));
-    } catch (parseError) {
-      console.error(`[parseUploadedResume] FAILURE: JSON.parse threw error:`, parseError.message);
-      return { success: false, content: null, rawResponse: 'Failed to parse JSON: ' + parseError.message };
+    let lastError = null;
+
+    // Retry loop for JSON parsing
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        console.log(`[parseUploadedResume] Calling routeRequest("resume-parsing") - Attempt ${attempt}...`);
+        
+        let currentPrompt = prompt;
+        if (attempt === 2) {
+           currentPrompt += `\n\nWARNING: Your previous response contained invalid JSON syntax (likely unescaped quotes or trailing commas). Please fix these issues and output strictly valid JSON.`;
+        }
+
+        rawResponse = await routeRequest("resume-parsing", { prompt: currentPrompt, files, responseMimeType: "application/json" });
+        
+        if (!rawResponse || rawResponse.trim() === '') {
+          throw new Error('Empty response from AI');
+        }
+
+        let jsonStr = rawResponse;
+        let jsonStart = jsonStr.indexOf('{');
+        let jsonEnd = jsonStr.lastIndexOf('}');
+        
+        if (jsonStart !== -1 && jsonEnd !== -1) {
+          jsonStr = jsonStr.substring(jsonStart, jsonEnd + 1);
+          // Try to clean up trailing commas right before closing brackets/braces
+          jsonStr = jsonStr.replace(/,\s*([}\]])/g, '$1');
+        } else {
+          throw new Error('No JSON boundaries found in response');
+        }
+        
+        // This is a naive attempt at cleaning. If it fails, the retry loop or the catch block will handle it.
+        // The best fix is usually the LLM getting it right on the second attempt with the warning prompt.
+        content = JSON.parse(jsonStr);
+        console.log(`[parseUploadedResume] SUCCESS: Parsed JSON content on attempt ${attempt}`);
+        break; // Break the loop if successful
+      } catch (parseError) {
+        lastError = parseError;
+        console.error(`[parseUploadedResume] FAILURE on attempt ${attempt}: JSON.parse threw error:`, parseError.message);
+        if (attempt === 2) {
+          return { success: false, content: null, rawResponse: 'Failed to parse JSON: ' + parseError.message };
+        }
+      }
     }
     
     console.log(`--- [parseUploadedResume] END ---\n`);

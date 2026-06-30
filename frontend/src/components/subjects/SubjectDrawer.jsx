@@ -672,7 +672,7 @@ export default function SubjectDrawer({ subject, isOpen, onClose }) {
             ) : (
               <div 
                 {...getCompactRootProps()} 
-                className="flex flex-col items-center justify-center py-20 px-4 bg-surface-base border border-surface-border border-dashed rounded-xl text-center shadow-sm cursor-pointer hover:border-brand-primary hover:bg-brand-primary-subtle/50 transition-colors"
+                className="flex flex-col items-center justify-center py-12 px-4 bg-surface-base border border-surface-border border-dashed rounded-xl text-center shadow-sm cursor-pointer hover:border-brand-primary hover:bg-brand-primary-subtle/50 transition-colors"
               >
                 <input {...getCompactInputProps()} />
                 <div className="w-16 h-16 bg-surface-raised rounded-full flex items-center justify-center mb-4">

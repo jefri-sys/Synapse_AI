@@ -98,7 +98,7 @@ const SemesterList = ({ onSelectSemester }) => {
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center text-sm text-text-tertiary">
-                Not enough data for trend line
+                Your grade journey starts here
               </div>
             )}
           </div>
@@ -170,13 +170,15 @@ const SemesterList = ({ onSelectSemester }) => {
 
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-text-primary">Your Semesters</h3>
-        <Button 
-          onClick={() => setShowAddModal(true)}
-          variant="primary"
-          className="gap-1.5"
-        >
-          <Plus className="w-4 h-4" /> Add Semester
-        </Button>
+        {semesters.length > 0 && (
+          <Button 
+            onClick={() => setShowAddModal(true)}
+            variant="primary"
+            className="gap-1.5"
+          >
+            <Plus className="w-4 h-4" /> Add Semester
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -185,7 +187,7 @@ const SemesterList = ({ onSelectSemester }) => {
             key={sem._id} 
             onClick={() => onSelectSemester(sem._id)}
             className={`border rounded-xl p-5 cursor-pointer transition-all hover:shadow-md relative overflow-hidden group
-              ${sem.isActive ? 'border-brand-primary-subtle bg-brand-primary-subtle/30' : 'border-surface-border bg-surface-base'}`}
+              ${sem.isActive ? 'border-brand-primary/40 bg-surface-raised shadow-sm ring-1 ring-brand-primary/10' : 'border-surface-border bg-surface-raised shadow-sm'}`}
           >
             {sem.isActive && (
               <div className="absolute top-0 right-0 bg-brand-primary text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg uppercase tracking-wider">
@@ -243,12 +245,12 @@ const SemesterList = ({ onSelectSemester }) => {
         {semesters.length === 0 && (
           <div className="col-span-full py-12 text-center border-2 border-dashed border-surface-border rounded-xl">
             <GraduationCap className="w-12 h-12 text-text-tertiary mx-auto mb-3" />
-            <h3 className="text-text-primary font-semibold mb-1">No Semesters Found</h3>
+            <h3 className="text-text-primary font-semibold mb-1">Create Your First Semester Card</h3>
             <p className="text-sm text-text-secondary mb-4">Add your first semester to start tracking subjects.</p>
             <Button 
               onClick={() => setShowAddModal(true)}
-              variant="secondary"
-              className="gap-1.5 bg-brand-primary-subtle text-brand-primary hover:bg-brand-primary-subtle"
+              variant="primary"
+              className="gap-1.5"
             >
               <Plus className="w-4 h-4" /> Add Semester
             </Button>

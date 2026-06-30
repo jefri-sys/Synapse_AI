@@ -70,7 +70,7 @@ export default function ExplorerChat({ sessionId, initialMessages = [], onNewRes
       <div className="flex-1 overflow-y-auto p-6 bg-surface-base">
         {chats.length === 0 && !isTyping ? (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
-            <Sparkles className="w-12 h-12 text-brand-primary-subtle mb-4" />
+            <Sparkles className="w-12 h-12 text-brand-primary/40 mb-4" />
             <h3 className="text-lg font-bold text-text-primary">AI Tutor is Ready</h3>
             <p className="text-text-secondary max-w-sm mt-2">Ask follow-up questions about this roadmap. I can find alternative courses, exercises, or clarify concepts.</p>
           </div>
@@ -114,8 +114,8 @@ export default function ExplorerChat({ sessionId, initialMessages = [], onNewRes
           <Button 
             type="submit"
             variant="primary"
-            disabled={!inputValue.trim() || isTyping}
-            className="px-3"
+            disabled={isTyping}
+            className={`px-3 ${!inputValue.trim() ? 'opacity-90' : 'opacity-100'}`}
           >
             <Send className="w-4 h-4" />
           </Button>

@@ -9,6 +9,10 @@ import {
   ArrowRight,
   CheckCircle2,
   Circle,
+  GraduationCap,
+  Wallet,
+  Flame,
+  CalendarDays,
 } from "lucide-react";
 import { StatCard } from '../../components/ui/stat-card.jsx';
 import { AIAccent } from '../../components/ui/ai-accent.jsx';
@@ -286,7 +290,7 @@ function TodayDashboard() {
       <PullToRefreshIndicator isPulling={isPulling} pullProgress={pullProgress} isRefreshing={isRefreshing} />
       <div className="flex items-start justify-between mb-8 pb-4 border-b border-surface-border/50">
         <div>
-          <h1 className="text-3xl font-bold text-text-primary font-display flex items-center gap-2 tracking-tight">
+          <h1 className="text-xl font-medium text-text-primary flex items-center gap-2 tracking-tight">
             {getGreeting()}, {user?.name?.split(' ')[0] || 'Student'} <span className="inline-block animate-wave origin-bottom-right">👋</span>
           </h1>
         </div>
@@ -315,10 +319,10 @@ function TodayDashboard() {
         </AIAccent>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
-          <StatCard label="Current CGPA" value={data.cgpa !== null ? data.cgpa : '--'} />
-          <StatCard label="Budget" value={`₹${data.budget !== null ? data.budget : '--'}`} trend="Remaining this month" />
-          <StatCard label="Habit Streak" value={data.habitAnalytics?.bestStreak || 0} trend="Days best" />
-          <StatCard label="Next Exam" value={getNearestExamDays()} trend="Days away" />
+          <StatCard label="Current CGPA" value={data.cgpa !== null ? data.cgpa : '--'} icon={GraduationCap} />
+          <StatCard label="Budget" value={`₹${data.budget !== null ? data.budget : '--'}`} trend="Remaining this month" icon={Wallet} />
+          <StatCard label="Habit Streak" value={data.habitAnalytics?.bestStreak || 0} trend="Days best" icon={Flame} />
+          <StatCard label="Next Exam" value={getNearestExamDays()} trend="Days away" icon={CalendarDays} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -326,7 +330,7 @@ function TodayDashboard() {
             <Card className="flex flex-col gap-4">
               <div className="flex justify-between items-center mb-1">
                 <h3 className="font-semibold text-text-primary font-display">Today's Tasks</h3>
-                <Link to="/planner" className="text-sm font-medium text-brand-primary hover:text-brand-primary-hover flex items-center gap-1 transition-colors">
+                <Link to="/planner" className="text-sm font-medium text-text-secondary hover:text-text-primary flex items-center gap-1 transition-colors">
                   View All <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -348,7 +352,7 @@ function TodayDashboard() {
                           {task.status === 'Completed' ? (
                             <CheckCircle2 className="w-5 h-5 text-status-success" />
                           ) : (
-                            <Circle className="w-5 h-5 text-text-tertiary hover:text-brand-primary transition-colors" />
+                            <Circle className="w-5 h-5 text-text-tertiary hover:text-text-primary transition-colors" />
                           )}
                         </button>
                         <div className="flex flex-col">

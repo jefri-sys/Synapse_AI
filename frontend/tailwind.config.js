@@ -24,6 +24,7 @@ export default {
         ai: {
           accent: 'var(--ai-accent)',
           'accent-subtle': 'var(--ai-accent-subtle)',
+          strong: 'var(--accent-strong)',
         },
         status: {
           success: 'var(--status-success)',

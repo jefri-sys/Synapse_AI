@@ -155,11 +155,11 @@ function ResourceExplorer() {
         
         {/* Left Content */}
         <div 
-          className="flex flex-col bg-surface-base/80 backdrop-blur-2xl border border-surface-border rounded-2xl shadow-sm overflow-hidden relative z-10 transition-all duration-75"
+          className="flex flex-col bg-surface-base/80 backdrop-blur-2xl border border-surface-border rounded-2xl shadow-sm relative z-10 transition-all duration-75"
           style={ (session && isChatOpen) ? { width: `calc(${splitWidth}% - 0.75rem)`, pointerEvents: isResizing ? 'none' : 'auto' } : { flex: 1 } }
         >
-          <div className="p-6 border-b border-surface-border bg-surface-raised/50 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-brand-primary/5 to-transparent pointer-events-none" />
+          <div className="p-6 border-b border-surface-border bg-surface-raised/50 relative rounded-t-2xl">
+            <div className="absolute inset-0 bg-gradient-to-b from-brand-primary/5 to-transparent pointer-events-none rounded-t-2xl" />
             <form onSubmit={handleSearch} className="flex flex-col gap-4 relative z-10">
               <div className="flex items-center gap-3 relative">
                 <div className="relative flex-1 group">
@@ -241,9 +241,9 @@ function ResourceExplorer() {
                     </Button>
                   </div>
                 )}
-                <div className="mb-12 text-center">
+                <div className="mb-12 ml-12 text-left">
                   <h2 className="text-3xl font-display font-bold text-text-primary mb-3 tracking-tight">{roadmap.topic}</h2>
-                  <div className="flex items-center justify-center gap-3 text-sm font-medium text-text-secondary">
+                  <div className="flex items-center gap-3 text-sm font-medium text-text-secondary">
                     <span className="px-3 py-1 bg-brand-primary/10 border border-brand-primary/20 text-brand-primary rounded-full capitalize">
                       {roadmap.level} Level
                     </span>
@@ -254,7 +254,7 @@ function ResourceExplorer() {
                   </div>
                 </div>
 
-                <div className="space-y-8 relative before:absolute before:inset-0 before:left-[1.3rem] before:h-full before:w-[2px] before:bg-gradient-to-b before:from-brand-primary/50 before:via-brand-primary/20 before:to-transparent">
+                <div className="space-y-8 relative before:absolute before:top-4 before:bottom-0 before:left-[1.3rem] before:-translate-x-[1px] before:w-[2px] before:bg-surface-border">
                   {roadmap.roadmap.map((step, idx) => (
                     <div key={idx} className="relative flex items-start group">
                       <div className="absolute left-[1.3rem] -translate-x-1/2 flex items-center justify-center w-6 h-6 rounded-full bg-surface-base border-2 border-brand-primary shadow-[0_0_10px_rgba(139,92,246,0.3)] shrink-0 z-10 top-6">

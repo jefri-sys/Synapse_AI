@@ -7,16 +7,18 @@ const AIAccent = React.forwardRef(({ className, children, label = "AI Insights",
     <div
       ref={ref}
       className={cn(
-        "bg-ai-accent-subtle border-l-[3px] border-ai-accent rounded-md p-5",
+        "bg-ai-accent-subtle rounded-[12px] p-5",
         className
       )}
       {...props}
     >
-      <div className="flex items-center gap-2 mb-3">
-        <Sparkles className="w-4 h-4 text-ai-accent" />
-        <span className="text-sm font-medium text-ai-accent">{label}</span>
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-7 h-7 rounded-full bg-ai-accent flex items-center justify-center shrink-0 shadow-sm">
+          <Sparkles className="w-3.5 h-3.5 text-white" />
+        </div>
+        <span className="text-sm font-semibold text-text-primary">{label}</span>
       </div>
-      <div className="text-text-primary text-sm">
+      <div className="text-text-primary text-[14px] leading-relaxed max-w-3xl">
         {children}
       </div>
     </div>

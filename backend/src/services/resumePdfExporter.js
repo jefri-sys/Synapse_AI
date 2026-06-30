@@ -27,8 +27,11 @@ async function generateResumePdf(resume) {
   const html = renderFunc(resume);
 
   const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    headless: 'new',
+    executablePath: process.platform === 'win32' 
+      ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' 
+      : undefined,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
   });
 
   try {

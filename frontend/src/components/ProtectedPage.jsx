@@ -51,11 +51,11 @@ function ProtectedPage({ title, description, headerAction, children }) {
   const { user, logout } = useAuth();
 
   return (
-    <main className="min-h-screen bg-[#FDFDFD] text-[#111111] font-sans selection:bg-black/10 transition-colors">
+    <main className="min-h-screen bg-surface-base text-text-primary font-sans selection:bg-black/10 transition-colors">
       <div className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col md:flex-row">
         
         {/* Arc/Linear-inspired Sidebar */}
-        <aside className="border-b border-black/[0.06] dark:border-white/10 bg-[#F7F7F7] dark:bg-[#1A1A1A] p-4 md:w-[260px] md:border-b-0 md:border-r hidden md:flex flex-col shrink-0 transition-colors">
+        <aside className="border-b border-black/[0.06] dark:border-white/10 bg-surface-sunken p-4 md:w-[260px] md:border-b-0 md:border-r hidden md:flex flex-col shrink-0 transition-colors">
           <Link to="/settings" className="mb-7 px-2 py-2 flex items-center gap-3 group hover:bg-black/[0.04] dark:hover:bg-white/5 rounded-xl transition-colors cursor-pointer">
             {user?.avatar ? (
               <img src={user.avatar} alt="Avatar" className="w-9 h-9 rounded-lg object-cover shadow-sm border border-black/10 dark:border-white/10 shrink-0" />
@@ -93,8 +93,8 @@ function ProtectedPage({ title, description, headerAction, children }) {
                           [
                             'group flex items-center gap-3 rounded-lg px-3 py-2 text-[13.5px] font-medium transition-all duration-200',
                             isActive
-                              ? 'bg-white dark:bg-[#2A2A2A] text-[#111111] dark:text-[#ECECEC] shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-black/[0.04] dark:border-white/5'
-                              : 'text-[#555555] dark:text-[#A3A3A3] hover:bg-black/[0.04] dark:hover:bg-white/5 hover:text-[#111111] dark:hover:text-[#ECECEC] border border-transparent',
+                              ? 'bg-surface-raised text-text-primary shadow-sm border border-surface-border'
+                              : 'text-text-secondary border border-transparent hover:bg-black/[0.04] dark:hover:bg-white/5 hover:text-text-primary',
                           ].join(' ')
                         }
                       >
@@ -119,8 +119,8 @@ function ProtectedPage({ title, description, headerAction, children }) {
                 [
                   'group flex items-center gap-3 rounded-lg px-3 py-2 text-[13.5px] font-medium transition-all duration-200',
                   isActive
-                    ? 'bg-white dark:bg-[#2A2A2A] text-[#111111] dark:text-[#ECECEC] shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-black/[0.04] dark:border-white/5'
-                    : 'text-[#555555] dark:text-[#A3A3A3] hover:bg-black/[0.04] dark:hover:bg-white/5 hover:text-[#111111] dark:hover:text-[#ECECEC] border border-transparent',
+                    ? 'bg-surface-raised text-text-primary shadow-sm border border-surface-border'
+                    : 'text-text-secondary border border-transparent hover:bg-black/[0.04] dark:hover:bg-white/5 hover:text-text-primary',
                 ].join(' ')
               }
             >
@@ -143,7 +143,7 @@ function ProtectedPage({ title, description, headerAction, children }) {
         </aside>
 
         {/* Main Content Area */}
-        <section className="flex-1 p-6 sm:p-10 max-w-[100vw] md:max-w-[calc(100vw-260px)] overflow-x-hidden bg-[#FDFDFD] dark:bg-[#111111] transition-colors">
+        <section className="flex-1 p-6 sm:p-10 max-w-[100vw] md:max-w-[calc(100vw-260px)] overflow-x-hidden bg-surface-base transition-colors">
           {(title || description) && (
             <div className="relative mb-8 pb-6 border-b border-black/[0.06] dark:border-white/10 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <div>

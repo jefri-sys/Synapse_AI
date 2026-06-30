@@ -5,10 +5,10 @@
 @layer base {
   :root {
     /* Surface */
-    --surface-base: #FFFFFF;
-    --surface-raised: #FAFAFA;
-    --surface-sunken: #F5F5F7;
-    --surface-border: #E8E8EC;
+    --surface-base: #FAF9F6;
+    --surface-raised: #FFFFFF;
+    --surface-sunken: #F1EFE9;
+    --surface-border: #E7E3DA;
     --surface-overlay-dark: #1E293B;
 
     /* Marketing/Auth dark-locked tokens — intentionally NOT theme-reactive. */
@@ -36,18 +36,19 @@
     --marketing-danger-light: #FCA5A5;
 
     /* Text */
-    --text-primary: #16161A;
-    --text-secondary: #6B6B76;
-    --text-tertiary: #9999A3;
+    --text-primary: #1F1C19;
+    --text-secondary: #716C63;
+    --text-tertiary: #A39C8E;
 
-    /* Brand / Interactive (indigo, demoted to intent-only) */
-    --brand-primary: #5B5BD6;
-    --brand-primary-hover: #4A4AC4;
-    --brand-primary-subtle: #EFEFFC;
+    /* Brand / Interactive (slate/midnight blue) */
+    --brand-primary: #3B4D61;
+    --brand-primary-hover: #2A3848;
+    --brand-primary-subtle: #F0F3F7;
 
     /* AI signature accent — distinct from brand, used ONLY for AI-originated content */
-    --ai-accent: #8B6FE8;
-    --ai-accent-subtle: #F4F0FD;
+    --ai-accent: #2563EB;
+    --ai-accent-subtle: #EFF6FF;
+    --accent-strong: #1D4ED8;
 
     /* Semantic status */
     --status-success: #1A9E6B;
@@ -60,8 +61,8 @@
     --status-info-subtle: #E9F2FC;
 
     /* Type Scale */
-    --font-display: 'Geist', 'Inter Tight', sans-serif;
-    --font-body: 'Inter', sans-serif;
+    --font-display: 'Outfit', 'Geist', sans-serif;
+    --font-body: 'DM Sans', 'Inter', sans-serif;
 
     --text-xs: 0.75rem;
     --text-sm: 0.875rem;
@@ -100,22 +101,23 @@
   }
 
   [data-theme="dark"] {
-    --surface-base: #16161A;
-    --surface-raised: #1E1E24;
-    --surface-sunken: #0F0F12;
-    --surface-border: #2C2C34;
+    --surface-base: #181715;
+    --surface-raised: #211F1C;
+    --surface-sunken: #121110;
+    --surface-border: #322E29;
     --surface-overlay-dark: #0F0F12;
 
-    --text-primary: #F2F2F5;
-    --text-secondary: #A3A3AD;
-    --text-tertiary: #6B6B76;
+    --text-primary: #F2EFEA;
+    --text-secondary: #A39C90;
+    --text-tertiary: #786F62;
 
-    --brand-primary: #7B7BF0;
-    --brand-primary-hover: #8E8EF5;
-    --brand-primary-subtle: #2A2A4A;
+    --brand-primary: #6B829C;
+    --brand-primary-hover: #849BB6;
+    --brand-primary-subtle: #1E2833;
 
-    --ai-accent: #A78EF0;
-    --ai-accent-subtle: #2A2440;
+    --ai-accent: #3B82F6;
+    --ai-accent-subtle: #1E3A8A;
+    --accent-strong: #60A5FA;
 
     --status-success: #34C98A;
     --status-success-subtle: #15302380;

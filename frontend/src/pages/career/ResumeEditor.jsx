@@ -40,6 +40,8 @@ export default function ResumeEditor() {
   const [jobDescription, setJobDescription] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
+  const [collapsedSections, setCollapsedSections] = useState([]);
+  const [isPreviewExpanded, setIsPreviewExpanded] = useState(false);
 
 
   useEffect(() => {
@@ -180,6 +182,16 @@ export default function ResumeEditor() {
     setResume({ ...resume, hiddenSections: newHidden });
   };
 
+  const toggleCollapse = (sectionKey) => {
+    let newCollapsed = [...collapsedSections];
+    if (newCollapsed.includes(sectionKey)) {
+      newCollapsed = newCollapsed.filter(s => s !== sectionKey);
+    } else {
+      newCollapsed.push(sectionKey);
+    }
+    setCollapsedSections(newCollapsed);
+  };
+
   const updateContent = (sectionKey, newValue) => {
     setResume({
       ...resume,
@@ -199,7 +211,7 @@ export default function ResumeEditor() {
 
   // RENDERERS FOR DIFFERENT CONTENT SHAPES
   const renderPersonalInfo = (data) => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {['name', 'email', 'phone', 'linkedin', 'github', 'portfolio'].map(field => (
         <div key={field}>
           <label className="block text-xs font-semibold text-text-secondary uppercase mb-1">{field}</label>
@@ -207,7 +219,7 @@ export default function ResumeEditor() {
             type="text"
             value={data[field] || ''}
             onChange={e => updateContent('personalInfo', { ...data, [field]: e.target.value })}
-            className="w-full border border-surface-border bg-surface-base text-text-primary rounded-lg p-2 text-sm focus:ring-brand-primary focus:border-brand-primary outline-none"
+            className="w-full border border-surface-border bg-surface-base text-text-primary rounded-lg p-2 text-sm focus:ring-brand-primary focus:border-brand-primary outline-none transition-colors"
           />
         </div>
       ))}
@@ -248,35 +260,41 @@ export default function ResumeEditor() {
               }} className="absolute top-2 right-2 text-text-tertiary hover:text-status-danger transition-colors">
                 <Trash2 size={16} />
               </button>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mr-6">
-                {Object.keys(template).map(field => (
-                  <div key={field} className={field === 'description' ? 'sm:col-span-2' : ''}>
-                    <label className="block text-xs font-semibold text-text-secondary uppercase mb-1">{field}</label>
-                    {field === 'description' ? (
-                      <textarea
-                        value={item[field] || ''}
-                        onChange={e => {
-                          const newArr = [...arr];
-                          newArr[i] = typeof newArr[i] === 'object' && newArr[i] !== null ? { ...newArr[i], [field]: e.target.value } : { [field]: e.target.value };
-                          updateContent(sectionKey, newArr);
-                        }}
-                        rows={2}
-                        className="w-full border border-surface-border bg-surface-base text-text-primary rounded-lg p-2 text-sm focus:ring-brand-primary focus:border-brand-primary outline-none"
-                      />
-                    ) : (
-                      <input
-                        type="text"
-                        value={Array.isArray(item[field]) ? item[field].join(', ') : (item[field] || '')}
-                        onChange={e => {
-                          const newArr = [...arr];
-                          newArr[i] = typeof newArr[i] === 'object' && newArr[i] !== null ? { ...newArr[i], [field]: Array.isArray(template[field]) ? e.target.value.split(',').map(s => s.trim()) : e.target.value } : { [field]: Array.isArray(template[field]) ? e.target.value.split(',').map(s => s.trim()) : e.target.value };
-                          updateContent(sectionKey, newArr);
-                        }}
-                        className="w-full border border-surface-border bg-surface-base text-text-primary rounded-lg p-2 text-sm focus:ring-brand-primary focus:border-brand-primary outline-none"
-                      />
-                    )}
-                  </div>
-                ))}
+              <div className="grid grid-cols-12 gap-4 mr-6">
+                {Object.keys(template).map(field => {
+                  const isSmall = ['startDate', 'endDate', 'cgpa', 'date'].includes(field);
+                  const isDesc = field === 'description';
+                  const isMedium = !isSmall && !isDesc;
+                  
+                  return (
+                    <div key={field} className={isSmall ? 'col-span-6 sm:col-span-3' : isDesc ? 'col-span-12' : 'col-span-12 sm:col-span-6'}>
+                      <label className="block text-xs font-semibold text-text-secondary uppercase mb-1">{field}</label>
+                      {field === 'description' ? (
+                        <textarea
+                          value={item[field] || ''}
+                          onChange={e => {
+                            const newArr = [...arr];
+                            newArr[i] = typeof newArr[i] === 'object' && newArr[i] !== null ? { ...newArr[i], [field]: e.target.value } : { [field]: e.target.value };
+                            updateContent(sectionKey, newArr);
+                          }}
+                          rows={3}
+                          className="w-full border border-surface-border bg-surface-base text-text-primary rounded-lg p-2 text-sm focus:ring-brand-primary focus:border-brand-primary outline-none transition-colors"
+                        />
+                      ) : (
+                        <input
+                          type="text"
+                          value={Array.isArray(item[field]) ? item[field].join(', ') : (item[field] || '')}
+                          onChange={e => {
+                            const newArr = [...arr];
+                            newArr[i] = typeof newArr[i] === 'object' && newArr[i] !== null ? { ...newArr[i], [field]: Array.isArray(template[field]) ? e.target.value.split(',').map(s => s.trim()) : e.target.value } : { [field]: Array.isArray(template[field]) ? e.target.value.split(',').map(s => s.trim()) : e.target.value };
+                            updateContent(sectionKey, newArr);
+                          }}
+                          className="w-full border border-surface-border bg-surface-base text-text-primary rounded-lg p-2 text-sm focus:ring-brand-primary focus:border-brand-primary outline-none transition-colors"
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )
@@ -387,148 +405,156 @@ export default function ResumeEditor() {
         </div>
       </div>
     );
-  }; return (
-    <ProtectedPage title="Resume Editor" hideSidebar>
-      <div className="flex flex-col lg:flex-row gap-6 p-6 h-[calc(100vh-64px)] overflow-hidden">
+  };
 
-        {/* Left Side: Editor or Info */}
-        <div className="w-full lg:w-1/2 flex flex-col gap-6 overflow-y-auto pb-20 pr-2">
-
-          {/* Header */}
-          <Card className="p-6 flex flex-col gap-4 shrink-0">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <button onClick={() => navigate('/career/resumes')} className="text-sm font-semibold text-text-tertiary flex items-center gap-1 hover:text-text-primary mb-2 transition-colors">
-                  <ArrowLeft size={16} /> Back to Resumes
-                </button>
-                <div className="flex items-center gap-3">
-                  <input
-                    value={resume.title}
-                    onChange={e => setResume({ ...resume, title: e.target.value })}
-                    className="text-2xl font-display font-bold text-text-primary border-none p-0 focus:ring-0 bg-transparent w-full outline-none"
-                  />
-                  {resume.origin === 'uploaded' && (
-                    <span className="px-2 py-1 bg-brand-primary-subtle text-brand-primary rounded text-xs font-bold whitespace-nowrap">Uploaded</span>
-                  )}
-                </div>
-                {resume.targetRole && <p className="text-sm text-text-secondary capitalize">{resume.targetRole.replace('_', ' ')}</p>}
-              </div>
-
-              <div className="flex items-center gap-3">
-                {resume.origin !== 'uploaded' && (
-                  <Button onClick={handleRegenerate} disabled={regenerating} variant="outline" className="flex items-center gap-2">
-                    <RefreshCw size={16} className={regenerating ? "animate-spin" : ""} /> {regenerating ? 'Regenerating...' : 'Regenerate'}
-                  </Button>
-                )}
-                <Button onClick={handleSave} disabled={saving} variant="primary" className="flex items-center gap-2">
-                  <Save size={16} /> {saving ? 'Saving...' : 'Save Title'}
-                </Button>
-              </div>
-            </div>
-
-            {/* Template Switcher */}
-            <div className="pt-4 border-t border-surface-border flex items-center gap-3">
-              <LayoutTemplate size={18} className="text-text-tertiary" />
-              <span className="text-sm font-bold text-text-secondary">Template:</span>
-              <select
-                value={resume.templateId || 'ats_classic'}
-                onChange={(e) => handleTemplateChange(e.target.value)}
-                className="text-sm border border-surface-border rounded-md p-1.5 focus:ring-brand-primary focus:border-brand-primary bg-surface-raised text-text-primary outline-none shadow-sm"
-              >
-                {TEMPLATES.map(t => (
-                  <option key={t.id} value={t.id}>{t.label}</option>
-                ))}
-              </select>
-            </div>
-          </Card>
-
-          {/* Sections Editor */}
-          <div className="space-y-4 shrink-0">
-            {resume.sectionOrder.map((sectionKey, index) => {
-              const isHidden = (resume.hiddenSections || []).includes(sectionKey);
-              const contentData = resume.content?.[sectionKey];
-
-              return (
-                <div key={sectionKey} className={`bg-surface-base border rounded-xl shadow-sm transition-all ${isHidden ? 'border-dashed border-surface-border opacity-60' : 'border-surface-border'}`}>
-                  {/* Section Header */}
-                  <div className="flex items-center justify-between p-4 border-b border-surface-border bg-surface-raised rounded-t-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="flex flex-col">
-                        <button onClick={() => moveSection(index, 'up')} disabled={index === 0} className="text-text-tertiary hover:text-brand-primary disabled:opacity-30"><ArrowUp size={16} /></button>
-                        <button onClick={() => moveSection(index, 'down')} disabled={index === resume.sectionOrder.length - 1} className="text-text-tertiary hover:text-brand-primary disabled:opacity-30"><ArrowDown size={16} /></button>
-                      </div>
-                      <h3 className="font-bold text-text-primary">{sectionLabels[sectionKey]}</h3>
-                      {isHidden && <span className="text-xs bg-surface-border text-text-secondary px-2 py-0.5 rounded font-bold">Hidden</span>}
-                    </div>
-                    <button onClick={() => toggleHidden(sectionKey)} className="text-sm font-bold text-text-secondary hover:text-text-primary flex items-center gap-1 transition-colors">
-                      {isHidden ? <><Eye size={16} /> Show</> : <><EyeOff size={16} /> Hide</>}
-                    </button>
-                  </div>
-
-                  {/* Section Body */}
-                  <div className={`p-5 ${isHidden ? 'hidden' : 'block'}`}>
-                    {sectionKey === 'personalInfo' && renderPersonalInfo(contentData || {})}
-                    {sectionKey === 'skills' && renderStringArray('skills', contentData)}
-                    {sectionKey === 'education' && renderGenericArray('education', contentData, { institution: '', degree: '', field: '', startDate: '', endDate: '', cgpa: '', relevantCoursework: [] })}
-                    {sectionKey === 'projects' && renderGenericArray('projects', contentData, { title: '', description: '', technologies: [], link: '', dateRange: '' })}
-                    {sectionKey === 'internships' && renderGenericArray('internships', contentData, { company: '', role: '', startDate: '', endDate: '', description: '' })}
-                    {sectionKey === 'experience' && renderGenericArray('experience', contentData, { company: '', role: '', startDate: '', endDate: '', description: '' })}
-                    {sectionKey === 'certifications' && renderGenericArray('certifications', contentData, { title: '', issuer: '', date: '' })}
-                    {sectionKey === 'achievements' && renderGenericArray('achievements', contentData, { title: '', description: '', date: '' })}
-                    {sectionKey === 'research' && renderGenericArray('research', contentData, { title: '', publication: '', date: '', description: '' })}
-                  </div>
-                </div>
-              );
-            })}
+  return (
+    <ProtectedPage title="" hideSidebar>
+      {/* Header Row outside of Card for a cleaner layout */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 mt-[-10px]">
+        <div>
+          <button onClick={() => navigate('/career/resumes')} className="text-sm font-semibold text-text-tertiary flex items-center gap-1 hover:text-text-primary mb-2 transition-colors">
+            <ArrowLeft size={16} /> Back to Resumes
+          </button>
+          <div className="flex items-center gap-3">
+            <input
+              value={resume.title}
+              onChange={e => setResume({ ...resume, title: e.target.value })}
+              className="text-2xl font-display font-bold text-text-primary border-none p-0 focus:ring-0 bg-transparent outline-none max-w-sm"
+              placeholder="Resume Title"
+            />
+            {resume.origin === 'uploaded' && (
+              <span className="px-2 py-1 bg-brand-primary-subtle text-brand-primary rounded text-xs font-bold whitespace-nowrap">Uploaded</span>
+            )}
           </div>
+          {resume.targetRole && <p className="text-sm text-text-secondary capitalize">{resume.targetRole.replace('_', ' ')}</p>}
         </div>
 
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 mr-2">
+            <LayoutTemplate size={16} className="text-text-tertiary" />
+            <select
+              value={resume.templateId || 'ats_classic'}
+              onChange={(e) => handleTemplateChange(e.target.value)}
+              className="text-sm font-medium border-none rounded-md py-1.5 px-2 bg-surface-raised text-text-primary focus:outline-brand-primary shadow-sm"
+            >
+              {TEMPLATES.map(t => (
+                <option key={t.id} value={t.id}>{t.label}</option>
+              ))}
+            </select>
+          </div>
+          
+          {resume.origin !== 'uploaded' && (
+            <Button onClick={handleRegenerate} disabled={regenerating} variant="outline" className="flex items-center gap-2 h-9 text-sm">
+              <RefreshCw size={16} className={regenerating ? "animate-spin" : ""} /> {regenerating ? 'Regenerating...' : 'Regenerate'}
+            </Button>
+          )}
+          <Button onClick={handleSave} disabled={saving} variant="primary" className="flex items-center gap-2 h-9 text-sm">
+            <Save size={16} /> {saving ? 'Saving...' : 'Save Changes'}
+          </Button>
+          <Button onClick={handleExportPdf} disabled={exportingPdf} variant="outline" className="flex items-center gap-2 h-9 text-sm">
+            {exportingPdf ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+            Export PDF
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-8 h-[calc(100vh-140px)] overflow-hidden">
+        {/* Left Side: Editor or Info */}
+        {!isPreviewExpanded && (
+          <div className="w-full lg:w-[55%] flex flex-col gap-6 overflow-y-auto pb-20 pr-2 scrollbar-thin scrollbar-thumb-surface-border">
+            <div className="space-y-4 shrink-0">
+              {resume.sectionOrder.map((sectionKey, index) => {
+                const isHidden = (resume.hiddenSections || []).includes(sectionKey);
+                const isCollapsed = collapsedSections.includes(sectionKey);
+                const contentData = resume.content?.[sectionKey];
+
+                return (
+                  <div key={sectionKey} className={`bg-surface-base border rounded-xl shadow-sm transition-all ${isHidden ? 'border-dashed border-surface-border opacity-60' : 'border-surface-border'}`}>
+                    {/* Section Header */}
+                    <div className="flex items-center justify-between p-4 border-b border-surface-border bg-surface-raised rounded-t-xl group">
+                      <div className="flex items-center gap-3">
+                        <div className="flex flex-col">
+                          <button onClick={() => moveSection(index, 'up')} disabled={index === 0} className="text-text-tertiary hover:text-brand-primary disabled:opacity-30"><ArrowUp size={14} /></button>
+                          <button onClick={() => moveSection(index, 'down')} disabled={index === resume.sectionOrder.length - 1} className="text-text-tertiary hover:text-brand-primary disabled:opacity-30"><ArrowDown size={14} /></button>
+                        </div>
+                        <button onClick={() => toggleCollapse(sectionKey)} className="flex items-center gap-2 focus:outline-none">
+                          <h3 className="font-bold text-text-primary text-lg">{sectionLabels[sectionKey]}</h3>
+                          <div className={`p-1 rounded-md bg-surface-border/50 text-text-secondary transition-transform ${isCollapsed ? 'rotate-180' : ''}`}>
+                            <ArrowUp size={16} className="rotate-180" /> 
+                          </div>
+                        </button>
+                        {isHidden && <span className="text-xs bg-surface-border text-text-secondary px-2 py-0.5 rounded font-bold ml-2">Hidden</span>}
+                      </div>
+                      <button onClick={() => toggleHidden(sectionKey)} className={`text-sm font-bold flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-lg border ${isHidden ? 'bg-surface-sunken text-text-secondary border-surface-border' : 'bg-surface-base text-text-primary border-surface-border hover:border-brand-primary/50'}`}>
+                        {isHidden ? <><Eye size={16} /> Included</> : <><EyeOff size={16} /> Exclude</>}
+                      </button>
+                    </div>
+
+                    {/* Section Body */}
+                    {!isCollapsed && (
+                      <div className="p-6">
+                        {sectionKey === 'personalInfo' && renderPersonalInfo(contentData || {})}
+                        {sectionKey === 'skills' && renderStringArray('skills', contentData)}
+                        {sectionKey === 'education' && renderGenericArray('education', contentData, { institution: '', degree: '', field: '', startDate: '', endDate: '', cgpa: '', relevantCoursework: [] })}
+                        {sectionKey === 'projects' && renderGenericArray('projects', contentData, { title: '', description: '', technologies: [], link: '', dateRange: '' })}
+                        {sectionKey === 'internships' && renderGenericArray('internships', contentData, { company: '', role: '', startDate: '', endDate: '', description: '' })}
+                        {sectionKey === 'experience' && renderGenericArray('experience', contentData, { company: '', role: '', startDate: '', endDate: '', description: '' })}
+                        {sectionKey === 'certifications' && renderGenericArray('certifications', contentData, { title: '', issuer: '', date: '' })}
+                        {sectionKey === 'achievements' && renderGenericArray('achievements', contentData, { title: '', description: '', date: '' })}
+                        {sectionKey === 'research' && renderGenericArray('research', contentData, { title: '', publication: '', date: '', description: '' })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Right Side: Live Preview / Analysis */}
-        <div className="w-full lg:w-1/2 h-full flex flex-col">
+        <div className={`h-full flex flex-col transition-all duration-300 ${isPreviewExpanded ? 'w-full' : 'w-full lg:w-[45%]'}`}>
           <div className="flex-1 bg-surface-base border border-surface-border shadow-sm rounded-xl overflow-hidden flex flex-col">
-            <div className="bg-surface-raised border-b border-surface-border p-3 flex justify-between items-center shrink-0">
-              <div className="flex gap-2">
+            <div className="bg-surface-raised border-b border-surface-border p-2 flex justify-between items-center shrink-0">
+              <div className="flex bg-surface-sunken p-1 rounded-lg">
                 <button
                   onClick={() => setActiveTab('preview')}
-                  className={`px-4 py-1.5 text-sm font-bold rounded-lg transition-colors flex items-center gap-2 ${activeTab === 'preview' ? 'bg-brand-primary-subtle text-brand-primary' : 'text-text-secondary hover:bg-surface-sunken'}`}
+                  className={`px-6 py-1.5 text-sm font-bold rounded-md transition-colors flex items-center gap-2 ${activeTab === 'preview' ? 'bg-surface-base text-brand-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
                 >
-                  <Eye size={16} /> Live Preview
+                  <Eye size={16} /> Preview
                 </button>
                 <button
                   onClick={() => setActiveTab('analysis')}
-                  className={`px-4 py-1.5 text-sm font-bold rounded-lg transition-colors flex items-center gap-2 ${activeTab === 'analysis' ? 'bg-brand-primary-subtle text-brand-primary' : 'text-text-secondary hover:bg-surface-sunken'}`}
+                  className={`px-6 py-1.5 text-sm font-bold rounded-md transition-colors flex items-center gap-2 ${activeTab === 'analysis' ? 'bg-surface-base text-brand-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
                 >
-                  <RefreshCw size={16} /> AI Analysis
+                  <RefreshCw size={16} /> Analysis
                 </button>
               </div>
-
-              {activeTab === 'preview' && (
-                <div className="flex items-center gap-3">
-                  {resume.lastExportedAt && (
-                    <span className="text-xs text-text-tertiary">
-                      Last exported: {new Date(resume.lastExportedAt).toLocaleDateString()}
-                    </span>
-                  )}
-                  <Button
-                    onClick={handleExportPdf}
-                    disabled={exportingPdf}
-                    variant="primary"
-                    className="flex items-center gap-1.5 py-1.5 px-3 h-auto text-xs"
-                  >
-                    {exportingPdf ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-                    {exportingPdf ? 'Generating...' : 'Export PDF'}
-                  </Button>
-                </div>
-              )}
+              <button 
+                onClick={() => setIsPreviewExpanded(!isPreviewExpanded)}
+                className="flex items-center gap-2 px-3 py-1.5 mr-2 text-sm font-bold text-text-secondary hover:text-brand-primary bg-surface-sunken rounded-md transition-colors border border-surface-border"
+                title={isPreviewExpanded ? "Collapse Preview" : "Expand Preview"}
+              >
+                {isPreviewExpanded ? <EyeOff size={16} /> : <Eye size={16} />} 
+                <span className="hidden sm:inline">{isPreviewExpanded ? "Collapse" : "Expand"}</span>
+              </button>
             </div>
 
             {activeTab === 'preview' ? (
-              <iframe
-                key={previewKey}
-                src={`${api.defaults.baseURL}/career-vault/resumes/${id}/preview`}
-                className="w-full flex-1 border-none bg-surface-sunken"
-                title="Resume Preview"
-              />
+              <div className="w-full flex-1 bg-surface-sunken overflow-hidden relative group flex justify-center items-start p-4">
+                {/* 
+                  To fix the unreadable text issue in small iframes, we render the iframe at a fixed width (A4 proportion)
+                  and let the user scale it or rely on a container that behaves like a PDF viewer.
+                */}
+                <div className="w-full max-w-[800px] h-full shadow-xl bg-white border border-surface-border rounded overflow-hidden">
+                  <iframe
+                    key={previewKey}
+                    src={`${api.defaults.baseURL}/career-vault/resumes/${id}/preview?token=${localStorage.getItem('token')}`}
+                    className="w-full h-full border-none [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-surface-border"
+                    title="Resume Preview"
+                    style={{ minWidth: '600px' }}
+                  />
+                </div>
+              </div>
             ) : activeTab === 'analysis' ? (
               <div className="flex-1 overflow-y-auto p-6 bg-surface-raised flex flex-col gap-6">
                 <Card className="p-5 flex flex-col gap-4">

@@ -127,12 +127,11 @@ function Subjects() {
               (selectedSemId === workingSemId ||
                 selectedSemId === "current") && (
                 <Button
-                  variant="outline"
-                  tone="warning"
+                  variant="ghost"
                   size="sm"
                   onClick={() => handleSetWorkingSemester(null)}
                 >
-                  Clear Context Override
+                  Reset Active Semester
                 </Button>
               )}
             <div className="relative">
@@ -142,10 +141,8 @@ function Subjects() {
                 className="appearance-none flex rounded-xl border border-surface-border bg-surface-base/60 backdrop-blur-xl pl-4 pr-10 py-2 text-sm font-medium text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition-all shadow-sm hover:border-brand-primary/30 cursor-pointer"
               >
                 <option value="current" className="bg-surface-base">
-                  {workingSemId ? "Working Context" : "Current Semester"} (
-                  {workingSemId
-                    ? allSemesters.find((s) => s._id === workingSemId)
-                        ?.semesterNumber
+                  Current Semester ({workingSemId
+                    ? allSemesters.find((s) => s._id === workingSemId)?.semesterNumber || "Selected"
                     : activeSemester?.semesterNumber || user?.semester || "?"}
                   )
                 </option>
@@ -170,11 +167,11 @@ function Subjects() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20">
+        <div className="flex items-center justify-center py-12">
           <div className="w-6 h-6 border-2 border-brand-primary/20 border-t-brand-primary rounded-full animate-spin"></div>
         </div>
       ) : displayedSubjects.length > 0 ? (
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 items-start">
           {displayedSubjects.map((subject) => (
             <Card
               key={subject._id}
@@ -213,7 +210,7 @@ function Subjects() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-20 px-4 text-center bg-surface-base/30 backdrop-blur-md rounded-2xl border border-surface-border border-dashed">
+        <div className="flex flex-col items-center justify-center py-12 px-4 text-center bg-surface-base/30 backdrop-blur-md rounded-2xl border border-surface-border border-dashed">
           <div className="w-16 h-16 rounded-full bg-surface-raised/50 flex items-center justify-center mb-4">
             <StickyNote className="w-8 h-8 text-text-tertiary" />
           </div>
@@ -231,7 +228,7 @@ function Subjects() {
           </div>
           Quick Scratchpad
         </h2>
-        <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-start">
           {scratchpadNotes.length > 0 ? (
             scratchpadNotes.map((note, index) => (
               <div

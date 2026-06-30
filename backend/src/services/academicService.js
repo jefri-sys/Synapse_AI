@@ -161,6 +161,19 @@ function processSubjectMarks(subject, marksList, gradingType) {
   let ciePercent = null;
   if (cieMax > 0) ciePercent = (cieObtained / cieMax) * 100;
 
+  // If no marks have been entered at all and no explicit grade is given, it's pending
+  if (totalMax === 0) {
+    return {
+      ...subject,
+      marksPercent: 0,
+      grade: 'Pending',
+      gradePoints: 0,
+      isPending: true,
+      credits: subject.credits || 0,
+      semester: subject.semester || 1
+    };
+  }
+
   const { grade, points } = calculateGrade(marksPercent, gradingType, esePercent, ciePercent);
 
   return {
@@ -209,30 +222,22 @@ async function calculateCGPA(userId) {
   for (const [semStr, data] of Object.entries(semesters)) {
     const semNum = Number(semStr);
     
-    if (data.hasPending) {
-      semesterResults.push({
-        semester: semNum,
-        sgpa: null,
-        totalCredits: data.totalCredits,
-        status: 'Pending'
-      });
-      hasAnyPending = true;
-      continue;
-    }
-
+    // Calculate SGPA for completed subjects only
     const sgpa = data.totalCredits > 0 ? data.totalPoints / data.totalCredits : 0;
+    
     semesterResults.push({
       semester: semNum,
-      sgpa: Number(sgpa.toFixed(2)),
+      sgpa: data.totalCredits > 0 ? Number(sgpa.toFixed(2)) : null,
       totalCredits: data.totalCredits,
-      status: 'Complete'
+      status: data.hasPending ? 'In Progress' : 'Complete'
     });
-    totalCumulativePoints += (sgpa * data.totalCredits);
+
+    totalCumulativePoints += data.totalPoints;
     totalCumulativeCredits += data.totalCredits;
   }
 
   const cgpa = totalCumulativeCredits > 0 ? totalCumulativePoints / totalCumulativeCredits : 0;
-  const finalCGPA = hasAnyPending ? null : Number(cgpa.toFixed(2));
+  const finalCGPA = totalCumulativeCredits > 0 ? Number(cgpa.toFixed(2)) : null;
   
   let percentage = 0;
   if (finalCGPA !== null) {
@@ -306,18 +311,12 @@ function whatIfCGPA(currentSubjects, hypotheticalScores, courseName) {
   let hasAnyPending = false;
 
   for (const data of Object.values(semesters)) {
-    if (data.hasPending) {
-      hasAnyPending = true;
-      continue;
-    }
-    const sgpa = data.totalCredits > 0 ? data.totalPoints / data.totalCredits : 0;
-    totalCumulativePoints += (sgpa * data.totalCredits);
+    totalCumulativePoints += data.totalPoints;
     totalCumulativeCredits += data.totalCredits;
   }
 
-  if (hasAnyPending) return null;
   const cgpa = totalCumulativeCredits > 0 ? totalCumulativePoints / totalCumulativeCredits : 0;
-  return Number(cgpa.toFixed(2));
+  return totalCumulativeCredits > 0 ? Number(cgpa.toFixed(2)) : null;
 }
 
 module.exports = {

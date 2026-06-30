@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Brain, X, Send, RotateCcw, Sparkles } from 'lucide-react';
-import { motion, useDragControls, AnimatePresence } from 'framer-motion';
+import { Brain, X, Send, RotateCcw, Sparkles, LocateFixed } from 'lucide-react';
+import { motion, useDragControls, AnimatePresence, useMotionValue } from 'framer-motion';
 import { Button } from './ui/button';
 import api from '../services/api';
 import useMobileView from '../hooks/useMobileView.js';
@@ -12,7 +12,7 @@ const QUICK_PROMPTS = [
   "Where is my money going?"
 ];
 
-const DEFAULT_DIMENSIONS = { width: 380, height: 600 };
+const DEFAULT_DIMENSIONS = { width: 420, height: 650 };
 
 function ChatWidget() {
   const isMobile = useMobileView();
@@ -20,6 +20,8 @@ function ChatWidget() {
   const [message, setMessage] = useState('');
   const [dimensions, setDimensions] = useState(DEFAULT_DIMENSIONS);
   const dragControls = useDragControls();
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
   const [conversationHistory, setConversationHistory] = useState(() => {
     const saved = localStorage.getItem('synapse_chat_history');
     return saved ? JSON.parse(saved) : [];
@@ -38,6 +40,12 @@ function ChatWidget() {
   }, [conversationHistory, isLoading]);
 
   const toggleOpen = () => setIsOpen(prev => !prev);
+  
+  const resetWidget = () => {
+    setDimensions(DEFAULT_DIMENSIONS);
+    x.set(0);
+    y.set(0);
+  };
 
   const handleSend = async (text) => {
     if (!text.trim()) return;
@@ -95,17 +103,43 @@ function ChatWidget() {
     setConversationHistory([]);
   };
 
-  const startResize = (e) => {
+  const startResize = (e, direction) => {
     e.preventDefault();
     e.stopPropagation();
-    const startX = e.clientX;
-    const startWidth = dimensions.width;
+    let startX = e.clientX;
+    let startY = e.clientY;
+    let startWidth = dimensions.width;
+    let startHeight = dimensions.height;
 
     const onMouseMove = (moveEvent) => {
-      setDimensions(prev => ({
-        ...prev,
-        width: Math.max(300, Math.min(800, startWidth + (startX - moveEvent.clientX)))
-      }));
+      setDimensions(prev => {
+        let newWidth = prev.width;
+        let newHeight = prev.height;
+        
+        if (direction === 'width' || direction === 'both' || direction === 'top-left') {
+          const deltaX = startX - moveEvent.clientX;
+          newWidth = Math.max(300, Math.min(800, startWidth + deltaX));
+          if (newWidth > 300 && newWidth < 800) {
+            x.set(x.get() - (newWidth - prev.width)); // shift left edge by updating x
+            startWidth = newWidth;
+            startX = moveEvent.clientX;
+          }
+        }
+        if (direction === 'height' || direction === 'both') { // bottom edge
+          newHeight = Math.max(400, Math.min(900, startHeight + (moveEvent.clientY - startY)));
+        }
+        if (direction === 'height-up' || direction === 'top-left') { // top edge
+          const deltaY = moveEvent.clientY - startY;
+          newHeight = Math.max(400, Math.min(900, startHeight - deltaY));
+          if (newHeight > 400 && newHeight < 900) {
+            y.set(y.get() + (newHeight - prev.height) * -1);
+            startHeight = newHeight;
+            startY = moveEvent.clientY;
+          }
+        }
+        
+        return { width: newWidth, height: newHeight };
+      });
     };
 
     const onMouseUp = () => {
@@ -130,10 +164,10 @@ function ChatWidget() {
             style={isMobile ? { bottom: 'calc(80px + env(safe-area-inset-bottom) + 16px)', right: '16px' } : undefined}
           >
             <Button
-              variant="primary"
+              variant="ghost"
               shape="circular"
               onClick={toggleOpen}
-              className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 text-white shadow-[0_0_30px_rgba(139,92,246,0.3)] border border-white/20 hover:scale-110 transition-all duration-300 focus:outline-none group"
+              className="flex items-center justify-center w-14 h-14 rounded-full bg-ai-accent text-white shadow-[0_0_30px_rgba(37,99,235,0.4)] border border-white/20 hover:scale-110 hover:bg-ai-strong transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-ai-accent group"
               aria-label="Open AI Assistant"
             >
               <div className="relative flex items-center justify-center">
@@ -158,17 +192,42 @@ function ChatWidget() {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
             style={{ 
+              x, y,
               width: isMobile ? 'calc(100vw - 32px)' : dimensions.width, 
               height: isMobile ? '60vh' : dimensions.height,
               ...(isMobile ? { bottom: 'calc(80px + env(safe-area-inset-bottom) + 16px)', right: '16px' } : {})
             }}
-            className={`fixed z-50 bg-[#FDFBFB] dark:bg-[#1E1E1E] rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] border border-[#E8E8E8] dark:border-white/10 flex flex-col origin-bottom-right overflow-hidden ${!isMobile ? 'right-6 bottom-6' : ''}`}
+            className={`fixed z-50 bg-[#FDFBFB] dark:bg-[#1E1E1E] rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] border border-[#E8E8E8] dark:border-white/10 flex flex-col origin-top-right overflow-hidden ${!isMobile ? 'right-6 top-24' : ''}`}
           >
+            {/* Top Edge Resize Handle */}
+            <div 
+              onMouseDown={(e) => startResize(e, 'height-up')}
+              className="absolute top-0 left-0 w-full h-2 cursor-ns-resize z-50 hover:bg-[#212121]/10 dark:hover:bg-white/10 transition-colors"
+              title="Drag to resize upwards"
+            />
             {/* Left Edge Resize Handle */}
             <div 
-              onMouseDown={startResize}
+              onMouseDown={(e) => startResize(e, 'width')}
               className="absolute top-0 left-0 w-2 h-full cursor-ew-resize z-50 hover:bg-[#212121]/10 dark:hover:bg-white/10 transition-colors"
               title="Drag to resize width"
+            />
+            {/* Top Left Corner Resize Handle */}
+            <div 
+              onMouseDown={(e) => startResize(e, 'top-left')}
+              className="absolute top-0 left-0 w-4 h-4 cursor-nwse-resize z-50 hover:bg-[#212121]/20 dark:hover:bg-white/20 transition-colors"
+              title="Drag to resize both upwards and leftwards"
+            />
+            {/* Bottom Edge Resize Handle */}
+            <div 
+              onMouseDown={(e) => startResize(e, 'height')}
+              className="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize z-50 hover:bg-[#212121]/10 dark:hover:bg-white/10 transition-colors"
+              title="Drag to resize height"
+            />
+            {/* Bottom Left Corner Resize Handle */}
+            <div 
+              onMouseDown={(e) => startResize(e, 'both')}
+              className="absolute bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-50 hover:bg-[#212121]/20 dark:hover:bg-white/20 transition-colors"
+              title="Drag to resize downwards and leftwards"
             />
             
             {/* Header (Drag Handle) */}
@@ -187,6 +246,9 @@ function ChatWidget() {
             </div>
           </div>
           <div className="flex items-center gap-1">
+            <button onClick={resetWidget} className="p-2 rounded-lg text-[#888888] dark:text-[#A3A3A3] hover:text-[#212121] dark:hover:text-[#ECECEC] hover:bg-[#F5F5F5] dark:hover:bg-[#2A2A2A] transition-colors" title="Reset default size and position">
+              <LocateFixed className="w-4 h-4" />
+            </button>
             <button onClick={clearChat} className="p-2 rounded-lg text-[#888888] dark:text-[#A3A3A3] hover:text-[#212121] dark:hover:text-[#ECECEC] hover:bg-[#F5F5F5] dark:hover:bg-[#2A2A2A] transition-colors" title="Clear chat">
               <RotateCcw className="w-4 h-4" />
             </button>
