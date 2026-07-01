@@ -548,7 +548,7 @@ export default function ResumeEditor() {
                 <div className="w-full max-w-[800px] h-full shadow-xl bg-white border border-surface-border rounded overflow-hidden">
                   <iframe
                     key={previewKey}
-                    src={`${api.defaults.baseURL}/career-vault/resumes/${id}/preview?token=${localStorage.getItem('synapse_token')}`}
+                    src={`${api.defaults.baseURL}/career-vault/resumes/${id}/preview?token=${localStorage.getItem('synapse_token')}&vaultUnlocked=true`}
                     className="w-full h-full border-none [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-surface-border"
                     title="Resume Preview"
                     style={{ minWidth: '600px' }}
